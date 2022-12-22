@@ -1,0 +1,239 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter/material.dart';
+import 'package:hejtter/post.dart';
+import 'package:hejtter/post_card.dart';
+import 'package:http/http.dart' as http;
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final client = http.Client();
+  String _postsOrder = 'p.hot';
+  static const _pageSize = 5;
+
+  final List<String> items = [
+    '6h',
+    '12h',
+    '24h',
+    'tydzień',
+    'od początku',
+  ];
+  String _postsPeriod = '6h';
+
+  final PagingController<int, Item> _pagingController =
+      PagingController(firstPageKey: 1);
+
+  Future<List<Item>?> _getPosts(int pageKey, int pageSize) async {
+    final queryParameters = {
+      'limit': '$pageSize',
+      'page': '$pageKey',
+      'orderBy': _postsOrder,
+    };
+
+    if (_postsOrder == 'numLikes') {
+      switch (_postsPeriod) {
+        case '6h':
+          queryParameters.addEntries(<String, String>{
+            'period': '6h',
+          }.entries);
+          break;
+        case '12h':
+          queryParameters.addEntries(<String, String>{
+            'period': '12h',
+          }.entries);
+          break;
+        case '24h':
+          queryParameters.addEntries(<String, String>{
+            'period': '24h',
+          }.entries);
+          break;
+        case 'tydzień':
+          queryParameters.addEntries(<String, String>{
+            'period': 'week',
+          }.entries);
+          break;
+        default:
+          break;
+      }
+    }
+
+    var response = await client.get(
+      Uri.https('api.hejto.pl', '/posts', queryParameters),
+    );
+
+    return postFromJson(response.body).embedded?.items;
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      final newItems = await _getPosts(pageKey, _pageSize);
+      final isLastPage = newItems!.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + 1;
+        _pagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
+  }
+
+  @override
+  void initState() {
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Hejtter'),
+      ),
+      body: Column(
+        children: [
+          const SizedBox(height: 5),
+          Row(
+            children: [
+              const SizedBox(width: 15),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _postsOrder == 'p.hot' ? null : Colors.grey,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _postsOrder = 'p.hot';
+                  });
+
+                  Future.sync(
+                    () => _pagingController.refresh(),
+                  );
+                },
+                child: const Text(
+                  'Gorące',
+                  style: TextStyle(fontSize: 13),
+                ),
+              ),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      _postsOrder == 'numLikes' ? null : Colors.grey,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _postsOrder = 'numLikes';
+                  });
+
+                  Future.sync(
+                    () => _pagingController.refresh(),
+                  );
+                },
+                child: const Text(
+                  'Top',
+                  style: TextStyle(fontSize: 13),
+                ),
+              ),
+              _buildTopDropdown(),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      _postsOrder == 'p.createdAt' ? null : Colors.grey,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _postsOrder = 'p.createdAt';
+                  });
+
+                  Future.sync(
+                    () => _pagingController.refresh(),
+                  );
+                },
+                child: const Text(
+                  'Nowe',
+                  style: TextStyle(fontSize: 13),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () => Future.sync(
+                () => _pagingController.refresh(),
+              ),
+              child: PagedListView<int, Item>(
+                pagingController: _pagingController,
+                padding: const EdgeInsets.all(10),
+                builderDelegate: PagedChildBuilderDelegate<Item>(
+                  itemBuilder: (context, item, index) => PostCard(item: item),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTopDropdown() {
+    return _postsOrder == 'numLikes'
+        ? Row(
+            children: [
+              const SizedBox(width: 10),
+              DropdownButtonHideUnderline(
+                child: DropdownButton2(
+                  hint: Text(
+                    'Select Item',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).hintColor,
+                    ),
+                  ),
+                  items: items
+                      .map((item) => DropdownMenuItem<String>(
+                            value: item,
+                            child: Text(
+                              item,
+                              style: const TextStyle(
+                                fontSize: 13,
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                  value: _postsPeriod,
+                  onChanged: (value) {
+                    setState(() {
+                      _postsPeriod = value as String;
+                    });
+
+                    Future.sync(
+                      () => _pagingController.refresh(),
+                    );
+                  },
+                  // buttonHeight: 40,
+                  // buttonWidth: 140,
+                  // itemHeight: 40,
+                ),
+              ),
+            ],
+          )
+        : const SizedBox();
+  }
+}
