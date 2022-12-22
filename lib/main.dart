@@ -9,7 +9,9 @@ void main() async {
   runApp(
     MaterialApp(
       home: const HomeScreen(),
-      theme: ThemeData.dark(useMaterial3: true),
+      theme: ThemeData.dark(useMaterial3: true).copyWith(
+        primaryColor: const Color(0xff2295F3)
+      ),
     ),
   );
 }
