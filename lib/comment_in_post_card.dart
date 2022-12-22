@@ -27,45 +27,49 @@ class CommentInPostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     _setTimeAgoLocale();
 
-    return Card(
-      elevation: 0,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    _buildAvatar(),
-                    const SizedBox(width: 5),
-                    _buildUsernameAndDate(),
-                    const SizedBox(width: 15),
-                  ],
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  _buildAvatar(),
+                  const SizedBox(width: 5),
+                  _buildUsernameAndDate(),
+                  const SizedBox(width: 15),
+                ],
+              ),
+            ),
+            _buildLikes(comment.stats?.numLikes),
+          ],
+        ),
+        const SizedBox(height: 5),
+        Row(
+          children: [
+            const SizedBox(width: 33),
+            Expanded(
+                child: MarkdownBody(
+              data: _addEmojis(comment.content.toString()),
+              styleSheet:
+                  MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                blockquoteDecoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(5),
                 ),
               ),
-              _buildLikes(comment.stats?.numLikes),
-            ],
-          ),
-          const SizedBox(height: 5),
-          Row(
-            children: [
-              const SizedBox(width: 33),
-              Expanded(
-                  child: MarkdownBody(
-                data: _addEmojis(comment.content.toString()),
-                selectable: true,
-                onTapLink: (text, href, title) {
-                  launchUrl(
-                    Uri.parse(href.toString()),
-                    mode: LaunchMode.externalApplication,
-                  );
-                },
-              )),
-            ],
-          ),
-        ],
-      ),
+              selectable: true,
+              onTapLink: (text, href, title) {
+                launchUrl(
+                  Uri.parse(href.toString()),
+                  mode: LaunchMode.externalApplication,
+                );
+              },
+            )),
+          ],
+        ),
+      ],
     );
   }
 

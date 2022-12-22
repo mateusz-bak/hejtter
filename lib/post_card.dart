@@ -166,6 +166,12 @@ class _PostCardState extends State<PostCard> {
   Widget _buildContent() {
     return MarkdownBody(
       data: _addEmojis(widget.item.content.toString()),
+      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+        blockquoteDecoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(5),
+        ),
+      ),
       selectable: true,
       onTapLink: (text, href, title) {
         launchUrl(

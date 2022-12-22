@@ -111,65 +111,12 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             children: [
               const SizedBox(width: 15),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _postsOrder == 'p.hot' ? null : Colors.grey,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _postsOrder = 'p.hot';
-                  });
-
-                  Future.sync(
-                    () => _pagingController.refresh(),
-                  );
-                },
-                child: const Text(
-                  'Gorące',
-                  style: TextStyle(fontSize: 13),
-                ),
-              ),
+              _buildHotButton(),
               const SizedBox(width: 10),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _postsOrder == 'numLikes' ? null : Colors.grey,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _postsOrder = 'numLikes';
-                  });
-
-                  Future.sync(
-                    () => _pagingController.refresh(),
-                  );
-                },
-                child: const Text(
-                  'Top',
-                  style: TextStyle(fontSize: 13),
-                ),
-              ),
+              _buildTopButton(),
               _buildTopDropdown(),
               const SizedBox(width: 10),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _postsOrder == 'p.createdAt' ? null : Colors.grey,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _postsOrder = 'p.createdAt';
-                  });
-
-                  Future.sync(
-                    () => _pagingController.refresh(),
-                  );
-                },
-                child: const Text(
-                  'Nowe',
-                  style: TextStyle(fontSize: 13),
-                ),
-              ),
+              _buildNewButton(),
             ],
           ),
           const SizedBox(height: 5),
@@ -180,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: PagedListView<int, Item>(
                 pagingController: _pagingController,
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 builderDelegate: PagedChildBuilderDelegate<Item>(
                   itemBuilder: (context, item, index) => PostCard(item: item),
                 ),
@@ -188,6 +135,69 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  ElevatedButton _buildNewButton() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: _postsOrder == 'p.createdAt' ? Colors.black54 : null,
+      ),
+      onPressed: () {
+        setState(() {
+          _postsOrder = 'p.createdAt';
+        });
+
+        Future.sync(
+          () => _pagingController.refresh(),
+        );
+      },
+      child: const Text(
+        'Nowe',
+        style: TextStyle(fontSize: 13),
+      ),
+    );
+  }
+
+  ElevatedButton _buildTopButton() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: _postsOrder == 'numLikes' ? Colors.black54 : null,
+      ),
+      onPressed: () {
+        setState(() {
+          _postsOrder = 'numLikes';
+        });
+
+        Future.sync(
+          () => _pagingController.refresh(),
+        );
+      },
+      child: const Text(
+        'Top',
+        style: TextStyle(fontSize: 13),
+      ),
+    );
+  }
+
+  ElevatedButton _buildHotButton() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: _postsOrder == 'p.hot' ? Colors.black54 : null,
+      ),
+      onPressed: () {
+        setState(() {
+          _postsOrder = 'p.hot';
+        });
+
+        Future.sync(
+          () => _pagingController.refresh(),
+        );
+      },
+      child: const Text(
+        'Gorące',
+        style: TextStyle(fontSize: 13),
       ),
     );
   }

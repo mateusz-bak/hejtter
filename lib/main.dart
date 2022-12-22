@@ -9,7 +9,7 @@ void main() async {
   runApp(
     MaterialApp(
       home: const HomeScreen(),
-      theme: ThemeData.dark(),
+      theme: ThemeData.dark(useMaterial3: true),
     ),
   );
 }
