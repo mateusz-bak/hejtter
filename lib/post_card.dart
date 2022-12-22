@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/comment_in_post_card.dart';
 import 'package:hejtter/picture_full_screen.dart';
-import 'package:hejtter/post.dart';
+import 'package:hejtter/posts_response.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
