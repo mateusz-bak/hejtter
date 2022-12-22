@@ -9,7 +9,7 @@
     </intent>
     </queries>
    <application
-        android:label="hejtter"
+        android:label="Hejtter"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
