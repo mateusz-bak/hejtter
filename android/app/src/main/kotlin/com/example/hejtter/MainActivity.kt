@@ -1,4 +1,4 @@
-package com.example.hejtter
+package software.mdev.hejtter
 
 import io.flutter.embedding.android.FlutterActivity
 
