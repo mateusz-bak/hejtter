@@ -49,12 +49,21 @@ class _PostCardState extends State<PostCard> {
         },
         child: Card(
           elevation: 5,
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.black.withAlpha(50),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft: Radius.circular(5),
+                    bottomRight: Radius.circular(5),
+                  ),
+                ),
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildAvatar(),
@@ -81,13 +90,20 @@ class _PostCardState extends State<PostCard> {
                     )
                   ],
                 ),
-                const SizedBox(height: 15),
-                _buildContent(),
-                _buildTags(),
-                _buildPicture(),
-                _buildComments(),
-              ],
-            ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildContent(),
+                    _buildTags(),
+                    _buildPicture(),
+                    _buildComments(),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
