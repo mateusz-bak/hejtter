@@ -27,10 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
   String _postsPeriod = '6h';
 
-  final PagingController<int, Item> _pagingController =
+  final PagingController<int, PostItem> _pagingController =
       PagingController(firstPageKey: 1);
 
-  Future<List<Item>?> _getPosts(int pageKey, int pageSize) async {
+  Future<List<PostItem>?> _getPosts(int pageKey, int pageSize) async {
     final queryParameters = {
       'limit': '$pageSize',
       'page': '$pageKey',
@@ -162,10 +162,10 @@ class _HomeScreenState extends State<HomeScreen> {
               onRefresh: () => Future.sync(
                 () => _pagingController.refresh(),
               ),
-              child: PagedListView<int, Item>(
+              child: PagedListView<int, PostItem>(
                 pagingController: _pagingController,
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                builderDelegate: PagedChildBuilderDelegate<Item>(
+                builderDelegate: PagedChildBuilderDelegate<PostItem>(
                   itemBuilder: (context, item, index) => PostCard(item: item),
                 ),
               ),

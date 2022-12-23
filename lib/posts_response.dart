@@ -39,17 +39,18 @@ class Embedded {
     this.items,
   });
 
-  final List<Item>? items;
+  final List<PostItem>? items;
 
   factory Embedded.fromJson(Map<String, dynamic> json) => Embedded(
         items: json["items"] == null
             ? null
-            : List<Item>.from(json["items"].map((x) => Item.fromJson(x))),
+            : List<PostItem>.from(
+                json["items"].map((x) => PostItem.fromJson(x))),
       );
 }
 
-class Item {
-  Item({
+class PostItem {
+  PostItem({
     this.comments,
     this.type,
     this.title,
@@ -111,7 +112,7 @@ class Item {
   final String? link;
   final DateTime? updatedAt;
 
-  factory Item.fromJson(Map<String, dynamic> json) => Item(
+  factory PostItem.fromJson(Map<String, dynamic> json) => PostItem(
         comments: json["comments"] == null
             ? null
             : List<Comment>.from(

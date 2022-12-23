@@ -2,15 +2,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:hejtter/comment_in_post_card.dart';
+import 'package:hejtter/comment_in_post_screen.dart';
+import 'package:hejtter/comments_response.dart';
 import 'package:hejtter/picture_full_screen.dart';
-import 'package:hejtter/post_screen.dart';
 import 'package:hejtter/posts_response.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
-class PostCard extends StatefulWidget {
-  const PostCard({
+class PostScreen extends StatefulWidget {
+  const PostScreen({
     required this.item,
     Key? key,
   }) : super(key: key);
@@ -18,11 +20,16 @@ class PostCard extends StatefulWidget {
   final PostItem item;
 
   @override
-  State<PostCard> createState() => _PostCardState();
+  State<PostScreen> createState() => _PostScreenState();
 }
 
-class _PostCardState extends State<PostCard> {
+class _PostScreenState extends State<PostScreen> {
   double _maxLines = 150;
+  final client = http.Client();
+  static const _pageSize = 5;
+
+  final PagingController<int, CommentItem> _pagingController =
+      PagingController(firstPageKey: 1);
 
   String _addEmojis(String text) {
     final parser = EmojiParser();
@@ -33,60 +40,105 @@ class _PostCardState extends State<PostCard> {
     timeago.setLocaleMessages('pl', timeago.PlMessages());
   }
 
+  Future<List<CommentItem>?> _getComments(int pageKey, int pageSize) async {
+    final queryParameters = {
+      'limit': '$pageSize',
+      'page': '$pageKey',
+    };
+
+    var response = await client.get(
+      Uri.https(
+        'api.hejto.pl',
+        '${widget.item.links?.comments?.href}',
+        queryParameters,
+      ),
+    );
+
+    return commentsResponseFromJson(response.body).embedded?.items;
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      final newItems = await _getComments(pageKey, _pageSize);
+      final isLastPage = newItems!.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + 1;
+        _pagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
+  }
+
+  @override
+  void initState() {
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     _setTimeAgoLocale();
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) {
-            return PostScreen(
-              item: widget.item,
-            );
-          }));
-        },
-        child: Card(
-          elevation: 5,
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+    return Scaffold(
+      appBar: AppBar(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Card(
+            elevation: 5,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildAvatar(),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildUsernameAndRank(),
-                          const SizedBox(height: 3),
-                          _buildCommunityAndDate(),
-                        ],
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _buildAvatar(),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildUsernameAndRank(),
+                              const SizedBox(height: 3),
+                              _buildCommunityAndDate(),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          widget.item.stats?.numLikes != null
+                              ? widget.item.stats!.numLikes.toString()
+                              : 'null',
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Icon(Icons.bolt),
+                        )
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    Text(
-                      widget.item.stats?.numLikes != null
-                          ? widget.item.stats!.numLikes.toString()
-                          : 'null',
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.all(5),
-                      child: Icon(Icons.bolt),
-                    )
+                    const SizedBox(height: 15),
+                    _buildContent(),
+                    _buildTags(),
+                    _buildPicture(),
+                    const SizedBox(height: 40),
+                    _buildComments(),
                   ],
                 ),
-                const SizedBox(height: 15),
-                _buildContent(),
-                _buildTags(),
-                _buildPicture(),
-                _buildComments(),
-              ],
+              ),
             ),
           ),
         ),
@@ -95,24 +147,16 @@ class _PostCardState extends State<PostCard> {
   }
 
   Widget _buildComments() {
-    if (widget.item.comments != null && widget.item.comments!.isNotEmpty) {
-      return Column(
-        children: [
-          const SizedBox(height: 15),
-          CommentInPostCard(comment: widget.item.comments![0]),
-          SizedBox(height: widget.item.comments!.length > 1 ? 10 : 0),
-          widget.item.comments!.length > 1
-              ? CommentInPostCard(comment: widget.item.comments![1])
-              : const SizedBox(),
-          SizedBox(height: widget.item.comments!.length > 2 ? 10 : 0),
-          widget.item.comments!.length > 2
-              ? CommentInPostCard(comment: widget.item.comments![2])
-              : const SizedBox(),
-        ],
-      );
-    } else {
-      return const SizedBox();
-    }
+    return PagedListView<int, CommentItem>(
+      shrinkWrap: true,
+      reverse: true,
+      physics: const NeverScrollableScrollPhysics(),
+      pagingController: _pagingController,
+      builderDelegate: PagedChildBuilderDelegate<CommentItem>(
+        itemBuilder: (context, item, index) =>
+            CommentInPostScreen(comment: item),
+      ),
+    );
   }
 
   Widget _buildTags() {
@@ -131,7 +175,6 @@ class _PostCardState extends State<PostCard> {
             maxLines: 1,
             overflow: TextOverflow.clip,
             style: const TextStyle(
-              // color: Colors.black87,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -151,22 +194,24 @@ class _PostCardState extends State<PostCard> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(3),
               child: GestureDetector(
-                child: Hero(
-                  tag: '${widget.item.images![0].urls?.the500X500}',
-                  child: CachedNetworkImage(
-                    imageUrl: '${widget.item.images![0].urls?.the500X500}',
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
+                  child: Hero(
+                    tag: '${widget.item.images![0].urls?.the500X500}',
+                    child: widget.item.images![0].urls?.the500X500 != null
+                        ? CachedNetworkImage(
+                            imageUrl:
+                                '${widget.item.images![0].urls?.the500X500}',
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          )
+                        : const SizedBox(),
                   ),
-                ),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return PictureFullScreen(
-                      imageUrl: '${widget.item.images![0].urls?.the1200X900}',
-                    );
-                  }));
-                },
-              ),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) {
+                      return PictureFullScreen(
+                        imageUrl: '${widget.item.images![0].urls?.the1200X900}',
+                      );
+                    }));
+                  }),
             ),
           )
         ],
