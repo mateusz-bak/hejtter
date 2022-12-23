@@ -15,7 +15,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final client = http.Client();
-  String _postsOrder = 'p.hot';
   static const _pageSize = 5;
 
   final List<String> items = [
@@ -27,41 +26,57 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
   String _postsPeriod = '6h';
 
-  final PagingController<int, PostItem> _pagingController =
+  final PagingController<int, PostItem> _hotPagingController =
+      PagingController(firstPageKey: 1);
+  final PagingController<int, PostItem> _topPagingController =
+      PagingController(firstPageKey: 1);
+  final PagingController<int, PostItem> _newPagingController =
       PagingController(firstPageKey: 1);
 
-  Future<List<PostItem>?> _getPosts(int pageKey, int pageSize) async {
+  Future<List<PostItem>?> _getHotPosts(int pageKey, int pageSize) async {
     final queryParameters = {
       'limit': '$pageSize',
       'page': '$pageKey',
-      'orderBy': _postsOrder,
+      'orderBy': 'p.hot',
     };
 
-    if (_postsOrder == 'numLikes') {
-      switch (_postsPeriod) {
-        case '6h':
-          queryParameters.addEntries(<String, String>{
-            'period': '6h',
-          }.entries);
-          break;
-        case '12h':
-          queryParameters.addEntries(<String, String>{
-            'period': '12h',
-          }.entries);
-          break;
-        case '24h':
-          queryParameters.addEntries(<String, String>{
-            'period': '24h',
-          }.entries);
-          break;
-        case 'tydzień':
-          queryParameters.addEntries(<String, String>{
-            'period': 'week',
-          }.entries);
-          break;
-        default:
-          break;
-      }
+    var response = await client.get(
+      Uri.https('api.hejto.pl', '/posts', queryParameters),
+    );
+
+    return postFromJson(response.body).embedded?.items;
+  }
+
+  Future<List<PostItem>?> _getTopPosts(int pageKey, int pageSize) async {
+    final queryParameters = {
+      'limit': '$pageSize',
+      'page': '$pageKey',
+      'orderBy': 'numLikes',
+    };
+
+    switch (_postsPeriod) {
+      case '6h':
+        queryParameters.addEntries(<String, String>{
+          'period': '6h',
+        }.entries);
+        break;
+      case '12h':
+        queryParameters.addEntries(<String, String>{
+          'period': '12h',
+        }.entries);
+        break;
+      case '24h':
+        queryParameters.addEntries(<String, String>{
+          'period': '24h',
+        }.entries);
+        break;
+      case 'tydzień':
+        queryParameters.addEntries(<String, String>{
+          'period': 'week',
+        }.entries);
+        break;
+      default:
+        break;
     }
 
     var response = await client.get(
@@ -71,32 +86,88 @@ class _HomeScreenState extends State<HomeScreen> {
     return postFromJson(response.body).embedded?.items;
   }
 
-  Future<void> _fetchPage(int pageKey) async {
+  Future<List<PostItem>?> _getNewPosts(int pageKey, int pageSize) async {
+    final queryParameters = {
+      'limit': '$pageSize',
+      'page': '$pageKey',
+      'orderBy': 'p.createdAt',
+    };
+
+    var response = await client.get(
+      Uri.https('api.hejto.pl', '/posts', queryParameters),
+    );
+
+    return postFromJson(response.body).embedded?.items;
+  }
+
+  Future<void> _fetchHotPage(int pageKey) async {
     try {
-      final newItems = await _getPosts(pageKey, _pageSize);
+      final newItems = await _getHotPosts(pageKey, _pageSize);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
-        _pagingController.appendLastPage(newItems);
+        _hotPagingController.appendLastPage(newItems);
       } else {
         final nextPageKey = pageKey + 1;
-        _pagingController.appendPage(newItems, nextPageKey);
+        _hotPagingController.appendPage(newItems, nextPageKey);
       }
     } catch (error) {
-      _pagingController.error = error;
+      _hotPagingController.error = error;
+    }
+  }
+
+  Future<void> _fetchTopPage(int pageKey) async {
+    try {
+      final newItems = await _getTopPosts(pageKey, _pageSize);
+      final isLastPage = newItems!.length < _pageSize;
+      if (isLastPage) {
+        _topPagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + 1;
+        _topPagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _topPagingController.error = error;
+    }
+  }
+
+  Future<void> _fetchNewPage(int pageKey) async {
+    try {
+      final newItems = await _getNewPosts(pageKey, _pageSize);
+      final isLastPage = newItems!.length < _pageSize;
+      if (isLastPage) {
+        _newPagingController.appendLastPage(newItems);
+      } else {
+        final nextPageKey = pageKey + 1;
+        _newPagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _newPagingController.error = error;
     }
   }
 
   @override
   void initState() {
-    _pagingController.addPageRequestListener((pageKey) {
-      _fetchPage(pageKey);
+    _hotPagingController.addPageRequestListener((pageKey) {
+      _fetchHotPage(pageKey);
     });
+
+    _topPagingController.addPageRequestListener((pageKey) {
+      _fetchTopPage(pageKey);
+    });
+
+    _newPagingController.addPageRequestListener((pageKey) {
+      _fetchNewPage(pageKey);
+    });
+
     super.initState();
   }
 
   @override
   void dispose() {
-    _pagingController.dispose();
+    _hotPagingController.dispose();
+    _topPagingController.dispose();
+    _newPagingController.dispose();
+
     super.dispose();
   }
 
@@ -142,32 +213,56 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 5),
-          Row(
+      body: DefaultTabController(
+          length: 3,
+          child: Column(
             children: [
-              const SizedBox(width: 15),
-              _buildHotButton(),
-              const SizedBox(width: 10),
-              _buildTopButton(),
-              _buildTopDropdown(),
-              const SizedBox(width: 10),
-              _buildNewButton(),
+              _buildTabBar(),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    _buildHotTabBarView(),
+                    _buildTopTabBarView(),
+                    _buildNewTabBarView()
+                  ],
+                ),
+              ),
             ],
-          ),
+          )),
+    );
+  }
+
+  RefreshIndicator _buildNewTabBarView() {
+    return RefreshIndicator(
+      onRefresh: () => Future.sync(
+        () => _newPagingController.refresh(),
+      ),
+      child: PagedListView<int, PostItem>(
+        pagingController: _newPagingController,
+        padding: const EdgeInsets.all(10),
+        builderDelegate: PagedChildBuilderDelegate<PostItem>(
+          itemBuilder: (context, item, index) => PostCard(item: item),
+        ),
+      ),
+    );
+  }
+
+  RefreshIndicator _buildTopTabBarView() {
+    return RefreshIndicator(
+      onRefresh: () => Future.sync(
+        () => _topPagingController.refresh(),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 10),
+          _buildTopDropdown(),
           const SizedBox(height: 5),
           Expanded(
-            child: RefreshIndicator(
-              onRefresh: () => Future.sync(
-                () => _pagingController.refresh(),
-              ),
-              child: PagedListView<int, PostItem>(
-                pagingController: _pagingController,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                builderDelegate: PagedChildBuilderDelegate<PostItem>(
-                  itemBuilder: (context, item, index) => PostCard(item: item),
-                ),
+            child: PagedListView<int, PostItem>(
+              pagingController: _topPagingController,
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+              builderDelegate: PagedChildBuilderDelegate<PostItem>(
+                itemBuilder: (context, item, index) => PostCard(item: item),
               ),
             ),
           ),
@@ -176,111 +271,81 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  ElevatedButton _buildNewButton() {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: _postsOrder == 'p.createdAt' ? Colors.black54 : null,
+  RefreshIndicator _buildHotTabBarView() {
+    return RefreshIndicator(
+      onRefresh: () => Future.sync(
+        () => _hotPagingController.refresh(),
       ),
-      onPressed: () {
-        setState(() {
-          _postsOrder = 'p.createdAt';
-        });
-
-        Future.sync(
-          () => _pagingController.refresh(),
-        );
-      },
-      child: const Text(
-        'Nowe',
-        style: TextStyle(fontSize: 13),
+      child: PagedListView<int, PostItem>(
+        pagingController: _hotPagingController,
+        padding: const EdgeInsets.all(10),
+        builderDelegate: PagedChildBuilderDelegate<PostItem>(
+          itemBuilder: (context, item, index) => PostCard(item: item),
+        ),
       ),
     );
   }
 
-  ElevatedButton _buildTopButton() {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: _postsOrder == 'numLikes' ? Colors.black54 : null,
-      ),
-      onPressed: () {
-        setState(() {
-          _postsOrder = 'numLikes';
-        });
-
-        Future.sync(
-          () => _pagingController.refresh(),
-        );
-      },
-      child: const Text(
-        'Top',
-        style: TextStyle(fontSize: 13),
-      ),
-    );
-  }
-
-  ElevatedButton _buildHotButton() {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: _postsOrder == 'p.hot' ? Colors.black54 : null,
-      ),
-      onPressed: () {
-        setState(() {
-          _postsOrder = 'p.hot';
-        });
-
-        Future.sync(
-          () => _pagingController.refresh(),
-        );
-      },
-      child: const Text(
-        'Gorące',
-        style: TextStyle(fontSize: 13),
-      ),
+  TabBar _buildTabBar() {
+    return const TabBar(
+      indicatorColor: Color(0xff2295F3),
+      indicatorPadding: EdgeInsets.symmetric(horizontal: 12),
+      tabs: [
+        Tab(child: Text('Gorące')),
+        Tab(child: Text('Top')),
+        Tab(child: Text('Nowe')),
+      ],
     );
   }
 
   Widget _buildTopDropdown() {
-    return _postsOrder == 'numLikes'
-        ? Row(
-            children: [
-              const SizedBox(width: 10),
-              DropdownButtonHideUnderline(
-                child: DropdownButton2(
-                  hint: Text(
-                    'Select Item',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).hintColor,
-                    ),
-                  ),
-                  items: items
-                      .map((item) => DropdownMenuItem<String>(
-                            value: item,
-                            child: Text(
-                              item,
-                              style: const TextStyle(
-                                fontSize: 13,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                  value: _postsPeriod,
-                  onChanged: (value) {
-                    setState(() {
-                      _postsPeriod = value as String;
-                    });
-
-                    Future.sync(
-                      () => _pagingController.refresh(),
-                    );
-                  },
-                  // buttonHeight: 40,
-                  // buttonWidth: 140,
-                  // itemHeight: 40,
-                ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+        decoration: BoxDecoration(
+          color: Colors.black.withAlpha(50),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+            bottomLeft: Radius.circular(10),
+            bottomRight: Radius.circular(10),
+          ),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton2(
+            buttonWidth: MediaQuery.of(context).size.width,
+            hint: Text(
+              'Select Item',
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).hintColor,
               ),
-            ],
-          )
-        : const SizedBox();
+            ),
+            items: items
+                .map((item) => DropdownMenuItem<String>(
+                      value: item,
+                      child: Text(
+                        item,
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                    ))
+                .toList(),
+            value: _postsPeriod,
+            onChanged: (value) {
+              setState(() {
+                _postsPeriod = value as String;
+              });
+
+              Future.sync(
+                () => _topPagingController.refresh(),
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 }
