@@ -23,6 +23,9 @@ dependencies:
   photo_view: ^0.14.0
   dropdown_button2: ^1.9.2
   flutter_displaymode: ^0.4.1
+  flutter_downloader: ^1.9.1
+  permission_handler: ^10.2.0
+  path_provider: ^2.0.11
 
 
 dev_dependencies:
