@@ -15,7 +15,7 @@ class CommunitiesScreen extends StatefulWidget {
 
 class _CommunitiesScreenState extends State<CommunitiesScreen> {
   final client = http.Client();
-  static const _pageSize = 20;
+  static const _pageSize = 10;
 
   final PagingController<int, Item> _pagingController =
       PagingController(firstPageKey: 1);

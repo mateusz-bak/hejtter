@@ -19,7 +19,7 @@ class PostsTabView extends StatefulWidget {
 
 class _PostsTabViewState extends State<PostsTabView> {
   final client = http.Client();
-  static const _pageSize = 5;
+  static const _pageSize = 10;
 
   final List<String> items = [
     '6h',

@@ -27,7 +27,7 @@ class PostScreen extends StatefulWidget {
 class _PostScreenState extends State<PostScreen> {
   double _maxLines = 150;
   final client = http.Client();
-  static const _pageSize = 5;
+  static const _pageSize = 10;
 
   final PagingController<int, CommentItem> _pagingController =
       PagingController(firstPageKey: 1);
@@ -98,66 +98,66 @@ class _PostScreenState extends State<PostScreen> {
           padding: const EdgeInsets.all(10),
           child: Card(
             elevation: 5,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withAlpha(50),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(5),
-                        bottomRight: Radius.circular(5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha(50),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildAvatar(),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildUsernameAndRank(),
+                            const SizedBox(height: 3),
+                            _buildCommunityAndDate(),
+                          ],
+                        ),
                       ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        _buildAvatar(),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildUsernameAndRank(),
-                              const SizedBox(height: 3),
-                              _buildCommunityAndDate(),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          widget.item.stats?.numLikes != null
-                              ? widget.item.stats!.numLikes.toString()
-                              : 'null',
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.all(5),
-                          child: Icon(Icons.bolt),
-                        )
-                      ],
-                    ),
+                      const SizedBox(width: 10),
+                      Text(
+                        widget.item.stats?.numLikes != null
+                            ? widget.item.stats!.numLikes.toString()
+                            : 'null',
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.all(5),
+                        child: Icon(Icons.bolt),
+                      )
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildContent(),
-                        _buildTags(),
-                        _buildPicture(),
-                        const SizedBox(height: 40),
-                        _buildComments(),
-                      ],
-                    ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildContent(),
+                      _buildTags(),
+                      _buildPicture(),
+                      const SizedBox(height: 40),
+                      _buildComments(),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
+      ),
     );
   }
 
@@ -334,15 +334,15 @@ class _PostScreenState extends State<PostScreen> {
                 ),
               );
             }),
-          child: Text(
-            widget.item.community?.name != null
-                ? widget.item.community!.name.toString()
-                : 'null',
+            child: Text(
+              widget.item.community?.name != null
+                  ? widget.item.community!.name.toString()
+                  : 'null',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 15,
               ),
-            overflow: TextOverflow.ellipsis,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),
