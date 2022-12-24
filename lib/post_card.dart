@@ -6,6 +6,7 @@ import 'package:hejtter/comment_in_post_card.dart';
 import 'package:hejtter/picture_full_screen.dart';
 import 'package:hejtter/post_screen.dart';
 import 'package:hejtter/posts_response.dart';
+import 'package:hejtter/posts_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -176,11 +177,14 @@ class _PostCardState extends State<PostCard> {
                   ),
                 ),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return PictureFullScreen(
-                      imageUrl: '${widget.item.images![0].urls?.the1200X900}',
-                    );
-                  }));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) {
+                      return PictureFullScreen(
+                        imageUrl: '${widget.item.images![0].urls?.the1200X900}',
+                      );
+                    }),
+                  );
                 },
               ),
             ),
@@ -202,6 +206,13 @@ class _PostCardState extends State<PostCard> {
         ),
       ),
       selectable: true,
+      onTapText: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) {
+          return PostScreen(
+            item: widget.item,
+          );
+        }));
+      },
       onTapLink: (text, href, title) {
         launchUrl(
           Uri.parse(href.toString()),
@@ -278,12 +289,28 @@ class _PostCardState extends State<PostCard> {
       children: [
         const Text('w '),
         Flexible(
-          child: Text(
-            widget.item.community?.name != null
-                ? widget.item.community!.name.toString()
-                : 'null',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-            overflow: TextOverflow.ellipsis,
+          child: GestureDetector(
+            onTap: (() {
+              if (widget.item.community?.name == null) return;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PostsScreen(
+                    communityName: widget.item.community!.name!,
+                  ),
+                ),
+              );
+            }),
+            child: Text(
+              widget.item.community?.name != null
+                  ? widget.item.community!.name.toString()
+                  : 'null',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
         const SizedBox(width: 5),

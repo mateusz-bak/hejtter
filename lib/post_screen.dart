@@ -6,6 +6,7 @@ import 'package:hejtter/comment_in_post_screen.dart';
 import 'package:hejtter/comments_response.dart';
 import 'package:hejtter/picture_full_screen.dart';
 import 'package:hejtter/posts_response.dart';
+import 'package:hejtter/posts_screen.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
@@ -97,7 +98,6 @@ class _PostScreenState extends State<PostScreen> {
           padding: const EdgeInsets.all(10),
           child: Card(
             elevation: 5,
-            child: Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -158,7 +158,6 @@ class _PostScreenState extends State<PostScreen> {
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -323,12 +322,28 @@ class _PostScreenState extends State<PostScreen> {
       children: [
         const Text('w '),
         Flexible(
+          child: GestureDetector(
+            onTap: (() {
+              if (widget.item.community?.name == null) return;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PostsScreen(
+                    communityName: widget.item.community!.name!,
+                  ),
+                ),
+              );
+            }),
           child: Text(
             widget.item.community?.name != null
                 ? widget.item.community!.name.toString()
                 : 'null',
-            style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
             overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
         const SizedBox(width: 5),
