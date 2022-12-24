@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hejtter/communities_response.dart';
 import 'package:hejtter/community_card.dart';
 import 'package:hejtter/home_screen.dart';
+import 'package:hejtter/login_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -67,7 +68,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hejtter'),
+        title: const Text('Społeczności'),
       ),
       drawer: Drawer(
         child: ListView(
@@ -99,6 +100,15 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
             ListTile(
               title: const Text('Społeczności'),
               onTap: () {},
+            ),
+            ListTile(
+              title: const Text('Zaloguj się'),
+              onTap: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  (Route<dynamic> route) => false,
+                );
+              },
             ),
           ],
         ),
