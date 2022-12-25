@@ -23,6 +23,17 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
+  _goToUserScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserScreen(
+          userName: widget.item.author?.username,
+        ),
+      ),
+    );
+  }
+
   String _addEmojis(String text) {
     final parser = EmojiParser();
     return parser.emojify(text);
@@ -49,66 +60,66 @@ class _PostCardState extends State<PostCard> {
         child: Hero(
           tag: widget.item.title.toString(),
           child: Material(
-        child: Card(
-          elevation: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.black.withAlpha(50),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                    bottomLeft: Radius.circular(5),
-                    bottomRight: Radius.circular(5),
-                  ),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildAvatar(),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildUsernameAndRank(),
-                          const SizedBox(height: 3),
-                          _buildCommunityAndDate(),
-                        ],
+            child: Card(
+              elevation: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(50),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                        bottomLeft: Radius.circular(5),
+                        bottomRight: Radius.circular(5),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Text(
-                      widget.item.stats?.numLikes != null
-                          ? widget.item.stats!.numLikes.toString()
-                          : 'null',
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _buildAvatar(),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildUsernameAndRank(),
+                              const SizedBox(height: 3),
+                              _buildCommunityAndDate(),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          widget.item.stats?.numLikes != null
+                              ? widget.item.stats!.numLikes.toString()
+                              : 'null',
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Icon(Icons.bolt),
+                        )
+                      ],
                     ),
-                    const Padding(
-                      padding: EdgeInsets.all(5),
-                      child: Icon(Icons.bolt),
-                    )
-                  ],
-                ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildContent(),
+                        _buildTags(),
+                        _buildPicture(),
+                        _buildComments(),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              Container(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildContent(),
-                    _buildTags(),
-                    _buildPicture(),
-                    _buildComments(),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
         ),
       ),
     );
@@ -179,13 +190,13 @@ class _PostCardState extends State<PostCard> {
           Center(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(3),
-                child: CachedNetworkImage(
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  imageUrl: '${widget.item.images![0].urls?.the500X500}',
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                ),
+              child: CachedNetworkImage(
+                width: double.infinity,
+                fit: BoxFit.cover,
+                imageUrl: '${widget.item.images![0].urls?.the500X500}',
+                errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
+            ),
           )
         ],
       );
@@ -226,14 +237,7 @@ class _PostCardState extends State<PostCard> {
         'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const UserScreen(),
-          ),
-        );
-      },
+      onTap: _goToUserScreen,
       child: SizedBox(
         height: 36,
         width: 36,
@@ -251,14 +255,7 @@ class _PostCardState extends State<PostCard> {
 
   Widget _buildUsernameAndRank() {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const UserScreen(),
-          ),
-        );
-      },
+      onTap: _goToUserScreen,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

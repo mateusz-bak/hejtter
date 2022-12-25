@@ -24,6 +24,17 @@ class CommentInPostScreen extends StatelessWidget {
     return parser.emojify(text);
   }
 
+  _goToUserScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserScreen(
+          userName: comment.author?.username,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     _setTimeAgoLocale();
@@ -96,14 +107,7 @@ class CommentInPostScreen extends StatelessWidget {
         'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const UserScreen(),
-          ),
-        );
-      },
+      onTap: () => _goToUserScreen(context),
       child: SizedBox(
         height: 28,
         width: 28,
@@ -122,14 +126,7 @@ class CommentInPostScreen extends StatelessWidget {
   Widget _buildUsernameAndDate(BuildContext context) {
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const UserScreen(),
-            ),
-          );
-        },
+        onTap: () => _goToUserScreen(context),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

@@ -18,6 +18,17 @@ class CommentInPostCard extends StatelessWidget {
   final Comment comment;
   final PostItem postItem;
 
+  _goToUserScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserScreen(
+          userName: comment.author?.username,
+        ),
+      ),
+    );
+  }
+
   _setTimeAgoLocale() {
     timeago.setLocaleMessages('pl', timeago.PlMessages());
   }
@@ -105,14 +116,7 @@ class CommentInPostCard extends StatelessWidget {
         'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const UserScreen(),
-          ),
-        );
-      },
+      onTap: () => _goToUserScreen(context),
       child: SizedBox(
         height: 28,
         width: 28,
@@ -131,14 +135,7 @@ class CommentInPostCard extends StatelessWidget {
   Widget _buildUsernameAndDate(BuildContext context) {
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const UserScreen(),
-            ),
-          );
-        },
+        onTap: () => _goToUserScreen(context),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
