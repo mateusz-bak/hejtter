@@ -114,14 +114,23 @@ class _PostCardState extends State<PostCard> {
       return Column(
         children: [
           const SizedBox(height: 15),
-          CommentInPostCard(comment: widget.item.comments![0]),
+          CommentInPostCard(
+            comment: widget.item.comments![0],
+            postItem: widget.item,
+          ),
           SizedBox(height: widget.item.comments!.length > 1 ? 10 : 0),
           widget.item.comments!.length > 1
-              ? CommentInPostCard(comment: widget.item.comments![1])
+              ? CommentInPostCard(
+                  comment: widget.item.comments![1],
+                  postItem: widget.item,
+                )
               : const SizedBox(),
           SizedBox(height: widget.item.comments!.length > 2 ? 10 : 0),
           widget.item.comments!.length > 2
-              ? CommentInPostCard(comment: widget.item.comments![2])
+              ? CommentInPostCard(
+                  comment: widget.item.comments![2],
+                  postItem: widget.item,
+                )
               : const SizedBox(),
         ],
       );

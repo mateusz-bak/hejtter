@@ -3,16 +3,19 @@ import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/models/posts_response.dart';
+import 'package:hejtter/post_screen/post_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
 class CommentInPostCard extends StatelessWidget {
   const CommentInPostCard({
     required this.comment,
+    required this.postItem,
     super.key,
   });
 
   final Comment comment;
+  final PostItem postItem;
 
   _setTimeAgoLocale() {
     timeago.setLocaleMessages('pl', timeago.PlMessages());
@@ -60,6 +63,13 @@ class CommentInPostCard extends StatelessWidget {
                 ),
               ),
               selectable: true,
+              onTapText: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) {
+                  return PostScreen(
+                    item: postItem,
+                  );
+                }));
+              },
               onTapLink: (text, href, title) {
                 launchUrl(
                   Uri.parse(href.toString()),
