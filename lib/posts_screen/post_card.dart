@@ -3,10 +3,10 @@ import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/posts_screen/comment_in_post_card.dart';
-import 'package:hejtter/post_screen/picture_full_screen.dart';
 import 'package:hejtter/post_screen/post_screen.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/posts_screen/posts_screen.dart';
+import 'package:hejtter/user_screen/user_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -218,64 +218,85 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
-  SizedBox _buildAvatar() {
+  Widget _buildAvatar() {
     final avatarUrl = widget.item.author?.avatar?.urls?.the100X100;
     const defaultAvatarUrl =
         'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
-    return SizedBox(
-      height: 36,
-      width: 36,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: CachedNetworkImage(
-          imageUrl: avatarUrl != null ? avatarUrl.toString() : defaultAvatarUrl,
-          errorWidget: (context, url, error) => const Icon(Icons.error),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const UserScreen(),
+          ),
+        );
+      },
+      child: SizedBox(
+        height: 36,
+        width: 36,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: CachedNetworkImage(
+            imageUrl:
+                avatarUrl != null ? avatarUrl.toString() : defaultAvatarUrl,
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
         ),
       ),
     );
   }
 
-  Row _buildUsernameAndRank() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Row(
-            children: [
-              Flexible(
-                child: Text(
-                  widget.item.author != null
-                      ? widget.item.author!.username.toString()
-                      : 'null',
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+  Widget _buildUsernameAndRank() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const UserScreen(),
+          ),
+        );
+      },
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    widget.item.author != null
+                        ? widget.item.author!.username.toString()
+                        : 'null',
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 5),
-              Text(
-                widget.item.author != null
-                    ? widget.item.author!.currentRank.toString()
-                    : 'null',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: widget.item.author?.currentColor != null
-                      ? Color(
-                          int.parse(
-                            widget.item.author!.currentColor!
-                                .replaceAll('#', '0xff'),
-                          ),
-                        )
-                      : null,
+                const SizedBox(width: 5),
+                Text(
+                  widget.item.author != null
+                      ? widget.item.author!.currentRank.toString()
+                      : 'null',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: widget.item.author?.currentColor != null
+                        ? Color(
+                            int.parse(
+                              widget.item.author!.currentColor!
+                                  .replaceAll('#', '0xff'),
+                            ),
+                          )
+                        : null,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/post_screen/post_screen.dart';
+import 'package:hejtter/user_screen/user_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -38,9 +39,9 @@ class CommentInPostCard extends StatelessWidget {
             Expanded(
               child: Row(
                 children: [
-                  _buildAvatar(),
+                  _buildAvatar(context),
                   const SizedBox(width: 5),
-                  _buildUsernameAndDate(),
+                  _buildUsernameAndDate(context),
                   const SizedBox(width: 15),
                 ],
               ),
@@ -98,50 +99,71 @@ class CommentInPostCard extends StatelessWidget {
     );
   }
 
-  SizedBox _buildAvatar() {
+  Widget _buildAvatar(BuildContext context) {
     final avatarUrl = comment.author?.avatar?.urls?.the100X100;
     const defaultAvatarUrl =
         'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
-    return SizedBox(
-      height: 28,
-      width: 28,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(7),
-        child: CachedNetworkImage(
-          imageUrl: avatarUrl != null ? avatarUrl.toString() : defaultAvatarUrl,
-          errorWidget: (context, url, error) => const Icon(Icons.error),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const UserScreen(),
+          ),
+        );
+      },
+      child: SizedBox(
+        height: 28,
+        width: 28,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(7),
+          child: CachedNetworkImage(
+            imageUrl:
+                avatarUrl != null ? avatarUrl.toString() : defaultAvatarUrl,
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildUsernameAndDate() {
+  Widget _buildUsernameAndDate(BuildContext context) {
     return Expanded(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Flexible(
-            child: Text(
-              comment.author != null
-                  ? comment.author!.username.toString()
-                  : 'null',
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const UserScreen(),
+            ),
+          );
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
+                comment.author != null
+                    ? comment.author!.username.toString()
+                    : 'null',
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            comment.createdAt != null
-                ? timeago.format(DateTime.parse(comment.createdAt.toString()),
-                    locale: 'pl')
-                : 'null',
-            style: const TextStyle(fontSize: 11),
-          ),
-        ],
+            const SizedBox(width: 5),
+            Text(
+              comment.createdAt != null
+                  ? timeago.format(DateTime.parse(comment.createdAt.toString()),
+                      locale: 'pl')
+                  : 'null',
+              style: const TextStyle(fontSize: 11),
+            ),
+          ],
+        ),
       ),
     );
   }
