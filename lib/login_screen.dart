@@ -1,72 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:hejtter/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _isLogin = true;
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _passwordRepeatController = TextEditingController();
+  bool _isLoading = true;
+
+  Future _login() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    return;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _login();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _isLogin ? const Text('Login') : const Text('Register'),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                hintText: 'Enter your email',
-              ),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                hintText: 'Enter your password',
-              ),
-              obscureText: true,
-            ),
-            !_isLogin
-                ? TextField(
-                    controller: _passwordRepeatController,
-                    decoration: const InputDecoration(
-                      hintText: 'Repeat your password',
-                    ),
-                    obscureText: true,
-                  )
-                : const SizedBox(),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              child: _isLogin ? const Text('Login') : const Text('Register'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>  HomeScreen(),
+        child: Center(
+          child: _isLoading
+              ? const CircularProgressIndicator()
+              : ElevatedButton(
+                  onPressed: _login,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Text('Retry login'),
                   ),
-                );
-              },
-            ),
-            TextButton(
-              child: _isLogin
-                  ? const Text('Don\'t have an account? Register')
-                  : const Text('Already have an account? Login'),
-              onPressed: () {
-                setState(() {
-                  _isLogin = !_isLogin;
-                });
-              },
-            ),
-          ],
+                ),
         ),
       ),
     );
