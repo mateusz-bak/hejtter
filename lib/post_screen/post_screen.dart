@@ -25,7 +25,6 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
-  double _maxLines = 150;
   final client = http.Client();
   static const _pageSize = 10;
 
@@ -168,9 +167,13 @@ class _PostScreenState extends State<PostScreen> {
       physics: const NeverScrollableScrollPhysics(),
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<CommentItem>(
-        itemBuilder: (context, item, index) =>
-            CommentInPostScreen(comment: item),
-      ),
+          itemBuilder: (context, item, index) {
+        if (item.content != null) {
+          return CommentInPostScreen(comment: item);
+        } else {
+          return const SizedBox();
+        }
+      }),
     );
   }
 
@@ -213,6 +216,8 @@ class _PostScreenState extends State<PostScreen> {
                     tag: '${widget.item.images![0].urls?.the500X500}',
                     child: widget.item.images![0].urls?.the500X500 != null
                         ? CachedNetworkImage(
+                            width: double.infinity,
+                            fit: BoxFit.cover,
                             imageUrl:
                                 '${widget.item.images![0].urls?.the500X500}',
                             errorWidget: (context, url, error) =>
@@ -228,7 +233,7 @@ class _PostScreenState extends State<PostScreen> {
                     }));
                   }),
             ),
-          )
+          ),
         ],
       );
     } else {
@@ -256,18 +261,18 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   SizedBox _buildAvatar() {
+    final avatarUrl = widget.item.author?.avatar?.urls?.the100X100;
+    const defaultAvatarUrl =
+        'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
+
     return SizedBox(
       height: 36,
       width: 36,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(7),
         child: CachedNetworkImage(
-          imageUrl: '${widget.item.author?.avatar?.urls?.the100X100}',
-          errorWidget: (context, url, error) => CachedNetworkImage(
-            imageUrl:
-                'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75',
-            errorWidget: (context, url, error) => const Icon(Icons.error),
-          ),
+          imageUrl: avatarUrl != null ? avatarUrl.toString() : defaultAvatarUrl,
+          errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
     );

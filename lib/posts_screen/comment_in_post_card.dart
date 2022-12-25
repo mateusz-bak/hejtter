@@ -89,18 +89,18 @@ class CommentInPostCard extends StatelessWidget {
   }
 
   SizedBox _buildAvatar() {
+    final avatarUrl = comment.author?.avatar?.urls?.the100X100;
+    const defaultAvatarUrl =
+        'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
+
     return SizedBox(
       height: 28,
       width: 28,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(7),
         child: CachedNetworkImage(
-          imageUrl: '${comment.author?.avatar?.urls?.the100X100}',
-          errorWidget: (context, url, error) => CachedNetworkImage(
-            imageUrl:
-                'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75',
-            errorWidget: (context, url, error) => const Icon(Icons.error),
-          ),
+          imageUrl: avatarUrl != null ? avatarUrl.toString() : defaultAvatarUrl,
+          errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
     );

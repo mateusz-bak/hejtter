@@ -165,25 +165,14 @@ class _PostCardState extends State<PostCard> {
           Center(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(3),
-              child: GestureDetector(
-                child: Hero(
-                  tag: '${widget.item.images![0].urls?.the500X500}',
-                  child: CachedNetworkImage(
-                    imageUrl: '${widget.item.images![0].urls?.the500X500}',
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
-                  ),
+              child: Hero(
+                tag: '${widget.item.images![0].urls?.the500X500}',
+                child: CachedNetworkImage(
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  imageUrl: '${widget.item.images![0].urls?.the500X500}',
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) {
-                      return PictureFullScreen(
-                        imageUrl: '${widget.item.images![0].urls?.the1200X900}',
-                      );
-                    }),
-                  );
-                },
               ),
             ),
           )
@@ -221,18 +210,18 @@ class _PostCardState extends State<PostCard> {
   }
 
   SizedBox _buildAvatar() {
+    final avatarUrl = widget.item.author?.avatar?.urls?.the100X100;
+    const defaultAvatarUrl =
+        'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
+
     return SizedBox(
       height: 36,
       width: 36,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: CachedNetworkImage(
-          imageUrl: '${widget.item.author?.avatar?.urls?.the100X100}',
-          errorWidget: (context, url, error) => CachedNetworkImage(
-            imageUrl:
-                'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75',
-            errorWidget: (context, url, error) => const Icon(Icons.error),
-          ),
+          imageUrl: avatarUrl != null ? avatarUrl.toString() : defaultAvatarUrl,
+          errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
     );
