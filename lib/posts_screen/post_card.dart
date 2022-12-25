@@ -46,6 +46,9 @@ class _PostCardState extends State<PostCard> {
             );
           }));
         },
+        child: Hero(
+          tag: widget.item.title.toString(),
+          child: Material(
         child: Card(
           elevation: 5,
           child: Column(
@@ -104,6 +107,8 @@ class _PostCardState extends State<PostCard> {
               ),
             ],
           ),
+        ),
+      ),
         ),
       ),
     );
@@ -174,8 +179,6 @@ class _PostCardState extends State<PostCard> {
           Center(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(3),
-              child: Hero(
-                tag: '${widget.item.images![0].urls?.the500X500}',
                 child: CachedNetworkImage(
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -183,7 +186,6 @@ class _PostCardState extends State<PostCard> {
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               ),
-            ),
           )
         ],
       );

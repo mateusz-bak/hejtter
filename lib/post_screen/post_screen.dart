@@ -96,8 +96,12 @@ class _PostScreenState extends State<PostScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10),
+          child: Hero(
+            tag: widget.item.title.toString(),
+            child: Material(
           child: Card(
             elevation: 5,
+                clipBehavior: Clip.antiAlias,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -158,6 +162,8 @@ class _PostScreenState extends State<PostScreen> {
           ),
         ),
       ),
+        ),
+      ),
     );
   }
 
@@ -165,6 +171,7 @@ class _PostScreenState extends State<PostScreen> {
     return PagedListView<int, CommentItem>(
       shrinkWrap: true,
       reverse: true,
+      clipBehavior: Clip.antiAlias,
       physics: const NeverScrollableScrollPhysics(),
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<CommentItem>(
@@ -213,8 +220,6 @@ class _PostScreenState extends State<PostScreen> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(3),
               child: GestureDetector(
-                  child: Hero(
-                    tag: '${widget.item.images![0].urls?.the500X500}',
                     child: widget.item.images![0].urls?.the500X500 != null
                         ? CachedNetworkImage(
                             width: double.infinity,
@@ -225,7 +230,6 @@ class _PostScreenState extends State<PostScreen> {
                                 const Icon(Icons.error),
                           )
                         : const SizedBox(),
-                  ),
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) {
                       return PictureFullScreen(
