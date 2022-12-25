@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:hejtter/home_screen.dart';
+import 'package:hejtter/home_screen/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,17 +12,18 @@ void main() async {
     ignoreSsl: true,
   );
 
-  FlutterDownloader.registerCallback(TestClass.callback);
+  FlutterDownloader.registerCallback(DownloadCallback.callback);
 
   runApp(
     MaterialApp(
       home: const HomeScreen(),
-      theme: ThemeData.dark(useMaterial3: true)
-          .copyWith(primaryColor: const Color(0xff2295F3)),
+      theme: ThemeData.dark(useMaterial3: true).copyWith(
+        primaryColor: const Color(0xff2295F3),
+      ),
     ),
   );
 }
 
-class TestClass {
+class DownloadCallback {
   static void callback(String id, DownloadTaskStatus status, int progress) {}
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hejtter/posts_tab_view.dart';
+import 'package:hejtter/posts_screen/posts_tab_view.dart';
 
 class PostsScreen extends StatelessWidget {
   const PostsScreen({

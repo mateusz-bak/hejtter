@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:hejtter/posts_response.dart';
-import 'package:hejtter/post_card.dart';
+import 'package:hejtter/models/posts_response.dart';
+import 'package:hejtter/posts_screen/post_card.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 class PostsTabView extends StatefulWidget {

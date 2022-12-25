@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hejtter/communities_screen.dart';
-import 'package:hejtter/login_screen.dart';
+import 'package:hejtter/communities_screen/communities_screen.dart';
+import 'package:hejtter/login_screen/login_screen.dart';
 
-import 'package:hejtter/posts_tab_view.dart';
+import 'package:hejtter/posts_screen/posts_tab_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

@@ -2,11 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:hejtter/comment_in_post_card.dart';
-import 'package:hejtter/picture_full_screen.dart';
-import 'package:hejtter/post_screen.dart';
-import 'package:hejtter/posts_response.dart';
-import 'package:hejtter/posts_screen.dart';
+import 'package:hejtter/posts_screen/comment_in_post_card.dart';
+import 'package:hejtter/post_screen/picture_full_screen.dart';
+import 'package:hejtter/post_screen/post_screen.dart';
+import 'package:hejtter/models/posts_response.dart';
+import 'package:hejtter/posts_screen/posts_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -23,8 +23,6 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  double _maxLines = 150;
-
   String _addEmojis(String text) {
     final parser = EmojiParser();
     return parser.emojify(text);
