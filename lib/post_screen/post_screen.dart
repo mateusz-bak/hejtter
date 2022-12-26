@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +31,8 @@ class _PostScreenState extends State<PostScreen> {
   final client = http.Client();
   static const _pageSize = 20;
 
+  late PostItem item;
+
   final PagingController<int, CommentItem> _pagingController =
       PagingController(firstPageKey: 1);
 
@@ -37,7 +41,7 @@ class _PostScreenState extends State<PostScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => UserScreen(
-          userName: widget.item.author?.username,
+          userName: item.author?.username,
         ),
       ),
     );
@@ -57,35 +61,25 @@ class _PostScreenState extends State<PostScreen> {
       'limit': '$pageSize',
       'page': '$pageKey',
     };
-    print(
-        'widget.item.links?.comments?.href: ${widget.item.links?.comments?.href}');
 
     var response = await client.get(
       Uri.https(
         'api.hejto.pl',
-        '${widget.item.links?.comments?.href}',
+        '${item.links?.comments?.href}',
         queryParameters,
       ),
     );
-    // print('response.body: ${response.body}');
 
     return commentsResponseFromJson(response.body).embedded?.items;
   }
 
   Future<void> _fetchPage(int pageKey) async {
-    print('_fetchPage pageKey: ${pageKey}');
-
     try {
       final newItems = await _getComments(pageKey, _pageSize);
-      // print('newItems!.length: ${newItems!.length}');
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
-        print('_fetchPage isLastPage: true');
-
         _pagingController.appendLastPage(newItems);
       } else {
-        print('_fetchPage isLastPage: false');
-
         final nextPageKey = pageKey + 1;
         _pagingController.appendPage(newItems, nextPageKey);
       }
@@ -94,11 +88,29 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
+  Future _refreshPost() async {
+    Future.sync(
+      () => _pagingController.refresh(),
+    );
+
+    var response = await client.get(
+      Uri.https(
+        'api.hejto.pl',
+        '/posts/${item.slug}',
+      ),
+    );
+    setState(() {
+      item = PostItem.fromJson(json.decode(response.body));
+    });
+  }
+
   @override
   void initState() {
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
+
+    item = widget.item;
     super.initState();
   }
 
@@ -114,69 +126,74 @@ class _PostScreenState extends State<PostScreen> {
 
     return Scaffold(
       appBar: AppBar(),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Material(
-            child: Card(
-              elevation: 5,
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withAlpha(50),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(5),
-                        bottomRight: Radius.circular(5),
+      body: RefreshIndicator(
+        onRefresh: () => Future.sync(
+          () => _refreshPost(),
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Material(
+              child: Card(
+                elevation: 5,
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withAlpha(50),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                          bottomLeft: Radius.circular(5),
+                          bottomRight: Radius.circular(5),
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          _buildAvatar(),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildUsernameAndRank(),
+                                const SizedBox(height: 3),
+                                _buildCommunityAndDate(),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            item.stats?.numLikes != null
+                                ? item.stats!.numLikes.toString()
+                                : 'null',
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Icon(Icons.bolt),
+                          )
+                        ],
                       ),
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        _buildAvatar(),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildUsernameAndRank(),
-                              const SizedBox(height: 3),
-                              _buildCommunityAndDate(),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          widget.item.stats?.numLikes != null
-                              ? widget.item.stats!.numLikes.toString()
-                              : 'null',
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.all(5),
-                          child: Icon(Icons.bolt),
-                        )
-                      ],
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildContent(),
+                          _buildTags(),
+                          _buildPicture(),
+                          const SizedBox(height: 40),
+                          _buildComments(),
+                        ],
+                      ),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildContent(),
-                        _buildTags(),
-                        _buildPicture(),
-                        const SizedBox(height: 40),
-                        _buildComments(),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -204,10 +221,10 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildTags() {
-    if (widget.item.tags != null && widget.item.tags!.isNotEmpty) {
+    if (item.tags != null && item.tags!.isNotEmpty) {
       List<Widget> tags = List.empty(growable: true);
 
-      for (var tag in widget.item.tags!) {
+      for (var tag in item.tags!) {
         if (tag.name != null) {
           tags.add(GestureDetector(
             onTap: () {
@@ -247,7 +264,7 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildPicture() {
-    if (widget.item.images != null && widget.item.images!.isNotEmpty) {
+    if (item.images != null && item.images!.isNotEmpty) {
       return Column(
         children: [
           const SizedBox(height: 15),
@@ -255,12 +272,11 @@ class _PostScreenState extends State<PostScreen> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(3),
               child: GestureDetector(
-                  child: widget.item.images![0].urls?.the500X500 != null
+                  child: item.images![0].urls?.the500X500 != null
                       ? CachedNetworkImage(
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          imageUrl:
-                              '${widget.item.images![0].urls?.the500X500}',
+                          imageUrl: '${item.images![0].urls?.the500X500}',
                           errorWidget: (context, url, error) =>
                               const Icon(Icons.error),
                         )
@@ -268,7 +284,7 @@ class _PostScreenState extends State<PostScreen> {
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) {
                       return PictureFullScreen(
-                        imageUrl: '${widget.item.images![0].urls?.the1200X900}',
+                        imageUrl: '${item.images![0].urls?.the1200X900}',
                       );
                     }));
                   }),
@@ -283,7 +299,7 @@ class _PostScreenState extends State<PostScreen> {
 
   Widget _buildContent() {
     return MarkdownBody(
-      data: _addEmojis(widget.item.content.toString()),
+      data: _addEmojis(item.content.toString()),
       styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
         blockquoteDecoration: BoxDecoration(
           color: Colors.black54,
@@ -301,7 +317,7 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildAvatar() {
-    final avatarUrl = widget.item.author?.avatar?.urls?.the100X100;
+    final avatarUrl = item.author?.avatar?.urls?.the100X100;
     const defaultAvatarUrl =
         'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
@@ -333,8 +349,8 @@ class _PostScreenState extends State<PostScreen> {
               children: [
                 Flexible(
                   child: Text(
-                    widget.item.author != null
-                        ? widget.item.author!.username.toString()
+                    item.author != null
+                        ? item.author!.username.toString()
                         : 'null',
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -345,15 +361,15 @@ class _PostScreenState extends State<PostScreen> {
                 ),
                 const SizedBox(width: 5),
                 Text(
-                  widget.item.author != null
-                      ? widget.item.author!.currentRank.toString()
+                  item.author != null
+                      ? item.author!.currentRank.toString()
                       : 'null',
                   style: TextStyle(
                     fontSize: 12,
-                    color: widget.item.author?.currentColor != null
+                    color: item.author?.currentColor != null
                         ? Color(
                             int.parse(
-                              widget.item.author!.currentColor!
+                              item.author!.currentColor!
                                   .replaceAll('#', '0xff'),
                             ),
                           )
@@ -376,19 +392,19 @@ class _PostScreenState extends State<PostScreen> {
         Flexible(
           child: GestureDetector(
             onTap: (() {
-              if (widget.item.community?.name == null) return;
+              if (item.community?.name == null) return;
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => PostsScreen(
-                    communityName: widget.item.community!.name!,
+                    communityName: item.community!.name!,
                   ),
                 ),
               );
             }),
             child: Text(
-              widget.item.community?.name != null
-                  ? widget.item.community!.name.toString()
+              item.community?.name != null
+                  ? item.community!.name.toString()
                   : 'null',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
@@ -400,8 +416,8 @@ class _PostScreenState extends State<PostScreen> {
         ),
         const SizedBox(width: 5),
         Text(
-          widget.item.createdAt != null
-              ? timeago.format(DateTime.parse(widget.item.createdAt.toString()),
+          item.createdAt != null
+              ? timeago.format(DateTime.parse(item.createdAt.toString()),
                   locale: 'pl')
               : 'null',
           style: const TextStyle(fontSize: 12),
