@@ -88,11 +88,18 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
-  Future _refreshPost() async {
+  Future _refreshPostAndComments() async {
+    _refreshPost();
+    _refreshComments();
+  }
+
+  Future _refreshComments() async {
     Future.sync(
       () => _pagingController.refresh(),
     );
+  }
 
+  Future _refreshPost() async {
     var response = await client.get(
       Uri.https(
         'api.hejto.pl',
@@ -111,6 +118,7 @@ class _PostScreenState extends State<PostScreen> {
     });
 
     item = widget.item;
+    _refreshPost();
     super.initState();
   }
 
@@ -128,7 +136,7 @@ class _PostScreenState extends State<PostScreen> {
       appBar: AppBar(),
       body: RefreshIndicator(
         onRefresh: () => Future.sync(
-          () => _refreshPost(),
+          () => _refreshPostAndComments(),
         ),
         child: SingleChildScrollView(
           child: Padding(
