@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hejtter/posts_screen/new_posts_tab_bar_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:hejtter/models/posts_response.dart';
-import 'package:hejtter/posts_screen/post_card.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 class PostsTabView extends StatefulWidget {
@@ -201,67 +201,16 @@ class _PostsTabViewState extends State<PostsTabView> {
           Expanded(
             child: TabBarView(
               children: [
-                _buildHotTabBarView(),
-                _buildTopTabBarView(),
-                _buildNewTabBarView()
+                NewPostsTabBarView(controller: _hotPagingController),
+                NewPostsTabBarView(
+                  controller: _topPagingController,
+                  topDropdown: _buildTopDropdown(),
+                ),
+                NewPostsTabBarView(controller: _newPagingController),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  RefreshIndicator _buildNewTabBarView() {
-    return RefreshIndicator(
-      onRefresh: () => Future.sync(
-        () => _newPagingController.refresh(),
-      ),
-      child: PagedListView<int, PostItem>(
-        pagingController: _newPagingController,
-        padding: const EdgeInsets.all(10),
-        builderDelegate: PagedChildBuilderDelegate<PostItem>(
-          itemBuilder: (context, item, index) => PostCard(item: item),
-        ),
-      ),
-    );
-  }
-
-  RefreshIndicator _buildTopTabBarView() {
-    return RefreshIndicator(
-      onRefresh: () => Future.sync(
-        () => _topPagingController.refresh(),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 10),
-          _buildTopDropdown(),
-          const SizedBox(height: 5),
-          Expanded(
-            child: PagedListView<int, PostItem>(
-              pagingController: _topPagingController,
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-              builderDelegate: PagedChildBuilderDelegate<PostItem>(
-                itemBuilder: (context, item, index) => PostCard(item: item),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  RefreshIndicator _buildHotTabBarView() {
-    return RefreshIndicator(
-      onRefresh: () => Future.sync(
-        () => _hotPagingController.refresh(),
-      ),
-      child: PagedListView<int, PostItem>(
-        pagingController: _hotPagingController,
-        padding: const EdgeInsets.all(10),
-        builderDelegate: PagedChildBuilderDelegate<PostItem>(
-          itemBuilder: (context, item, index) => PostCard(item: item),
-        ),
       ),
     );
   }
@@ -280,7 +229,7 @@ class _PostsTabViewState extends State<PostsTabView> {
 
   Widget _buildTopDropdown() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 5),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
         decoration: BoxDecoration(
