@@ -9,9 +9,11 @@ class PostsTabView extends StatefulWidget {
   const PostsTabView({
     super.key,
     this.communityName,
+    this.tagName,
   });
 
   final String? communityName;
+  final String? tagName;
 
   @override
   State<PostsTabView> createState() => _PostsTabViewState();
@@ -45,6 +47,7 @@ class _PostsTabViewState extends State<PostsTabView> {
     };
 
     queryParameters = _addCommunityFilter(queryParameters);
+    queryParameters = _addTagFilter(queryParameters);
 
     var response = await client.get(
       Uri.https('api.hejto.pl', '/posts', queryParameters),
@@ -61,6 +64,7 @@ class _PostsTabViewState extends State<PostsTabView> {
     };
 
     queryParameters = _addCommunityFilter(queryParameters);
+    queryParameters = _addTagFilter(queryParameters);
 
     switch (_postsPeriod) {
       case '6h':
@@ -102,6 +106,7 @@ class _PostsTabViewState extends State<PostsTabView> {
     };
 
     queryParameters = _addCommunityFilter(queryParameters);
+    queryParameters = _addTagFilter(queryParameters);
 
     var response = await client.get(
       Uri.https('api.hejto.pl', '/posts', queryParameters),
@@ -114,6 +119,16 @@ class _PostsTabViewState extends State<PostsTabView> {
     if (widget.communityName != null) {
       queryParameters.addEntries(<String, String>{
         'community': widget.communityName!,
+      }.entries);
+    }
+
+    return queryParameters;
+  }
+
+  Map<String, String> _addTagFilter(Map<String, String> queryParameters) {
+    if (widget.tagName != null) {
+      queryParameters.addEntries(<String, String>{
+        'tags[]': widget.tagName!,
       }.entries);
     }
 

@@ -154,25 +154,41 @@ class _PostCardState extends State<PostCard> {
 
   Widget _buildTags() {
     if (widget.item.tags != null && widget.item.tags!.isNotEmpty) {
-      String tags = '';
+      List<Widget> tags = List.empty(growable: true);
 
       for (var tag in widget.item.tags!) {
-        tags = '$tags#${tag.name} ';
+        if (tag.name != null) {
+          tags.add(GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PostsScreen(
+                    tagName: tag.name!,
+                  ),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 5, 10, 5),
+              child: Text(
+                '#${tag.name!} ',
+                maxLines: 1,
+                overflow: TextOverflow.clip,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ));
+        }
       }
 
-      return Column(
-        children: [
-          const SizedBox(height: 10),
-          Text(
-            tags,
-            maxLines: 1,
-            overflow: TextOverflow.clip,
-            style: const TextStyle(
-              // color: Colors.black87,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
+      return Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Wrap(
+          children: tags,
+        ),
       );
     } else {
       return const SizedBox();

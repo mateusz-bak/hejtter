@@ -4,19 +4,22 @@ import 'package:hejtter/posts_screen/posts_tab_view.dart';
 class PostsScreen extends StatelessWidget {
   const PostsScreen({
     super.key,
-    required this.communityName,
+    this.communityName,
+    this.tagName,
   });
 
-  final String communityName;
+  final String? communityName;
+  final String? tagName;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(communityName),
+        title: Text(communityName ?? '#$tagName'),
       ),
       body: PostsTabView(
         communityName: communityName,
+        tagName: tagName,
       ),
     );
   }
