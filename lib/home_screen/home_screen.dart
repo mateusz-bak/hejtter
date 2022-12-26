@@ -4,6 +4,7 @@ import 'package:hejtter/login_screen/login_screen.dart';
 
 import 'package:hejtter/posts_screen/posts_tab_view.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -67,6 +68,15 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const Expanded(
               child: SizedBox(),
+            ),
+            ListTile(
+              title: const Text('Github'),
+              onTap: () {
+                launchUrl(
+                  Uri.parse('https://github.com/mateusz-bak/hejtter'),
+                  mode: LaunchMode.externalApplication,
+                );
+              },
             ),
             FutureBuilder(
               future: _getAppVersion(),

@@ -6,6 +6,7 @@ import 'package:hejtter/login_screen/login_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CommunitiesScreen extends StatefulWidget {
   const CommunitiesScreen({super.key});
@@ -117,6 +118,15 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
             ),
             const Expanded(
               child: SizedBox(),
+            ),
+            ListTile(
+              title: const Text('Github'),
+              onTap: () {
+                launchUrl(
+                  Uri.parse('https://github.com/mateusz-bak/hejtter'),
+                  mode: LaunchMode.externalApplication,
+                );
+              },
             ),
             FutureBuilder(
               future: _getAppVersion(),
