@@ -57,67 +57,64 @@ class _PostCardState extends State<PostCard> {
             );
           }));
         },
-        child: Hero(
-          tag: widget.item.title.toString(),
-          child: Material(
-            child: Card(
-              elevation: 5,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withAlpha(50),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(5),
-                        bottomRight: Radius.circular(5),
+        child: Material(
+          child: Card(
+            elevation: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withAlpha(50),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildAvatar(),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildUsernameAndRank(),
+                            const SizedBox(height: 3),
+                            _buildCommunityAndDate(),
+                          ],
+                        ),
                       ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        _buildAvatar(),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildUsernameAndRank(),
-                              const SizedBox(height: 3),
-                              _buildCommunityAndDate(),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          widget.item.stats?.numLikes != null
-                              ? widget.item.stats!.numLikes.toString()
-                              : 'null',
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.all(5),
-                          child: Icon(Icons.bolt),
-                        )
-                      ],
-                    ),
+                      const SizedBox(width: 10),
+                      Text(
+                        widget.item.stats?.numLikes != null
+                            ? widget.item.stats!.numLikes.toString()
+                            : 'null',
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.all(5),
+                        child: Icon(Icons.bolt),
+                      )
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildContent(),
-                        _buildTags(),
-                        _buildPicture(),
-                        _buildComments(),
-                      ],
-                    ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildContent(),
+                      _buildTags(),
+                      _buildPicture(),
+                      _buildComments(),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

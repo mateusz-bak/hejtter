@@ -27,7 +27,7 @@ class PostScreen extends StatefulWidget {
 
 class _PostScreenState extends State<PostScreen> {
   final client = http.Client();
-  static const _pageSize = 10;
+  static const _pageSize = 20;
 
   final PagingController<int, CommentItem> _pagingController =
       PagingController(firstPageKey: 1);
@@ -57,6 +57,8 @@ class _PostScreenState extends State<PostScreen> {
       'limit': '$pageSize',
       'page': '$pageKey',
     };
+    print(
+        'widget.item.links?.comments?.href: ${widget.item.links?.comments?.href}');
 
     var response = await client.get(
       Uri.https(
@@ -65,17 +67,25 @@ class _PostScreenState extends State<PostScreen> {
         queryParameters,
       ),
     );
+    // print('response.body: ${response.body}');
 
     return commentsResponseFromJson(response.body).embedded?.items;
   }
 
   Future<void> _fetchPage(int pageKey) async {
+    print('_fetchPage pageKey: ${pageKey}');
+
     try {
       final newItems = await _getComments(pageKey, _pageSize);
+      // print('newItems!.length: ${newItems!.length}');
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
+        print('_fetchPage isLastPage: true');
+
         _pagingController.appendLastPage(newItems);
       } else {
+        print('_fetchPage isLastPage: false');
+
         final nextPageKey = pageKey + 1;
         _pagingController.appendPage(newItems, nextPageKey);
       }
@@ -107,69 +117,66 @@ class _PostScreenState extends State<PostScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10),
-          child: Hero(
-            tag: widget.item.title.toString(),
-            child: Material(
-              child: Card(
-                elevation: 5,
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withAlpha(50),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                          bottomLeft: Radius.circular(5),
-                          bottomRight: Radius.circular(5),
+          child: Material(
+            child: Card(
+              elevation: 5,
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(50),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                        bottomLeft: Radius.circular(5),
+                        bottomRight: Radius.circular(5),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _buildAvatar(),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildUsernameAndRank(),
+                              const SizedBox(height: 3),
+                              _buildCommunityAndDate(),
+                            ],
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          _buildAvatar(),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildUsernameAndRank(),
-                                const SizedBox(height: 3),
-                                _buildCommunityAndDate(),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            widget.item.stats?.numLikes != null
-                                ? widget.item.stats!.numLikes.toString()
-                                : 'null',
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Icon(Icons.bolt),
-                          )
-                        ],
-                      ),
+                        const SizedBox(width: 10),
+                        Text(
+                          widget.item.stats?.numLikes != null
+                              ? widget.item.stats!.numLikes.toString()
+                              : 'null',
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Icon(Icons.bolt),
+                        )
+                      ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildContent(),
-                          _buildTags(),
-                          _buildPicture(),
-                          const SizedBox(height: 40),
-                          _buildComments(),
-                        ],
-                      ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildContent(),
+                        _buildTags(),
+                        _buildPicture(),
+                        const SizedBox(height: 40),
+                        _buildComments(),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
