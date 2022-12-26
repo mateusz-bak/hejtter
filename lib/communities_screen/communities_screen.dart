@@ -5,6 +5,7 @@ import 'package:hejtter/home_screen/home_screen.dart';
 import 'package:hejtter/login_screen/login_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class CommunitiesScreen extends StatefulWidget {
   const CommunitiesScreen({super.key});
@@ -19,6 +20,11 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
   final PagingController<int, Item> _pagingController =
       PagingController(firstPageKey: 1);
+
+  Future<String> _getAppVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    return packageInfo.version;
+  }
 
   Future<List<Item>?> _getPosts(int pageKey, int pageSize) async {
     final queryParameters = {
@@ -71,8 +77,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         title: const Text('Społeczności'),
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
@@ -108,6 +113,22 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                   MaterialPageRoute(builder: (context) => LoginScreen()),
                   (Route<dynamic> route) => false,
                 );
+              },
+            ),
+            const Expanded(
+              child: SizedBox(),
+            ),
+            FutureBuilder(
+              future: _getAppVersion(),
+              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                if (snapshot.hasData) {
+                  return ListTile(
+                    title: Text(snapshot.data.toString()),
+                    onTap: () {},
+                  );
+                } else {
+                  return const SizedBox();
+                }
               },
             ),
           ],

@@ -3,12 +3,18 @@ import 'package:hejtter/communities_screen/communities_screen.dart';
 import 'package:hejtter/login_screen/login_screen.dart';
 
 import 'package:hejtter/posts_screen/posts_tab_view.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
+}
+
+Future<String> _getAppVersion() async {
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  return packageInfo.version;
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -19,8 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Hejtter'),
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
@@ -58,6 +63,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
                   (Route<dynamic> route) => false,
                 );
+              },
+            ),
+            const Expanded(
+              child: SizedBox(),
+            ),
+            FutureBuilder(
+              future: _getAppVersion(),
+              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                if (snapshot.hasData) {
+                  return ListTile(
+                    title: Text(snapshot.data.toString()),
+                    onTap: () {},
+                  );
+                } else {
+                  return const SizedBox();
+                }
               },
             ),
           ],
