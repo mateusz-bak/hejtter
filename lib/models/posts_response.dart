@@ -60,7 +60,7 @@ class PostItem {
     this.excerpt,
     this.status,
     this.hot,
-    this.contentLinks,
+    // this.contentLinks,
     this.images,
     this.tags,
     this.author,
@@ -91,7 +91,7 @@ class PostItem {
   final String? excerpt;
   final String? status;
   final bool? hot;
-  final List<dynamic>? contentLinks;
+  // final List<dynamic>? contentLinks;
   final List<PostImage>? images;
   final List<Tag>? tags;
   final ItemAuthor? author;
@@ -125,9 +125,9 @@ class PostItem {
         excerpt: json["excerpt"],
         status: json["status"],
         hot: json["hot"],
-        contentLinks: json["content_links"] == null
-            ? null
-            : List<dynamic>.from(json["content_links"].map((x) => x)),
+        // contentLinks: json["content_links"] == null
+        //     ? null
+        //     : List<dynamic>.from(json["content_links"].map((x) => x)),
         images: json["images"] == null
             ? null
             : List<PostImage>.from(

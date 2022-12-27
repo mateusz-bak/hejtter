@@ -3,8 +3,8 @@ import 'package:hejtter/posts_screen/post_card.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:hejtter/models/posts_response.dart';
 
-class NewPostsTabBarView extends StatefulWidget {
-  const NewPostsTabBarView({
+class PostsTabBarView extends StatefulWidget {
+  const PostsTabBarView({
     super.key,
     required this.controller,
     this.topDropdown = const SizedBox(),
@@ -14,10 +14,10 @@ class NewPostsTabBarView extends StatefulWidget {
   final Widget topDropdown;
 
   @override
-  State<NewPostsTabBarView> createState() => _NewPostsTabBarViewState();
+  State<PostsTabBarView> createState() => _PostsTabBarViewState();
 }
 
-class _NewPostsTabBarViewState extends State<NewPostsTabBarView>
+class _PostsTabBarViewState extends State<PostsTabBarView>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;

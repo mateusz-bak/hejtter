@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hejtter/posts_screen/new_posts_tab_bar_view.dart';
+import 'package:hejtter/posts_screen/posts_tab_bar_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:hejtter/models/posts_response.dart';
@@ -52,6 +52,8 @@ class _PostsTabViewState extends State<PostsTabView> {
     var response = await client.get(
       Uri.https('api.hejto.pl', '/posts', queryParameters),
     );
+
+    // print(response.body);
 
     return postFromJson(response.body).embedded?.items;
   }
@@ -216,12 +218,12 @@ class _PostsTabViewState extends State<PostsTabView> {
           Expanded(
             child: TabBarView(
               children: [
-                NewPostsTabBarView(controller: _hotPagingController),
-                NewPostsTabBarView(
+                PostsTabBarView(controller: _hotPagingController),
+                PostsTabBarView(
                   controller: _topPagingController,
                   topDropdown: _buildTopDropdown(),
                 ),
-                NewPostsTabBarView(controller: _newPagingController),
+                PostsTabBarView(controller: _newPagingController),
               ],
             ),
           ),
