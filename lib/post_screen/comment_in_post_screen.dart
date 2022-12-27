@@ -58,30 +58,35 @@ class CommentInPostScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 0),
-        Row(
-          children: [
-            const SizedBox(width: 33),
-            Expanded(
-                child: MarkdownBody(
-              data: _addEmojis(comment.content.toString()),
-              styleSheet:
-                  MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-                blockquoteDecoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-              ),
-              selectable: true,
-              onTapLink: (text, href, title) {
-                launchUrl(
-                  Uri.parse(href.toString()),
-                  mode: LaunchMode.externalApplication,
-                );
-              },
-            )),
-          ],
-        ),
+        _buildContent(context),
         const SizedBox(height: 15),
+      ],
+    );
+  }
+
+  Row _buildContent(BuildContext context) {
+    return Row(
+      children: [
+        const SizedBox(width: 33),
+        Expanded(
+          child: MarkdownBody(
+            data: _addEmojis(comment.content.toString()),
+            styleSheet:
+                MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+              blockquoteDecoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(5),
+              ),
+            ),
+            selectable: true,
+            onTapLink: (text, href, title) {
+              launchUrl(
+                Uri.parse(href.toString()),
+                mode: LaunchMode.externalApplication,
+              );
+            },
+          ),
+        ),
       ],
     );
   }
