@@ -174,6 +174,7 @@ class _PostScreenState extends State<PostScreen> {
                               ],
                             ),
                           ),
+                          _buildHotIcon(),
                           const SizedBox(width: 10),
                           Text(
                             item.stats?.numLikes != null
@@ -205,6 +206,20 @@ class _PostScreenState extends State<PostScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHotIcon() {
+    return Column(
+      children: [
+        SizedBox(width: widget.item.hot == true ? 5 : 0),
+        widget.item.hot == true
+            ? const Icon(
+                Icons.local_fire_department_outlined,
+                color: Color(0xff2295F3),
+              )
+            : const SizedBox(),
+      ],
     );
   }
 
