@@ -102,17 +102,16 @@ class _PostCardState extends State<PostCard> {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildContent(),
-                      _buildTags(),
-                      _buildPicture(),
-                      _buildComments(),
-                    ],
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    _buildContent(),
+                    _buildTags(),
+                    _buildPicture(),
+                    const SizedBox(height: 20),
+                    _buildComments(),
+                  ],
                 ),
               ],
             ),
@@ -124,28 +123,40 @@ class _PostCardState extends State<PostCard> {
 
   Widget _buildComments() {
     if (widget.item.comments != null && widget.item.comments!.isNotEmpty) {
-      return Column(
-        children: [
-          const SizedBox(height: 15),
-          CommentInPostCard(
-            comment: widget.item.comments![0],
-            postItem: widget.item,
+      return Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.black.withAlpha(50),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(5),
+            topRight: Radius.circular(5),
+            bottomLeft: Radius.circular(10),
+            bottomRight: Radius.circular(10),
           ),
-          SizedBox(height: widget.item.comments!.length > 1 ? 10 : 0),
-          widget.item.comments!.length > 1
-              ? CommentInPostCard(
-                  comment: widget.item.comments![1],
-                  postItem: widget.item,
-                )
-              : const SizedBox(),
-          SizedBox(height: widget.item.comments!.length > 2 ? 10 : 0),
-          widget.item.comments!.length > 2
-              ? CommentInPostCard(
-                  comment: widget.item.comments![2],
-                  postItem: widget.item,
-                )
-              : const SizedBox(),
-        ],
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 15),
+            CommentInPostCard(
+              comment: widget.item.comments![0],
+              postItem: widget.item,
+            ),
+            SizedBox(height: widget.item.comments!.length > 1 ? 10 : 0),
+            widget.item.comments!.length > 1
+                ? CommentInPostCard(
+                    comment: widget.item.comments![1],
+                    postItem: widget.item,
+                  )
+                : const SizedBox(),
+            SizedBox(height: widget.item.comments!.length > 2 ? 10 : 0),
+            widget.item.comments!.length > 2
+                ? CommentInPostCard(
+                    comment: widget.item.comments![2],
+                    postItem: widget.item,
+                  )
+                : const SizedBox(),
+          ],
+        ),
       );
     } else {
       return const SizedBox();
@@ -185,7 +196,7 @@ class _PostCardState extends State<PostCard> {
       }
 
       return Padding(
-        padding: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
         child: Wrap(
           children: tags,
         ),
@@ -197,21 +208,24 @@ class _PostCardState extends State<PostCard> {
 
   Widget _buildPicture() {
     if (widget.item.images != null && widget.item.images!.isNotEmpty) {
-      return Column(
-        children: [
-          const SizedBox(height: 15),
-          Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: CachedNetworkImage(
-                width: double.infinity,
-                fit: BoxFit.cover,
-                imageUrl: '${widget.item.images![0].urls?.the500X500}',
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          children: [
+            const SizedBox(height: 15),
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: CachedNetworkImage(
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  imageUrl: '${widget.item.images![0].urls?.the500X500}',
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       );
     } else {
       return const SizedBox();
@@ -219,28 +233,31 @@ class _PostCardState extends State<PostCard> {
   }
 
   Widget _buildContent() {
-    return MarkdownBody(
-      data: _addEmojis(widget.item.content.toString()),
-      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-        blockquoteDecoration: BoxDecoration(
-          color: Colors.black54,
-          borderRadius: BorderRadius.circular(5),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: MarkdownBody(
+        data: _addEmojis(widget.item.content.toString()),
+        styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+          blockquoteDecoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(5),
+          ),
         ),
-      ),
-      selectable: true,
-      onTapText: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) {
-          return PostScreen(
-            item: widget.item,
+        selectable: true,
+        onTapText: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) {
+            return PostScreen(
+              item: widget.item,
+            );
+          }));
+        },
+        onTapLink: (text, href, title) {
+          launchUrl(
+            Uri.parse(href.toString()),
+            mode: LaunchMode.externalApplication,
           );
-        }));
-      },
-      onTapLink: (text, href, title) {
-        launchUrl(
-          Uri.parse(href.toString()),
-          mode: LaunchMode.externalApplication,
-        );
-      },
+        },
+      ),
     );
   }
 

@@ -187,18 +187,16 @@ class _PostScreenState extends State<PostScreen> {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildContent(),
-                          _buildTags(),
-                          _buildPicture(),
-                          const SizedBox(height: 40),
-                          _buildComments(),
-                        ],
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 10),
+                        _buildContent(),
+                        _buildTags(),
+                        _buildPicture(),
+                        const SizedBox(height: 20),
+                        _buildComments(),
+                      ],
                     ),
                   ],
                 ),
@@ -211,20 +209,32 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildComments() {
-    return PagedListView<int, CommentItem>(
-      shrinkWrap: true,
-      reverse: true,
-      clipBehavior: Clip.antiAlias,
-      physics: const NeverScrollableScrollPhysics(),
-      pagingController: _pagingController,
-      builderDelegate: PagedChildBuilderDelegate<CommentItem>(
-          itemBuilder: (context, item, index) {
-        if (item.content != null) {
-          return CommentInPostScreen(comment: item);
-        } else {
-          return const SizedBox();
-        }
-      }),
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.black.withAlpha(50),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(5),
+          topRight: Radius.circular(5),
+          bottomLeft: Radius.circular(10),
+          bottomRight: Radius.circular(10),
+        ),
+      ),
+      child: PagedListView<int, CommentItem>(
+        shrinkWrap: true,
+        reverse: true,
+        clipBehavior: Clip.antiAlias,
+        physics: const NeverScrollableScrollPhysics(),
+        pagingController: _pagingController,
+        builderDelegate: PagedChildBuilderDelegate<CommentItem>(
+            itemBuilder: (context, item, index) {
+          if (item.content != null) {
+            return CommentInPostScreen(comment: item);
+          } else {
+            return const SizedBox();
+          }
+        }),
+      ),
     );
   }
 
@@ -261,7 +271,7 @@ class _PostScreenState extends State<PostScreen> {
       }
 
       return Padding(
-        padding: const EdgeInsets.only(top: 10),
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
         child: Wrap(
           children: tags,
         ),
@@ -273,32 +283,35 @@ class _PostScreenState extends State<PostScreen> {
 
   Widget _buildPicture() {
     if (item.images != null && item.images!.isNotEmpty) {
-      return Column(
-        children: [
-          const SizedBox(height: 15),
-          Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: GestureDetector(
-                  child: item.images![0].urls?.the500X500 != null
-                      ? CachedNetworkImage(
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          imageUrl: '${item.images![0].urls?.the500X500}',
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
-                        )
-                      : const SizedBox(),
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) {
-                      return PictureFullScreen(
-                        imageUrl: '${item.images![0].urls?.the1200X900}',
-                      );
-                    }));
-                  }),
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          children: [
+            const SizedBox(height: 15),
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: GestureDetector(
+                    child: item.images![0].urls?.the1200X900 != null
+                        ? CachedNetworkImage(
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            imageUrl: '${item.images![0].urls?.the1200X900}',
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          )
+                        : const SizedBox(),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        return PictureFullScreen(
+                          imageUrl: '${item.images![0].urls?.the1200X900}',
+                        );
+                      }));
+                    }),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     } else {
       return const SizedBox();
@@ -306,21 +319,24 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildContent() {
-    return MarkdownBody(
-      data: _addEmojis(item.content.toString()),
-      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-        blockquoteDecoration: BoxDecoration(
-          color: Colors.black54,
-          borderRadius: BorderRadius.circular(5),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: MarkdownBody(
+        data: _addEmojis(item.content.toString()),
+        styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+          blockquoteDecoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(5),
+          ),
         ),
+        selectable: true,
+        onTapLink: (text, href, title) {
+          launchUrl(
+            Uri.parse(href.toString()),
+            mode: LaunchMode.externalApplication,
+          );
+        },
       ),
-      selectable: true,
-      onTapLink: (text, href, title) {
-        launchUrl(
-          Uri.parse(href.toString()),
-          mode: LaunchMode.externalApplication,
-        );
-      },
     );
   }
 
