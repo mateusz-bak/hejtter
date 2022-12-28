@@ -260,10 +260,10 @@ class _PostsTabViewState extends State<PostsTabView> {
                     if (snapshot.hasData) {
                       if (snapshot.data != query) {
                         query = snapshot.data!;
+
+                        _refreshAllControllers();
                       }
                     }
-
-                    _refreshAllControllers();
 
                     return Expanded(
                       child: TabBarView(
