@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:hejtter/logic/cubit/search_cubit.dart';
+import 'package:hejtter/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/posts_screen/posts_tab_bar_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -8,12 +12,16 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 class PostsTabView extends StatefulWidget {
   const PostsTabView({
     super.key,
+    this.showSearchBar = false,
+    this.focusNode,
     this.communityName,
     this.tagName,
   });
 
+  final bool showSearchBar;
   final String? communityName;
   final String? tagName;
+  final FocusNode? focusNode;
 
   @override
   State<PostsTabView> createState() => _PostsTabViewState();
@@ -22,6 +30,7 @@ class PostsTabView extends StatefulWidget {
 class _PostsTabViewState extends State<PostsTabView> {
   final client = http.Client();
   static const _pageSize = 10;
+  String query = '';
 
   final List<String> items = [
     '6h',
@@ -48,12 +57,11 @@ class _PostsTabViewState extends State<PostsTabView> {
 
     queryParameters = _addCommunityFilter(queryParameters);
     queryParameters = _addTagFilter(queryParameters);
+    queryParameters = _addSearchQuery(queryParameters);
 
     var response = await client.get(
       Uri.https('api.hejto.pl', '/posts', queryParameters),
     );
-
-    // print(response.body);
 
     return postFromJson(response.body).embedded?.items;
   }
@@ -67,6 +75,7 @@ class _PostsTabViewState extends State<PostsTabView> {
 
     queryParameters = _addCommunityFilter(queryParameters);
     queryParameters = _addTagFilter(queryParameters);
+    queryParameters = _addSearchQuery(queryParameters);
 
     switch (_postsPeriod) {
       case '6h':
@@ -109,6 +118,7 @@ class _PostsTabViewState extends State<PostsTabView> {
 
     queryParameters = _addCommunityFilter(queryParameters);
     queryParameters = _addTagFilter(queryParameters);
+    queryParameters = _addSearchQuery(queryParameters);
 
     var response = await client.get(
       Uri.https('api.hejto.pl', '/posts', queryParameters),
@@ -131,6 +141,16 @@ class _PostsTabViewState extends State<PostsTabView> {
     if (widget.tagName != null) {
       queryParameters.addEntries(<String, String>{
         'tags[]': widget.tagName!,
+      }.entries);
+    }
+
+    return queryParameters;
+  }
+
+  Map<String, String> _addSearchQuery(Map<String, String> queryParameters) {
+    if (query.isNotEmpty) {
+      queryParameters.addEntries(<String, String>{
+        'query': query,
       }.entries);
     }
 
@@ -182,6 +202,18 @@ class _PostsTabViewState extends State<PostsTabView> {
     }
   }
 
+  _refreshAllControllers() async {
+    Future.delayed(Duration.zero, () async {
+      Future.sync(
+        () {
+          _hotPagingController.refresh();
+          _topPagingController.refresh();
+          _newPagingController.refresh();
+        },
+      );
+    });
+  }
+
   @override
   void initState() {
     _hotPagingController.addPageRequestListener((pageKey) {
@@ -210,25 +242,48 @@ class _PostsTabViewState extends State<PostsTabView> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Column(
-        children: [
-          _buildTabBar(),
-          Expanded(
-            child: TabBarView(
+    return Column(
+      children: [
+        PostsSearchBar(
+          show: widget.showSearchBar,
+          focusNode: widget.focusNode,
+        ),
+        Expanded(
+          child: DefaultTabController(
+            length: 3,
+            child: Column(
               children: [
-                PostsTabBarView(controller: _hotPagingController),
-                PostsTabBarView(
-                  controller: _topPagingController,
-                  topDropdown: _buildTopDropdown(),
+                _buildTabBar(),
+                StreamBuilder<String>(
+                  stream: searchCubit.searchString,
+                  builder: (context, AsyncSnapshot<String> snapshot) {
+                    if (snapshot.hasData) {
+                      if (snapshot.data != query) {
+                        query = snapshot.data!;
+                      }
+                    }
+
+                    _refreshAllControllers();
+
+                    return Expanded(
+                      child: TabBarView(
+                        children: [
+                          PostsTabBarView(controller: _hotPagingController),
+                          PostsTabBarView(
+                            controller: _topPagingController,
+                            topDropdown: _buildTopDropdown(),
+                          ),
+                          PostsTabBarView(controller: _newPagingController),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-                PostsTabBarView(controller: _newPagingController),
               ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
