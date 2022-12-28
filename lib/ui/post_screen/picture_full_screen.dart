@@ -87,6 +87,7 @@ class _PictureFullScreenState extends State<PictureFullScreen>
         ),
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.max,
         children: [
           Expanded(
@@ -100,6 +101,7 @@ class _PictureFullScreenState extends State<PictureFullScreen>
                 },
                 child: CachedNetworkImage(
                   imageUrl: widget.imageUrl,
+                  fit: BoxFit.contain,
                 ),
               ),
               onTap: () => setState(() {
