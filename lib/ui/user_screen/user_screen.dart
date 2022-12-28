@@ -166,16 +166,30 @@ class _UserScreenState extends State<UserScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        data.username != null
-            ? Text(
-                data.username!,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                ),
-              )
-            : const SizedBox(),
+        Row(
+          children: [
+            data.username != null
+                ? Text(
+                    data.username!,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                    ),
+                  )
+                : const SizedBox(),
+            SizedBox(width: data.sponsor == true ? 5 : 0),
+            data.sponsor == true
+                ? Transform.rotate(
+                    angle: 180,
+                    child: const Icon(
+                      Icons.mode_night_rounded,
+                      color: Colors.brown,
+                    ),
+                  )
+                : const SizedBox(),
+          ],
+        ),
         const SizedBox(height: 5),
         data.currentRank != null
             ? Text(

@@ -319,6 +319,17 @@ class _PostCardState extends State<PostCard> {
                     ),
                   ),
                 ),
+                SizedBox(width: widget.item.author?.sponsor == true ? 5 : 0),
+                widget.item.author?.sponsor == true
+                    ? Transform.rotate(
+                        angle: 180,
+                        child: const Icon(
+                          Icons.mode_night_rounded,
+                          color: Colors.brown,
+                          size: 16,
+                        ),
+                      )
+                    : const SizedBox(),
                 const SizedBox(width: 5),
                 Text(
                   widget.item.author != null
