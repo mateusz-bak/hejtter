@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hejtter/posts_screen/post_card.dart';
+import 'package:hejtter/ui/posts_screen/post_card.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:hejtter/models/posts_response.dart';
 

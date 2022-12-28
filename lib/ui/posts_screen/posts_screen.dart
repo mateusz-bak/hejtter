@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hejtter/logic/cubit/search_cubit.dart';
-import 'package:hejtter/posts_screen/posts_tab_view.dart';
+import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
 
 class PostsScreen extends StatefulWidget {
   const PostsScreen({

@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/models/user_details_response.dart';
-import 'package:hejtter/posts_screen/post_card.dart';
+import 'package:hejtter/ui/posts_screen/post_card.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 

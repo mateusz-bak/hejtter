@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hejtter/models/communities_response.dart';
-import 'package:hejtter/communities_screen/community_card.dart';
-import 'package:hejtter/home_screen/home_screen.dart';
-import 'package:hejtter/login_screen/login_screen.dart';
+import 'package:hejtter/ui/communities_screen/community_card.dart';
+import 'package:hejtter/ui/home_screen/home_screen.dart';
+import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:package_info_plus/package_info_plus.dart';

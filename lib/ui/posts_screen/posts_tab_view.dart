@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hejtter/logic/cubit/search_cubit.dart';
-import 'package:hejtter/posts_screen/posts_search_bar.dart';
-import 'package:hejtter/posts_screen/posts_tab_bar_view.dart';
+import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
+import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:hejtter/models/posts_response.dart';

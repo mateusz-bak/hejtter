@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hejtter/communities_screen/communities_screen.dart';
+import 'package:hejtter/ui/communities_screen/communities_screen.dart';
 import 'package:hejtter/logic/cubit/search_cubit.dart';
-import 'package:hejtter/login_screen/login_screen.dart';
+import 'package:hejtter/ui/login_screen/login_screen.dart';
 
-import 'package:hejtter/posts_screen/posts_tab_view.dart';
+import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 

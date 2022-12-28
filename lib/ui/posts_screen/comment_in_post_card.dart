@@ -3,8 +3,8 @@ import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/models/posts_response.dart';
-import 'package:hejtter/post_screen/post_screen.dart';
-import 'package:hejtter/user_screen/user_screen.dart';
+import 'package:hejtter/ui/post_screen/post_screen.dart';
+import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
