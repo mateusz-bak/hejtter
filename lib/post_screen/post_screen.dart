@@ -139,6 +139,7 @@ class _PostScreenState extends State<PostScreen> {
           () => _refreshPostAndComments(),
         ),
         child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.all(10),
             child: Material(
