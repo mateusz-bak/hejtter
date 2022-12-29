@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     var responseCSRF = await _getCSRF();
 
-    var responseCredentials = await _getCredentials(
+    var responseCredentials = await _postCredentials(
       jsonDecode(responseCSRF.body)['csrfToken'],
     );
 
@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return response;
   }
 
-  Future<http.Response> _getCredentials(String csrfToken) async {
+  Future<http.Response> _postCredentials(String csrfToken) async {
     final queryParameters = {
       'username': 'SluchamPsaJakGra',
       'password': 'dddddddddd',
