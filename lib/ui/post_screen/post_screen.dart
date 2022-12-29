@@ -411,26 +411,34 @@ class _PostScreenState extends State<PostScreen> {
                       )
                     : const SizedBox(),
                 const SizedBox(width: 5),
-                Text(
-                  item.author != null
-                      ? item.author!.currentRank.toString()
-                      : 'null',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: item.author?.currentColor != null
-                        ? Color(
-                            int.parse(
-                              item.author!.currentColor!
-                                  .replaceAll('#', '0xff'),
-                            ),
-                          )
-                        : null,
-                  ),
-                ),
+                _buildRankPlate(),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Container _buildRankPlate() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        item.author != null ? item.author!.currentRank.toString() : 'null',
+        style: TextStyle(
+          fontSize: 12,
+          color: item.author?.currentColor != null
+              ? Color(
+                  int.parse(
+                    item.author!.currentColor!.replaceAll('#', '0xff'),
+                  ),
+                )
+              : null,
+        ),
       ),
     );
   }

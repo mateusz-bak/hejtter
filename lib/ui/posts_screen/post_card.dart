@@ -306,6 +306,7 @@ class _PostCardState extends State<PostCard> {
         children: [
           Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Flexible(
                   child: Text(
@@ -331,26 +332,36 @@ class _PostCardState extends State<PostCard> {
                       )
                     : const SizedBox(),
                 const SizedBox(width: 5),
-                Text(
-                  widget.item.author != null
-                      ? widget.item.author!.currentRank.toString()
-                      : 'null',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: widget.item.author?.currentColor != null
-                        ? Color(
-                            int.parse(
-                              widget.item.author!.currentColor!
-                                  .replaceAll('#', '0xff'),
-                            ),
-                          )
-                        : null,
-                  ),
-                ),
+                _buildRankPlate(),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRankPlate() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        widget.item.author != null
+            ? widget.item.author!.currentRank.toString()
+            : 'null',
+        style: TextStyle(
+          fontSize: 11,
+          color: widget.item.author?.currentColor != null
+              ? Color(
+                  int.parse(
+                    widget.item.author!.currentColor!.replaceAll('#', '0xff'),
+                  ),
+                )
+              : null,
+        ),
       ),
     );
   }

@@ -191,21 +191,7 @@ class _UserScreenState extends State<UserScreen> {
           ],
         ),
         const SizedBox(height: 5),
-        data.currentRank != null
-            ? Text(
-                data.currentRank!,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: data.currentColor != null
-                      ? Color(
-                          int.parse(
-                            data.currentColor!.replaceAll('#', '0xff'),
-                          ),
-                        )
-                      : null,
-                ),
-              )
-            : const SizedBox(),
+        data.currentRank != null ? _buildRankPlate(data) : const SizedBox(),
         const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -236,6 +222,29 @@ class _UserScreenState extends State<UserScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildRankPlate(UserDetailsResponse data) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        data.currentRank!,
+        style: TextStyle(
+          fontSize: 16,
+          color: data.currentColor != null
+              ? Color(
+                  int.parse(
+                    data.currentColor!.replaceAll('#', '0xff'),
+                  ),
+                )
+              : null,
+        ),
+      ),
     );
   }
 
