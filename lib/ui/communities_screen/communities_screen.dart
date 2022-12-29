@@ -3,6 +3,7 @@ import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/ui/communities_screen/community_card.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
+import 'package:hejtter/ui/web_login_screen/web_login_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -108,10 +109,23 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               onTap: () {},
             ),
             ListTile(
-              title: const Text('Zaloguj się'),
+              title: const Text('Zaloguj się w aplikacji'),
               onTap: () {
                 Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                  (Route<dynamic> route) => false,
+                );
+              },
+            ),
+            ListTile(
+              title: const Text('Zaloguj się przez przeglądarkę'),
+              onTap: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (context) => const WebLoginScreen(),
+                  ),
                   (Route<dynamic> route) => false,
                 );
               },
