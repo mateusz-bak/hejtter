@@ -53,6 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     print('responseProviders: ${response.body}');
     print('responseProviders.headers: ${response.headers}');
+    print(
+        'responseProviders.headers["set-cookie"]: ${response.headers['set-cookie']}');
 
     return response;
   }
@@ -66,7 +68,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     print('responseCSRF: ${response.body}');
-    print('csrfToken: ${jsonDecode(response.body)['csrfToken']}');
+    print('responseCSRF.headers: ${response.headers}');
+    print(
+        'responseCSRF.headers["set-cookie"]: ${response.headers['set-cookie']}');
 
     return response;
   }
@@ -82,16 +86,20 @@ class _LoginScreenState extends State<LoginScreen> {
       'csrfToken': csrfToken,
     };
 
+    var body = json.encode(queryParameters);
+
     var response = await client.post(
       Uri.https(
         'hejto.pl',
         '/api/auth/callback/credentials',
-        queryParameters,
       ),
+      body: body,
     );
 
     print('responseCredentials: ${response.body}');
     print('responseCredentials.headers: ${response.headers}');
+    print(
+        'responseCredentials.headers["set-cookie"]: ${response.headers['set-cookie']}');
 
     return response;
   }
@@ -106,6 +114,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     print('responseSession: ${response.body}');
     print('responseSession.headers: ${response.headers}');
+    print(
+        'responseSession.headers["set-cookie"]: ${response.headers['set-cookie']}');
 
     return response;
   }
