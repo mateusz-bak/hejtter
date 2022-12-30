@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/material.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
-import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,7 +17,9 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final client = http.Client();
+
+  var cookieJar = CookieJar();
+  var client = HttpClient();
 
   _changeLoadingStatus(bool status) {
     setState(() {
@@ -28,96 +31,137 @@ class _LoginScreenState extends State<LoginScreen> {
     FocusManager.instance.primaryFocus?.unfocus();
     _changeLoadingStatus(true);
 
-    var responseProviders = await _getProviders();
+    await _getProviders();
 
-    var responseCSRF = await _getCSRF();
-
-    var responseCredentials = await _postCredentials(
-      jsonDecode(responseCSRF.body)['csrfToken'],
-    );
-
-    var responseSession = await _getSession();
+    final csrfToken = await _getCSRFToken();
+    await _postCredentials(csrfToken);
+    await _getSession();
 
     _changeLoadingStatus(false);
 
     return;
   }
 
-  Future<http.Response> _getProviders() async {
-    final response = await client.get(
+  Future<dynamic> _getProviders() async {
+    HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'hejto.pl',
+        'www.hejto.pl',
         '/api/auth/providers',
       ),
     );
 
-    print('responseProviders: ${response.body}');
-    print('responseProviders.headers: ${response.headers}');
-    print(
-        'responseProviders.headers["set-cookie"]: ${response.headers['set-cookie']}');
+    request.cookies.addAll(
+      await cookieJar.loadForRequest(
+        Uri.https('www.hejto.pl'),
+      ),
+    );
 
-    return response;
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    await cookieJar.saveFromResponse(
+        Uri.https('www.hejto.pl'), response.cookies);
+
+    print('_getProviders.stringData: $stringData');
+
+    return stringData;
   }
 
-  Future<http.Response> _getCSRF() async {
-    final response = await client.get(
+  Future<dynamic> _getCSRFToken() async {
+    HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'hejto.pl',
+        'www.hejto.pl',
         '/api/auth/csrf',
       ),
     );
 
-    print('responseCSRF: ${response.body}');
-    print('responseCSRF.headers: ${response.headers}');
-    print(
-        'responseCSRF.headers["set-cookie"]: ${response.headers['set-cookie']}');
+    request.cookies.addAll(
+      await cookieJar.loadForRequest(
+        Uri.https('www.hejto.pl'),
+      ),
+    );
 
-    return response;
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    await cookieJar.saveFromResponse(
+        Uri.https('www.hejto.pl'), response.cookies);
+
+    print('_getCSRF.stringData: $stringData');
+
+    final token = jsonDecode(stringData)['csrfToken'];
+    print('csrfToken: $token');
+
+    return token;
   }
 
-  Future<http.Response> _postCredentials(String csrfToken) async {
-    final queryParameters = {
-      'username': 'SluchamPsaJakGra',
-      'password': 'dddddddddd',
+  Future<dynamic> _postCredentials(String csrfToken) async {
+    const username = 'username';
+    const pass = 'password';
+
+    final body = {
+      'username': username,
+      'password': pass,
       'redirect': 'false',
       'json': 'true',
       'callbackUrl':
-          'https%3A%2F%2Fwww.hejto.pl%2Fwpis%2Fczolem-kasie-i-tomki-wlasnie-wydalem-wersje-0-0-2-hejttera-niestety-dalej-bez-lo',
+          'https://www.hejto.pl/wpis/czolem-kasie-i-tomki-wlasnie-wydalem-wersje-0-0-2-hejttera-niestety-dalej-bez-lo',
       'csrfToken': csrfToken,
     };
 
-    var body = json.encode(queryParameters);
-
-    var response = await client.post(
+    HttpClientRequest request = await client.postUrl(
       Uri.https(
-        'hejto.pl',
+        'www.hejto.pl',
         '/api/auth/callback/credentials',
       ),
-      body: body,
     );
 
-    print('responseCredentials: ${response.body}');
-    print('responseCredentials.headers: ${response.headers}');
-    print(
-        'responseCredentials.headers["set-cookie"]: ${response.headers['set-cookie']}');
+    final cookies = await cookieJar.loadForRequest(
+      Uri.https('www.hejto.pl'),
+    );
+    print('cookies: ${cookies}');
+    request.cookies.addAll(cookies);
 
-    return response;
+    request.headers.set('content-type', 'application/json');
+    request.add(utf8.encode(json.encode(body)));
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+    final headers = response.headers;
+
+    await cookieJar.saveFromResponse(
+        Uri.https('www.hejto.pl'), response.cookies);
+
+    print('_postCredentials.stringData: $stringData');
+    print('_postCredentials.headers: $headers');
+
+    return stringData;
   }
 
-  Future<http.Response> _getSession() async {
-    var response = await client.get(
+  Future<dynamic> _getSession() async {
+    HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'hejto.pl',
+        'www.hejto.pl',
         '/api/auth/session',
       ),
     );
 
-    print('responseSession: ${response.body}');
-    print('responseSession.headers: ${response.headers}');
-    print(
-        'responseSession.headers["set-cookie"]: ${response.headers['set-cookie']}');
+    request.cookies.addAll(
+      await cookieJar.loadForRequest(
+        Uri.https('www.hejto.pl'),
+      ),
+    );
 
-    return response;
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    await cookieJar.saveFromResponse(
+        Uri.https('www.hejto.pl'), response.cookies);
+
+    print('_getSession.stringData: $stringData');
+    print('_getSession.headers: ${response.headers}');
+
+    return stringData;
   }
 
   _skipLogin() {
