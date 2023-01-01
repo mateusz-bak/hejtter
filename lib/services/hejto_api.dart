@@ -5,6 +5,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc.dart';
+import 'package:hejtter/main.dart';
 import 'package:hejtter/models/posts_response.dart';
 
 final hejtoApi = HejtoApi();
@@ -132,11 +133,11 @@ class HejtoApi {
     return stringData;
   }
 
-  String? _getAccessToken(BuildContext context) {
+  Future<String?> _getAccessToken(BuildContext context) async {
     final state = context.read<AuthBloc>().state;
 
     if (state is AuthorizedAuthState) {
-      return state.accessToken;
+      return await secureStorage.read(key: 'accessToken');
     } else {
       return null;
     }
@@ -146,7 +147,7 @@ class HejtoApi {
     required String postSlug,
     required BuildContext context,
   }) async {
-    final accessToken = _getAccessToken(context);
+    final accessToken = await _getAccessToken(context);
     if (accessToken == null) return false;
 
     HttpClientRequest request = await client.postUrl(Uri.https(
@@ -181,7 +182,7 @@ class HejtoApi {
     required String postSlug,
     required BuildContext context,
   }) async {
-    final accessToken = _getAccessToken(context);
+    final accessToken = await _getAccessToken(context);
     if (accessToken == null) return false;
 
     HttpClientRequest request = await client.deleteUrl(Uri.https(
@@ -217,7 +218,7 @@ class HejtoApi {
     required BuildContext context,
   }) async {
     if (postSlug == null) return;
-    final accessToken = _getAccessToken(context);
+    final accessToken = await _getAccessToken(context);
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(

@@ -5,19 +5,16 @@ abstract class AuthState extends Equatable {
 }
 
 class AuthorizedAuthState extends AuthState {
-  final String accessToken;
   final int accessTokenExpiry;
   final DateTime expires;
 
   const AuthorizedAuthState({
-    required this.accessToken,
     required this.accessTokenExpiry,
     required this.expires,
   });
 
   @override
   List<Object?> get props => [
-        accessToken,
         accessTokenExpiry,
         expires,
       ];

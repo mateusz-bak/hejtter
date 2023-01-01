@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
+import 'package:hejtter/main.dart';
 import 'package:hejtter/models/session.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
@@ -26,8 +27,12 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       );
 
       if (_validateSession(session)) {
+        await secureStorage.write(
+          key: 'accessToken',
+          value: session.accessToken!,
+        );
+
         emit(AuthorizedAuthState(
-          accessToken: session.accessToken!,
           accessTokenExpiry: session.accessTokenExpiry!,
           expires: session.expires!,
         ));
@@ -58,17 +63,12 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
   @override
   AuthState fromJson(Map<String, dynamic> json) {
     final authorized = json['authorized'] as bool;
-    final accessToken = json['access_token'] as String?;
     final accessTokenExpiry = json['access_token_expiry'] as int?;
     final expires = json['expires'] as String?;
     final loginSkipped = json['login_skipped'] as bool?;
 
-    if (authorized == true &&
-        accessToken != null &&
-        accessTokenExpiry != null &&
-        expires != null) {
+    if (authorized == true && accessTokenExpiry != null && expires != null) {
       return AuthorizedAuthState(
-        accessToken: accessToken,
         accessTokenExpiry: accessTokenExpiry,
         expires: DateTime.parse(expires),
       );
@@ -86,7 +86,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     if (state is AuthorizedAuthState) {
       return {
         'authorized': true,
-        'access_token': state.accessToken,
         'access_token_expiry': state.accessTokenExpiry,
         'expires': state.expires.toIso8601String(),
         'login_skipped': false,
@@ -94,7 +93,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     } else if (state is LoginSkippedAuthState) {
       return {
         'authorized': false,
-        'access_token': null,
         'access_token_expiry': null,
         'expires': null,
         'login_skipped': true,
@@ -102,7 +100,6 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     } else {
       return {
         'authorized': false,
-        'access_token': null,
         'access_token_expiry': null,
         'expires': null,
         'login_skipped': false,
