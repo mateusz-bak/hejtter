@@ -239,6 +239,7 @@ class HejtoApi {
         'Bearer $accessToken',
       );
     }
+
     request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
     request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
@@ -252,5 +253,131 @@ class HejtoApi {
     );
 
     return PostItem.fromJson(json.decode(stringData));
+  }
+
+  Future<List<PostItem>?> getPosts({
+    required int pageKey,
+    required int pageSize,
+    required BuildContext context,
+    required String? communityName,
+    required String? tagName,
+    required String query,
+    required String orderBy,
+    String? postsPeriod,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+
+    var queryParameters = {
+      'limit': '$pageSize',
+      'page': '$pageKey',
+      'orderBy': orderBy,
+    };
+
+    queryParameters = _addCommunityFilter(queryParameters, communityName);
+    queryParameters = _addTagFilter(queryParameters, tagName);
+    queryParameters = _addSearchQuery(queryParameters, query);
+    queryParameters = _addPostsPeriod(queryParameters, postsPeriod);
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        'api.hejto.pl',
+        '/posts/',
+        queryParameters,
+      ),
+    );
+
+    request.cookies.addAll(
+      await cookieJar.loadForRequest(
+        Uri.https('www.hejto.pl'),
+      ),
+    );
+
+    if (accessToken != null) {
+      request.headers.set(
+        HttpHeaders.authorizationHeader,
+        'Bearer $accessToken',
+      );
+    }
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    await cookieJar.saveFromResponse(
+      Uri.https('www.hejto.pl'),
+      response.cookies,
+    );
+
+    return postFromJson(stringData).embedded?.items;
+  }
+
+  Map<String, String> _addCommunityFilter(
+    Map<String, String> queryParameters,
+    String? communityName,
+  ) {
+    if (communityName != null) {
+      queryParameters.addEntries(
+        <String, String>{'community': communityName}.entries,
+      );
+    }
+
+    return queryParameters;
+  }
+
+  Map<String, String> _addTagFilter(
+    Map<String, String> queryParameters,
+    String? tagName,
+  ) {
+    if (tagName != null) {
+      queryParameters.addEntries(
+        <String, String>{'tags[]': tagName}.entries,
+      );
+    }
+
+    return queryParameters;
+  }
+
+  Map<String, String> _addSearchQuery(
+    Map<String, String> queryParameters,
+    String query,
+  ) {
+    if (query.isNotEmpty) {
+      queryParameters.addEntries(
+        <String, String>{'query': query}.entries,
+      );
+    }
+
+    return queryParameters;
+  }
+
+  Map<String, String> _addPostsPeriod(
+    Map<String, String> queryParameters,
+    String? postsPeriod,
+  ) {
+    switch (postsPeriod) {
+      case '6h':
+        queryParameters.addEntries(<String, String>{
+          'period': '6h',
+        }.entries);
+        break;
+      case '12h':
+        queryParameters.addEntries(<String, String>{
+          'period': '12h',
+        }.entries);
+        break;
+      case '24h':
+        queryParameters.addEntries(<String, String>{
+          'period': '24h',
+        }.entries);
+        break;
+      case 'tydzień':
+        queryParameters.addEntries(<String, String>{
+          'period': 'week',
+        }.entries);
+        break;
+      default:
+        break;
+    }
+
+    return queryParameters;
   }
 }

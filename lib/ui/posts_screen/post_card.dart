@@ -95,10 +95,20 @@ class _PostCardState extends State<PostCard> {
                         widget.item.numLikes != null
                             ? widget.item.numLikes.toString()
                             : 'null',
+                        style: TextStyle(
+                          color: widget.item.isLiked == true
+                              ? const Color(0xffFFC009)
+                              : null,
+                        ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.all(5),
-                        child: Icon(Icons.bolt),
+                      Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: Icon(
+                          Icons.bolt,
+                          color: widget.item.isLiked == true
+                              ? const Color(0xffFFC009)
+                              : null,
+                        ),
                       )
                     ],
                   ),

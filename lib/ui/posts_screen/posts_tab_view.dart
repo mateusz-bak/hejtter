@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hejtter/logic/cubit/search_cubit.dart';
+import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:http/http.dart' as http;
@@ -48,118 +49,18 @@ class _PostsTabViewState extends State<PostsTabView> {
   final PagingController<int, PostItem> _newPagingController =
       PagingController(firstPageKey: 1);
 
-  Future<List<PostItem>?> _getHotPosts(int pageKey, int pageSize) async {
-    var queryParameters = {
-      'limit': '$pageSize',
-      'page': '$pageKey',
-      'orderBy': 'p.hot',
-    };
-
-    queryParameters = _addCommunityFilter(queryParameters);
-    queryParameters = _addTagFilter(queryParameters);
-    queryParameters = _addSearchQuery(queryParameters);
-
-    var response = await client.get(
-      Uri.https('api.hejto.pl', '/posts', queryParameters),
-    );
-
-    return postFromJson(response.body).embedded?.items;
-  }
-
-  Future<List<PostItem>?> _getTopPosts(int pageKey, int pageSize) async {
-    var queryParameters = {
-      'limit': '$pageSize',
-      'page': '$pageKey',
-      'orderBy': 'p.numLikes',
-    };
-
-    queryParameters = _addCommunityFilter(queryParameters);
-    queryParameters = _addTagFilter(queryParameters);
-    queryParameters = _addSearchQuery(queryParameters);
-
-    switch (_postsPeriod) {
-      case '6h':
-        queryParameters.addEntries(<String, String>{
-          'period': '6h',
-        }.entries);
-        break;
-      case '12h':
-        queryParameters.addEntries(<String, String>{
-          'period': '12h',
-        }.entries);
-        break;
-      case '24h':
-        queryParameters.addEntries(<String, String>{
-          'period': '24h',
-        }.entries);
-        break;
-      case 'tydzień':
-        queryParameters.addEntries(<String, String>{
-          'period': 'week',
-        }.entries);
-        break;
-      default:
-        break;
-    }
-
-    var response = await client.get(
-      Uri.https('api.hejto.pl', '/posts', queryParameters),
-    );
-
-    return postFromJson(response.body).embedded?.items;
-  }
-
-  Future<List<PostItem>?> _getNewPosts(int pageKey, int pageSize) async {
-    var queryParameters = {
-      'limit': '$pageSize',
-      'page': '$pageKey',
-      'orderBy': 'p.createdAt',
-    };
-
-    queryParameters = _addCommunityFilter(queryParameters);
-    queryParameters = _addTagFilter(queryParameters);
-    queryParameters = _addSearchQuery(queryParameters);
-
-    var response = await client.get(
-      Uri.https('api.hejto.pl', '/posts', queryParameters),
-    );
-
-    return postFromJson(response.body).embedded?.items;
-  }
-
-  Map<String, String> _addCommunityFilter(Map<String, String> queryParameters) {
-    if (widget.communityName != null) {
-      queryParameters.addEntries(<String, String>{
-        'community': widget.communityName!,
-      }.entries);
-    }
-
-    return queryParameters;
-  }
-
-  Map<String, String> _addTagFilter(Map<String, String> queryParameters) {
-    if (widget.tagName != null) {
-      queryParameters.addEntries(<String, String>{
-        'tags[]': widget.tagName!,
-      }.entries);
-    }
-
-    return queryParameters;
-  }
-
-  Map<String, String> _addSearchQuery(Map<String, String> queryParameters) {
-    if (query.isNotEmpty) {
-      queryParameters.addEntries(<String, String>{
-        'query': query,
-      }.entries);
-    }
-
-    return queryParameters;
-  }
-
   Future<void> _fetchHotPage(int pageKey) async {
     try {
-      final newItems = await _getHotPosts(pageKey, _pageSize);
+      final newItems = await hejtoApi.getPosts(
+        pageKey: pageKey,
+        pageSize: _pageSize,
+        context: context,
+        communityName: widget.communityName,
+        tagName: widget.tagName,
+        query: query,
+        orderBy: 'p.hot',
+      );
+
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         if (!mounted) return;
@@ -176,7 +77,17 @@ class _PostsTabViewState extends State<PostsTabView> {
 
   Future<void> _fetchTopPage(int pageKey) async {
     try {
-      final newItems = await _getTopPosts(pageKey, _pageSize);
+      final newItems = await hejtoApi.getPosts(
+        pageKey: pageKey,
+        pageSize: _pageSize,
+        context: context,
+        communityName: widget.communityName,
+        tagName: widget.tagName,
+        query: query,
+        orderBy: 'p.numLikes',
+        postsPeriod: _postsPeriod,
+      );
+
       if (newItems == null) return;
       final isLastPage = newItems.length < _pageSize;
       if (isLastPage) {
@@ -194,7 +105,16 @@ class _PostsTabViewState extends State<PostsTabView> {
 
   Future<void> _fetchNewPage(int pageKey) async {
     try {
-      final newItems = await _getNewPosts(pageKey, _pageSize);
+      final newItems = await hejtoApi.getPosts(
+        pageKey: pageKey,
+        pageSize: _pageSize,
+        context: context,
+        communityName: widget.communityName,
+        tagName: widget.tagName,
+        query: query,
+        orderBy: 'p.createdAt',
+      );
+
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         if (!mounted) return;
