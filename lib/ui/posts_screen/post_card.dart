@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/posts_screen/comment_in_post_card.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/models/posts_response.dart';
@@ -22,13 +25,16 @@ class PostCard extends StatefulWidget {
   State<PostCard> createState() => _PostCardState();
 }
 
-class _PostCardState extends State<PostCard> {
+class _PostCardState extends State<PostCard>
+    with AutomaticKeepAliveClientMixin {
+  late PostItem item;
+
   _goToUserScreen() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => UserScreen(
-          userName: widget.item.author?.username,
+          userName: item.author?.username,
         ),
       ),
     );
@@ -43,8 +49,28 @@ class _PostCardState extends State<PostCard> {
     timeago.setLocaleMessages('pl', timeago.PlMessages());
   }
 
+  _refreshPost() async {
+    final newItem = await hejtoApi.getPostDetails(
+      postSlug: item.slug,
+      context: context,
+    );
+
+    if (newItem != null) {
+      setState(() {
+        item = newItem;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    item = widget.item;
+  }
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     _setTimeAgoLocale();
 
     return Padding(
@@ -53,7 +79,8 @@ class _PostCardState extends State<PostCard> {
         onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) {
             return PostScreen(
-              item: widget.item,
+              item: item,
+              refreshCallback: _refreshPost,
             );
           }));
         },
@@ -92,11 +119,11 @@ class _PostCardState extends State<PostCard> {
                       _buildHotIcon(),
                       const SizedBox(width: 10),
                       Text(
-                        widget.item.numLikes != null
-                            ? widget.item.numLikes.toString()
+                        item.numLikes != null
+                            ? item.numLikes.toString()
                             : 'null',
                         style: TextStyle(
-                          color: widget.item.isLiked == true
+                          color: item.isLiked == true
                               ? const Color(0xffFFC009)
                               : null,
                         ),
@@ -105,7 +132,7 @@ class _PostCardState extends State<PostCard> {
                         padding: const EdgeInsets.all(5),
                         child: Icon(
                           Icons.bolt,
-                          color: widget.item.isLiked == true
+                          color: item.isLiked == true
                               ? const Color(0xffFFC009)
                               : null,
                         ),
@@ -135,8 +162,8 @@ class _PostCardState extends State<PostCard> {
   Widget _buildHotIcon() {
     return Column(
       children: [
-        SizedBox(width: widget.item.hot == true ? 5 : 0),
-        widget.item.hot == true
+        SizedBox(width: item.hot == true ? 5 : 0),
+        item.hot == true
             ? const Icon(
                 Icons.local_fire_department_outlined,
                 color: Color(0xff2295F3),
@@ -147,7 +174,9 @@ class _PostCardState extends State<PostCard> {
   }
 
   Widget _buildComments() {
-    if (widget.item.comments != null && widget.item.comments!.isNotEmpty) {
+    log(item.comments.toString());
+
+    if (item.comments != null && item.comments!.isNotEmpty) {
       return Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
@@ -163,21 +192,24 @@ class _PostCardState extends State<PostCard> {
           children: [
             const SizedBox(height: 15),
             CommentInPostCard(
-              comment: widget.item.comments![0],
-              postItem: widget.item,
+              comment: item.comments![0],
+              postItem: item,
+              refreshCallback: _refreshPost,
             ),
-            SizedBox(height: widget.item.comments!.length > 1 ? 10 : 0),
-            widget.item.comments!.length > 1
+            SizedBox(height: item.comments!.length > 1 ? 10 : 0),
+            item.comments!.length > 1
                 ? CommentInPostCard(
-                    comment: widget.item.comments![1],
-                    postItem: widget.item,
+                    comment: item.comments![1],
+                    postItem: item,
+                    refreshCallback: _refreshPost,
                   )
                 : const SizedBox(),
-            SizedBox(height: widget.item.comments!.length > 2 ? 10 : 0),
-            widget.item.comments!.length > 2
+            SizedBox(height: item.comments!.length > 2 ? 10 : 0),
+            item.comments!.length > 2
                 ? CommentInPostCard(
-                    comment: widget.item.comments![2],
-                    postItem: widget.item,
+                    comment: item.comments![2],
+                    postItem: item,
+                    refreshCallback: _refreshPost,
                   )
                 : const SizedBox(),
           ],
@@ -189,10 +221,10 @@ class _PostCardState extends State<PostCard> {
   }
 
   Widget _buildTags() {
-    if (widget.item.tags != null && widget.item.tags!.isNotEmpty) {
+    if (item.tags != null && item.tags!.isNotEmpty) {
       List<Widget> tags = List.empty(growable: true);
 
-      for (var tag in widget.item.tags!) {
+      for (var tag in item.tags!) {
         if (tag.name != null) {
           tags.add(GestureDetector(
             onTap: () {
@@ -232,7 +264,7 @@ class _PostCardState extends State<PostCard> {
   }
 
   Widget _buildPicture() {
-    if (widget.item.images != null && widget.item.images!.isNotEmpty) {
+    if (item.images != null && item.images!.isNotEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Column(
@@ -244,7 +276,7 @@ class _PostCardState extends State<PostCard> {
                 child: CachedNetworkImage(
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  imageUrl: '${widget.item.images![0].urls?.the500X500}',
+                  imageUrl: '${item.images![0].urls?.the500X500}',
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               ),
@@ -261,7 +293,7 @@ class _PostCardState extends State<PostCard> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: MarkdownBody(
-        data: _addEmojis(widget.item.content.toString()),
+        data: _addEmojis(item.content.toString()),
         styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
           blockquoteDecoration: BoxDecoration(
             color: Colors.black54,
@@ -272,7 +304,8 @@ class _PostCardState extends State<PostCard> {
         onTapText: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) {
             return PostScreen(
-              item: widget.item,
+              item: item,
+              refreshCallback: _refreshPost,
             );
           }));
         },
@@ -287,7 +320,7 @@ class _PostCardState extends State<PostCard> {
   }
 
   Widget _buildAvatar() {
-    final avatarUrl = widget.item.author?.avatar?.urls?.the100X100;
+    final avatarUrl = item.author?.avatar?.urls?.the100X100;
     const defaultAvatarUrl =
         'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
@@ -320,8 +353,8 @@ class _PostCardState extends State<PostCard> {
               children: [
                 Flexible(
                   child: Text(
-                    widget.item.author != null
-                        ? widget.item.author!.username.toString()
+                    item.author != null
+                        ? item.author!.username.toString()
                         : 'null',
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -330,8 +363,8 @@ class _PostCardState extends State<PostCard> {
                     ),
                   ),
                 ),
-                SizedBox(width: widget.item.author?.sponsor == true ? 5 : 0),
-                widget.item.author?.sponsor == true
+                SizedBox(width: item.author?.sponsor == true ? 5 : 0),
+                item.author?.sponsor == true
                     ? Transform.rotate(
                         angle: 180,
                         child: const Icon(
@@ -359,15 +392,13 @@ class _PostCardState extends State<PostCard> {
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
-        widget.item.author != null
-            ? widget.item.author!.currentRank.toString()
-            : 'null',
+        item.author != null ? item.author!.currentRank.toString() : 'null',
         style: TextStyle(
           fontSize: 11,
-          color: widget.item.author?.currentColor != null
+          color: item.author?.currentColor != null
               ? Color(
                   int.parse(
-                    widget.item.author!.currentColor!.replaceAll('#', '0xff'),
+                    item.author!.currentColor!.replaceAll('#', '0xff'),
                   ),
                 )
               : null,
@@ -384,19 +415,19 @@ class _PostCardState extends State<PostCard> {
         Flexible(
           child: GestureDetector(
             onTap: (() {
-              if (widget.item.community?.name == null) return;
+              if (item.community?.name == null) return;
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => PostsScreen(
-                    communityName: widget.item.community!.name!,
+                    communityName: item.community!.name!,
                   ),
                 ),
               );
             }),
             child: Text(
-              widget.item.community?.name != null
-                  ? widget.item.community!.name.toString()
+              item.community?.name != null
+                  ? item.community!.name.toString()
                   : 'null',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
@@ -408,8 +439,8 @@ class _PostCardState extends State<PostCard> {
         ),
         const SizedBox(width: 5),
         Text(
-          widget.item.createdAt != null
-              ? timeago.format(DateTime.parse(widget.item.createdAt.toString()),
+          item.createdAt != null
+              ? timeago.format(DateTime.parse(item.createdAt.toString()),
                   locale: 'pl')
               : 'null',
           style: const TextStyle(fontSize: 12),
@@ -417,4 +448,7 @@ class _PostCardState extends State<PostCard> {
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

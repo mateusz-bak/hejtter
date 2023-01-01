@@ -14,10 +14,12 @@ class CommentInPostCard extends StatelessWidget {
     required this.comment,
     required this.postItem,
     super.key,
+    required this.refreshCallback,
   });
 
   final CommentItem comment;
   final PostItem postItem;
+  final Function() refreshCallback;
 
   _goToUserScreen(BuildContext context) {
     Navigator.push(
@@ -80,6 +82,7 @@ class CommentInPostCard extends StatelessWidget {
                 Navigator.push(context, MaterialPageRoute(builder: (_) {
                   return PostScreen(
                     item: postItem,
+                    refreshCallback: refreshCallback,
                   );
                 }));
               },

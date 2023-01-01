@@ -214,11 +214,11 @@ class HejtoApi {
     }
   }
 
-  Future getPostDetails({
+  Future<PostItem?> getPostDetails({
     required String? postSlug,
     required BuildContext context,
   }) async {
-    if (postSlug == null) return;
+    if (postSlug == null) return null;
     final accessToken = await _getAccessToken(context);
 
     HttpClientRequest request = await client.getUrl(

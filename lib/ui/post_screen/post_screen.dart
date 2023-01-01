@@ -17,10 +17,12 @@ import 'package:http/http.dart' as http;
 class PostScreen extends StatefulWidget {
   const PostScreen({
     required this.item,
+    required this.refreshCallback,
     Key? key,
   }) : super(key: key);
 
   final PostItem item;
+  final Function() refreshCallback;
 
   @override
   State<PostScreen> createState() => _PostScreenState();
@@ -88,9 +90,11 @@ class _PostScreenState extends State<PostScreen> {
       context: context,
     );
 
-    setState(() {
-      item = refreshedPost;
-    });
+    if (refreshedPost != null) {
+      setState(() {
+        item = refreshedPost;
+      });
+    }
   }
 
   Future _refreshComments() async {
@@ -113,9 +117,13 @@ class _PostScreenState extends State<PostScreen> {
         context: context,
       );
 
-      setState(() {
-        item = refreshedPost;
-      });
+      if (refreshedPost != null) {
+        setState(() {
+          item = refreshedPost;
+        });
+      }
+
+      widget.refreshCallback();
     }
   }
 
@@ -133,9 +141,13 @@ class _PostScreenState extends State<PostScreen> {
         context: context,
       );
 
-      setState(() {
-        item = refreshedPost;
-      });
+      if (refreshedPost != null) {
+        setState(() {
+          item = refreshedPost;
+        });
+      }
+
+      widget.refreshCallback();
     }
   }
 
