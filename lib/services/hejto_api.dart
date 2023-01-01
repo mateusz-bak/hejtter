@@ -177,6 +177,41 @@ class HejtoApi {
     }
   }
 
+  Future<bool> unlikePost({
+    required String postSlug,
+    required BuildContext context,
+  }) async {
+    final accessToken = _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.deleteUrl(Uri.https(
+      'api.hejto.pl',
+      '/posts/$postSlug/likes',
+    ));
+
+    request.cookies.addAll(await cookieJar.loadForRequest(
+      Uri.https('www.hejto.pl'),
+    ));
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+
+    HttpClientResponse response = await request.close();
+
+    await cookieJar.saveFromResponse(
+      Uri.https('www.hejto.pl'),
+      response.cookies,
+    );
+
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Future getPostDetails({
     required String? postSlug,
     required BuildContext context,

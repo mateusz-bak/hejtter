@@ -109,6 +109,46 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
+  _likePost() async {
+    if (item.slug == null) return;
+
+    final postLiked = await hejtoApi.likePost(
+      postSlug: item.slug!,
+      context: context,
+    );
+
+    if (postLiked) {
+      final refreshedPost = await hejtoApi.getPostDetails(
+        postSlug: item.slug,
+        context: context,
+      );
+
+      setState(() {
+        item = refreshedPost;
+      });
+    }
+  }
+
+  _unlikePost() async {
+    if (item.slug == null) return;
+
+    final postUnliked = await hejtoApi.unlikePost(
+      postSlug: item.slug!,
+      context: context,
+    );
+
+    if (postUnliked) {
+      final refreshedPost = await hejtoApi.getPostDetails(
+        postSlug: item.slug,
+        context: context,
+      );
+
+      setState(() {
+        item = refreshedPost;
+      });
+    }
+  }
+
   @override
   void initState() {
     _pagingController.addPageRequestListener((pageKey) {
@@ -116,10 +156,8 @@ class _PostScreenState extends State<PostScreen> {
     });
 
     item = widget.item;
-    hejtoApi.getPostDetails(
-      postSlug: item.slug,
-      context: context,
-    );
+
+    _refreshPost();
     super.initState();
   }
 
@@ -182,32 +220,19 @@ class _PostScreenState extends State<PostScreen> {
                             item.numLikes != null
                                 ? item.numLikes.toString()
                                 : 'null',
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: IconButton(
-                              icon: const Icon(Icons.bolt),
-                              onPressed: () async {
-                                if (item.slug == null) return;
-
-                                final postLiked = await hejtoApi.likePost(
-                                  postSlug: item.slug!,
-                                  context: context,
-                                );
-
-                                if (postLiked) {
-                                  final refreshedPost =
-                                      await hejtoApi.getPostDetails(
-                                    postSlug: item.slug,
-                                    context: context,
-                                  );
-
-                                  setState(() {
-                                    item = refreshedPost;
-                                  });
-                                }
-                              },
+                            style: TextStyle(
+                              color: item.isLiked == true
+                                  ? const Color(0xffFFC009)
+                                  : null,
                             ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.bolt),
+                            color: item.isLiked == true
+                                ? const Color(0xffFFC009)
+                                : null,
+                            onPressed:
+                                item.isLiked == true ? _unlikePost : _likePost,
                           )
                         ],
                       ),

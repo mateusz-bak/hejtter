@@ -79,6 +79,7 @@ class PostItem {
     this.link,
     this.updatedAt,
     this.numLikes,
+    this.isLiked,
   });
 
   final List<Comment>? comments;
@@ -109,6 +110,7 @@ class PostItem {
   final String? link;
   final DateTime? updatedAt;
   final int? numLikes;
+  final bool? isLiked;
 
   factory PostItem.fromJson(Map<String, dynamic> json) => PostItem(
         comments: json["comments"] == null
@@ -159,6 +161,7 @@ class PostItem {
             ? null
             : DateTime.parse(json["updated_at"]),
         numLikes: json["num_likes"],
+        isLiked: json["is_liked"],
       );
 }
 
