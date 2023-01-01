@@ -13,6 +13,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
   bool _loginError = false;
+  bool _passwordVisible = false;
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -107,37 +108,58 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
             ),
             const SizedBox(height: 30),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xff2295F3).withAlpha(30),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: TextField(
-                controller: _emailController,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration.collapsed(
-                  hintText: 'Email',
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xff2295F3).withAlpha(30),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: TextField(
-                controller: _passwordController,
-                textInputAction: TextInputAction.done,
-                obscureText: true,
-                decoration: const InputDecoration.collapsed(
-                  hintText: 'Hasło',
-                ),
-                onSubmitted: (_) {
-                  _loading ? null : _login(context);
-                },
+            AutofillGroup(
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xff2295F3).withAlpha(30),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: TextField(
+                      controller: _emailController,
+                      autofillHints: const [AutofillHints.email],
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        hintText: 'Email',
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xff2295F3).withAlpha(30),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: TextField(
+                      controller: _passwordController,
+                      autofillHints: const [AutofillHints.password],
+                      textInputAction: TextInputAction.done,
+                      obscureText: !_passwordVisible,
+                      decoration: InputDecoration(
+                          hintText: 'Hasło',
+                          border: InputBorder.none,
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            },
+                            icon: Icon(
+                              _passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                          )),
+                      onSubmitted: (_) {
+                        _loading ? null : _login(context);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 30),
