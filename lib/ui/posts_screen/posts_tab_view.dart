@@ -70,7 +70,7 @@ class _PostsTabViewState extends State<PostsTabView> {
     var queryParameters = {
       'limit': '$pageSize',
       'page': '$pageKey',
-      'orderBy': 'numLikes',
+      'orderBy': 'p.numLikes',
     };
 
     queryParameters = _addCommunityFilter(queryParameters);
@@ -177,7 +177,8 @@ class _PostsTabViewState extends State<PostsTabView> {
   Future<void> _fetchTopPage(int pageKey) async {
     try {
       final newItems = await _getTopPosts(pageKey, _pageSize);
-      final isLastPage = newItems!.length < _pageSize;
+      if (newItems == null) return;
+      final isLastPage = newItems.length < _pageSize;
       if (isLastPage) {
         if (!mounted) return;
         _topPagingController.appendLastPage(newItems);
