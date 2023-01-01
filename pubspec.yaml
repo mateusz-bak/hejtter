@@ -31,6 +31,8 @@ dependencies:
   rxdart: ^0.27.7
   loading_animation_widget: ^1.2.0+4
   cookie_jar: ^3.0.1
+  equatable: ^2.0.5
+  hydrated_bloc: ^9.0.0
 
 
 dev_dependencies:

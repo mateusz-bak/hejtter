@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/auth_bloc.dart';
 import 'package:hejtter/ui/communities_screen/communities_screen.dart';
 import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
 
 import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
-import 'package:hejtter/ui/web_login_screen/web_login_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -63,26 +64,37 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
             ),
-            ListTile(
-              title: const Text('Zaloguj się w aplikacji'),
-              onTap: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
-                  (Route<dynamic> route) => false,
-                );
-              },
-            ),
-            ListTile(
-              title: const Text('Zaloguj się przez przeglądarkę'),
-              onTap: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => const WebLoginScreen(),
-                  ),
-                  (Route<dynamic> route) => false,
-                );
+            BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                if (state is AuthorizedAuthState) {
+                  return ListTile(
+                    title: const Text('Wyloguj się'),
+                    onTap: () {
+                      BlocProvider.of<AuthBloc>(context).add(
+                        const LogOutAuthEvent(),
+                      );
+
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (context) => const LoginScreen(),
+                        ),
+                        (Route<dynamic> route) => false,
+                      );
+                    },
+                  );
+                } else {
+                  return ListTile(
+                    title: const Text('Zaloguj się w aplikacji'),
+                    onTap: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (context) => const LoginScreen(),
+                        ),
+                        (Route<dynamic> route) => false,
+                      );
+                    },
+                  );
+                }
               },
             ),
             const Expanded(

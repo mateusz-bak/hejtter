@@ -1,10 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/auth_bloc.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,168 +11,58 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _isLoading = false;
+  bool _loading = false;
+  bool _loginError = false;
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  var cookieJar = CookieJar();
-  var client = HttpClient();
-
   _changeLoadingStatus(bool status) {
     setState(() {
-      _isLoading = status;
+      _loading = status;
     });
   }
 
-  Future _login() async {
+  Future _login(BuildContext context) async {
     FocusManager.instance.primaryFocus?.unfocus();
+
     _changeLoadingStatus(true);
 
-    await _getProviders();
+    BlocProvider.of<AuthBloc>(context).add(
+      LogInAuthEvent(
+          username: _emailController.text,
+          password: _passwordController.text,
+          onSuccess: () {
+            _changeLoadingStatus(false);
 
-    final csrfToken = await _getCSRFToken();
-    await _postCredentials(csrfToken);
-    await _getSession();
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              (Route<dynamic> route) => false,
+            );
+          },
+          onFailure: () {
+            _changeLoadingStatus(false);
 
-    _changeLoadingStatus(false);
+            _loginError = true;
+          }),
+    );
 
     return;
   }
 
-  Future<dynamic> _getProviders() async {
-    HttpClientRequest request = await client.getUrl(
-      Uri.https(
-        'www.hejto.pl',
-        '/api/auth/providers',
-      ),
-    );
-
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
-
-    HttpClientResponse response = await request.close();
-    final stringData = await response.transform(utf8.decoder).join();
-
-    await cookieJar.saveFromResponse(
-        Uri.https('www.hejto.pl'), response.cookies);
-
-    print('_getProviders.stringData: $stringData');
-
-    return stringData;
-  }
-
-  Future<dynamic> _getCSRFToken() async {
-    HttpClientRequest request = await client.getUrl(
-      Uri.https(
-        'www.hejto.pl',
-        '/api/auth/csrf',
-      ),
-    );
-
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
-
-    HttpClientResponse response = await request.close();
-    final stringData = await response.transform(utf8.decoder).join();
-
-    await cookieJar.saveFromResponse(
-        Uri.https('www.hejto.pl'), response.cookies);
-
-    print('_getCSRF.stringData: $stringData');
-
-    final token = jsonDecode(stringData)['csrfToken'];
-    print('csrfToken: $token');
-
-    return token;
-  }
-
-  Future<dynamic> _postCredentials(String csrfToken) async {
-    const username = 'username';
-    const pass = 'password';
-
-    final body = {
-      'username': username,
-      'password': pass,
-      'redirect': 'false',
-      'json': 'true',
-      'callbackUrl':
-          'https://www.hejto.pl/wpis/czolem-kasie-i-tomki-wlasnie-wydalem-wersje-0-0-2-hejttera-niestety-dalej-bez-lo',
-      'csrfToken': csrfToken,
-    };
-
-    HttpClientRequest request = await client.postUrl(
-      Uri.https(
-        'www.hejto.pl',
-        '/api/auth/callback/credentials',
-      ),
-    );
-
-    final cookies = await cookieJar.loadForRequest(
-      Uri.https('www.hejto.pl'),
-    );
-    print('cookies: ${cookies}');
-    request.cookies.addAll(cookies);
-
-    request.headers.set('content-type', 'application/json');
-    request.add(utf8.encode(json.encode(body)));
-
-    HttpClientResponse response = await request.close();
-    final stringData = await response.transform(utf8.decoder).join();
-    final headers = response.headers;
-
-    await cookieJar.saveFromResponse(
-        Uri.https('www.hejto.pl'), response.cookies);
-
-    print('_postCredentials.stringData: $stringData');
-    print('_postCredentials.headers: $headers');
-
-    return stringData;
-  }
-
-  Future<dynamic> _getSession() async {
-    HttpClientRequest request = await client.getUrl(
-      Uri.https(
-        'www.hejto.pl',
-        '/api/auth/session',
-      ),
-    );
-
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
-
-    HttpClientResponse response = await request.close();
-    final stringData = await response.transform(utf8.decoder).join();
-
-    await cookieJar.saveFromResponse(
-        Uri.https('www.hejto.pl'), response.cookies);
-
-    print('_getSession.stringData: $stringData');
-    print('_getSession.headers: ${response.headers}');
-
-    return stringData;
-  }
-
-  _skipLogin() {
+  _skipLogin(BuildContext context) {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
-      (Route<dynamic> route) => false,
+    BlocProvider.of<AuthBloc>(context).add(
+      SkipLoginAuthEvent(
+        onSuccess: () {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            (Route<dynamic> route) => false,
+          );
+        },
+      ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
@@ -228,7 +115,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               child: TextField(
                 controller: _emailController,
-                // autofocus: true,
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration.collapsed(
                   hintText: 'Email',
@@ -245,11 +131,12 @@ class _LoginScreenState extends State<LoginScreen> {
               child: TextField(
                 controller: _passwordController,
                 textInputAction: TextInputAction.done,
+                obscureText: true,
                 decoration: const InputDecoration.collapsed(
                   hintText: 'Hasło',
                 ),
                 onSubmitted: (_) {
-                  _login();
+                  _loading ? null : _login(context);
                 },
               ),
             ),
@@ -262,13 +149,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       backgroundColor: const Color(0xff2295F3),
                       foregroundColor: Colors.white,
                     ),
-                    onPressed: _login,
-                    child: _isLoading
-                        ? Center(
-                            child: LoadingAnimationWidget.staggeredDotsWave(
-                            size: 24,
-                            color: Colors.white,
-                          ))
+                    onPressed: _loading ? null : () => _login(context),
+                    child: _loading
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
                         : const Text('Zaloguj się'),
                   ),
                 ),
@@ -278,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Row(
               children: [
                 TextButton(
-                  onPressed: _isLoading ? null : _skipLogin,
+                  onPressed: (() => _skipLogin(context)),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                   ),

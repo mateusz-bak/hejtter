@@ -119,17 +119,6 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 );
               },
             ),
-            ListTile(
-              title: const Text('Zaloguj się przez przeglądarkę'),
-              onTap: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => const WebLoginScreen(),
-                  ),
-                  (Route<dynamic> route) => false,
-                );
-              },
-            ),
             const Expanded(
               child: SizedBox(),
             ),
