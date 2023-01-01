@@ -55,11 +55,10 @@ class CommentItem {
     this.postSlug,
     this.content,
     this.contentPlain,
-    // this.status,
     this.contentLinks,
     this.author,
     this.images,
-    this.stats,
+    this.numLikes,
     this.interactions,
     this.createdAt,
     this.uuid,
@@ -69,23 +68,19 @@ class CommentItem {
   final String? postSlug;
   final String? content;
   final String? contentPlain;
-  // final ItemStatus? status;
   final List<ContentLink>? contentLinks;
   final Author? author;
   final List<dynamic>? images;
-  final Stats? stats;
   final Interactions? interactions;
   final DateTime? createdAt;
   final String? uuid;
   final ItemLinks? links;
+  final int? numLikes;
 
   factory CommentItem.fromJson(Map<String, dynamic> json) => CommentItem(
         postSlug: json["post_slug"],
         content: json["content"],
         contentPlain: json["content_plain"],
-        // status: json["status"] == null
-        //     ? null
-        //     : itemStatusValues.map[json["status"]],
         contentLinks: json["content_links"] == null
             ? null
             : List<ContentLink>.from(
@@ -94,7 +89,6 @@ class CommentItem {
         images: json["images"] == null
             ? null
             : List<dynamic>.from(json["images"].map((x) => x)),
-        stats: json["stats"] == null ? null : Stats.fromJson(json["stats"]),
         interactions: json["interactions"] == null
             ? null
             : Interactions.fromJson(json["interactions"]),
@@ -104,6 +98,7 @@ class CommentItem {
         uuid: json["uuid"],
         links:
             json["_links"] == null ? null : ItemLinks.fromJson(json["_links"]),
+        numLikes: json["num_likes"],
       );
 }
 
@@ -138,9 +133,6 @@ class Author {
         background: json["background"] == null
             ? null
             : Background.fromJson(json["background"]),
-        // status: json["status"] == null
-        //     ? null
-        //     : authorStatusValues.map[json["status"]],
         currentRank: json["current_rank"],
         currentColor: json["current_color"],
         verified: json["verified"],
@@ -386,21 +378,6 @@ class ItemLinks {
   factory ItemLinks.fromJson(Map<String, dynamic> json) => ItemLinks(
         self: json["self"] == null ? null : First.fromJson(json["self"]),
         likes: json["likes"] == null ? null : First.fromJson(json["likes"]),
-      );
-}
-
-class Stats {
-  Stats({
-    this.numLikes,
-    this.numReports,
-  });
-
-  final int? numLikes;
-  final int? numReports;
-
-  factory Stats.fromJson(Map<String, dynamic> json) => Stats(
-        numLikes: json["num_likes"],
-        numReports: json["num_reports"],
       );
 }
 

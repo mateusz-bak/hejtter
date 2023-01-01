@@ -54,7 +54,7 @@ class CommentInPostScreen extends StatelessWidget {
                 ],
               ),
             ),
-            _buildLikes(comment.stats?.numLikes),
+            _buildLikes(comment.numLikes),
           ],
         ),
         const SizedBox(height: 0),

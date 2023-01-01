@@ -313,7 +313,7 @@ class Comment {
     this.contentLinks,
     this.author,
     this.images,
-    this.stats,
+    this.numLikes,
     this.interactions,
     this.createdAt,
     this.uuid,
@@ -327,7 +327,7 @@ class Comment {
   final List<dynamic>? contentLinks;
   final CommentAuthor? author;
   final List<dynamic>? images;
-  final CommentStats? stats;
+  final int? numLikes;
   final CommentInteractions? interactions;
   final DateTime? createdAt;
   final String? uuid;
@@ -341,11 +341,7 @@ class Comment {
         contentLinks: List<dynamic>.from(json["content_links"].map((x) => x)),
         author: CommentAuthor.fromJson(json["author"]),
         images: List<dynamic>.from(json["images"].map((x) => x)),
-        stats: json["stats"] == null
-            ? null
-            : CommentStats.fromJson(
-                json["stats"],
-              ),
+        numLikes: json["num_likes"],
         interactions: json["interactions"] == null
             ? null
             : CommentInteractions.fromJson(json["interactions"]),
