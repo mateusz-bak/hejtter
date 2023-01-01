@@ -48,6 +48,10 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
       emit(const LoginSkippedAuthState());
     });
     on<LogOutAuthEvent>((event, emit) async {
+      await secureStorage.write(
+        key: 'accessToken',
+        value: null,
+      );
       emit(const UnauthorizedAuthState());
     });
   }
