@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:hejtter/models/comments_response.dart';
+
 PostsResponse postFromJson(String str) =>
     PostsResponse.fromJson(json.decode(str));
 
@@ -82,7 +84,7 @@ class PostItem {
     this.isLiked,
   });
 
-  final List<Comment>? comments;
+  final List<CommentItem>? comments;
   final String? type;
   final String? title;
   final String? slug;
@@ -115,8 +117,8 @@ class PostItem {
   factory PostItem.fromJson(Map<String, dynamic> json) => PostItem(
         comments: json["comments"] == null
             ? null
-            : List<Comment>.from(
-                json["comments"].map((x) => Comment.fromJson(x))),
+            : List<CommentItem>.from(
+                json["comments"].map((x) => CommentItem.fromJson(x))),
         type: json["type"],
         title: json["title"],
         slug: json["slug"],
@@ -304,53 +306,6 @@ class First {
 
   factory First.fromJson(Map<String, dynamic> json) => First(
         href: json["href"],
-      );
-}
-
-class Comment {
-  Comment({
-    this.postSlug,
-    this.content,
-    this.contentPlain,
-    this.status,
-    this.contentLinks,
-    this.author,
-    this.images,
-    this.numLikes,
-    this.interactions,
-    this.createdAt,
-    this.uuid,
-    this.links,
-  });
-
-  final String? postSlug;
-  final String? content;
-  final String? contentPlain;
-  final String? status;
-  final List<dynamic>? contentLinks;
-  final CommentAuthor? author;
-  final List<dynamic>? images;
-  final int? numLikes;
-  final CommentInteractions? interactions;
-  final DateTime? createdAt;
-  final String? uuid;
-  final CommentLinks? links;
-
-  factory Comment.fromJson(Map<String, dynamic> json) => Comment(
-        postSlug: json["post_slug"],
-        content: json["content"],
-        contentPlain: json["content_plain"],
-        status: json["status"],
-        contentLinks: List<dynamic>.from(json["content_links"].map((x) => x)),
-        author: CommentAuthor.fromJson(json["author"]),
-        images: List<dynamic>.from(json["images"].map((x) => x)),
-        numLikes: json["num_likes"],
-        interactions: json["interactions"] == null
-            ? null
-            : CommentInteractions.fromJson(json["interactions"]),
-        createdAt: DateTime.parse(json["created_at"]),
-        uuid: json["uuid"],
-        links: CommentLinks.fromJson(json["_links"]),
       );
 }
 

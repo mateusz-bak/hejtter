@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
@@ -15,7 +16,7 @@ class CommentInPostCard extends StatelessWidget {
     super.key,
   });
 
-  final Comment comment;
+  final CommentItem comment;
   final PostItem postItem;
 
   _goToUserScreen(BuildContext context) {
@@ -100,11 +101,15 @@ class CommentInPostCard extends StatelessWidget {
       children: [
         Text(
           numLikes != null ? numLikes.toString() : '0',
-          style: const TextStyle(fontSize: 12),
+          style: TextStyle(
+            fontSize: 12,
+            color: comment.isLiked == true ? const Color(0xffFFC009) : null,
+          ),
         ),
-        const Icon(
+        Icon(
           Icons.bolt,
           size: 20,
+          color: comment.isLiked == true ? const Color(0xffFFC009) : null,
         ),
       ],
     );

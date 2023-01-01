@@ -3,17 +3,25 @@ import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/models/comments_response.dart';
+import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
-class CommentInPostScreen extends StatelessWidget {
+class CommentInPostScreen extends StatefulWidget {
   const CommentInPostScreen({
     required this.comment,
     super.key,
   });
 
   final CommentItem comment;
+
+  @override
+  State<CommentInPostScreen> createState() => _CommentInPostScreenState();
+}
+
+class _CommentInPostScreenState extends State<CommentInPostScreen> {
+  CommentItem? comment;
 
   _setTimeAgoLocale() {
     timeago.setLocaleMessages('pl', timeago.PlMessages());
@@ -29,10 +37,56 @@ class CommentInPostScreen extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) => UserScreen(
-          userName: comment.author?.username,
+          userName: comment?.author?.username,
         ),
       ),
     );
+  }
+
+  _likeComment(BuildContext context) async {
+    final result = await hejtoApi.likeComment(
+      postSlug: comment?.postSlug,
+      commentUUID: comment?.uuid,
+      context: context,
+    );
+    if (result && mounted) {
+      final newComment = await _refreshComment(context);
+
+      setState(() {
+        comment = newComment;
+      });
+    }
+  }
+
+  _unlikeComment(BuildContext context) async {
+    final result = await hejtoApi.unlikeComment(
+      postSlug: comment?.postSlug,
+      commentUUID: comment?.uuid,
+      context: context,
+    );
+
+    if (result && mounted) {
+      final newComment = await _refreshComment(context);
+
+      setState(() {
+        comment = newComment;
+      });
+    }
+  }
+
+  Future<CommentItem?> _refreshComment(BuildContext context) async {
+    return await hejtoApi.getCommentDetails(
+      postSlug: comment?.postSlug,
+      commentUUID: comment?.uuid,
+      context: context,
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    comment = widget.comment;
   }
 
   @override
@@ -54,7 +108,7 @@ class CommentInPostScreen extends StatelessWidget {
                 ],
               ),
             ),
-            _buildLikes(comment.numLikes),
+            _buildLikes(comment?.numLikes, context),
           ],
         ),
         const SizedBox(height: 0),
@@ -70,7 +124,7 @@ class CommentInPostScreen extends StatelessWidget {
         const SizedBox(width: 33),
         Expanded(
           child: MarkdownBody(
-            data: _addEmojis(comment.content.toString()),
+            data: _addEmojis('${comment?.content}'),
             styleSheet:
                 MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
               blockquoteDecoration: BoxDecoration(
@@ -91,23 +145,32 @@ class CommentInPostScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLikes(int? numLikes) {
+  Widget _buildLikes(int? numLikes, BuildContext context) {
     return Row(
       children: [
         Text(
           numLikes != null ? numLikes.toString() : '0',
-          style: const TextStyle(fontSize: 12),
+          style: TextStyle(
+            fontSize: 12,
+            color: comment?.isLiked == true ? const Color(0xffFFC009) : null,
+          ),
         ),
-        const Icon(
-          Icons.bolt,
-          size: 20,
+        IconButton(
+          onPressed: () => comment?.isLiked == true
+              ? _unlikeComment(context)
+              : _likeComment(context),
+          icon: Icon(
+            Icons.bolt,
+            size: 20,
+            color: comment?.isLiked == true ? const Color(0xffFFC009) : null,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildAvatar(BuildContext context) {
-    final avatarUrl = comment.author?.avatar?.urls?.the100X100;
+    final avatarUrl = comment?.author?.avatar?.urls?.the100X100;
     const defaultAvatarUrl =
         'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
@@ -137,8 +200,8 @@ class CommentInPostScreen extends StatelessWidget {
           children: [
             Flexible(
               child: Text(
-                comment.author != null
-                    ? comment.author!.username.toString()
+                comment?.author != null
+                    ? comment!.author!.username.toString()
                     : 'null',
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -147,8 +210,8 @@ class CommentInPostScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: comment.author?.sponsor == true ? 5 : 0),
-            comment.author?.sponsor == true
+            SizedBox(width: comment?.author?.sponsor == true ? 5 : 0),
+            comment?.author?.sponsor == true
                 ? Transform.rotate(
                     angle: 180,
                     child: const Icon(
@@ -160,8 +223,8 @@ class CommentInPostScreen extends StatelessWidget {
                 : const SizedBox(),
             const SizedBox(width: 5),
             Text(
-              comment.createdAt != null
-                  ? timeago.format(DateTime.parse(comment.createdAt.toString()),
+              comment?.createdAt != null
+                  ? timeago.format(DateTime.parse('${comment?.createdAt}'),
                       locale: 'pl')
                   : 'null',
               style: const TextStyle(fontSize: 11),

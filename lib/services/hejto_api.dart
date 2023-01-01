@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc.dart';
 import 'package:hejtter/main.dart';
+import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/models/posts_response.dart';
 
 final hejtoApi = HejtoApi();
@@ -379,5 +380,170 @@ class HejtoApi {
     }
 
     return queryParameters;
+  }
+
+  Future<List<CommentItem>?> getComments({
+    required int pageKey,
+    required int pageSize,
+    required BuildContext context,
+    required String commentsHref,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+
+    final queryParameters = {
+      'limit': '$pageSize',
+      'page': '$pageKey',
+    };
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        'api.hejto.pl',
+        commentsHref,
+        queryParameters,
+      ),
+    );
+
+    request.cookies.addAll(
+      await cookieJar.loadForRequest(
+        Uri.https('www.hejto.pl'),
+      ),
+    );
+
+    if (accessToken != null) {
+      request.headers.set(
+        HttpHeaders.authorizationHeader,
+        'Bearer $accessToken',
+      );
+    }
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    await cookieJar.saveFromResponse(
+      Uri.https('www.hejto.pl'),
+      response.cookies,
+    );
+
+    return commentsResponseFromJson(stringData).embedded?.items;
+  }
+
+  Future<bool> likeComment({
+    required String? postSlug,
+    required String? commentUUID,
+    required BuildContext context,
+  }) async {
+    if (postSlug == null || commentUUID == null) return false;
+
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.postUrl(Uri.https(
+      'api.hejto.pl',
+      '/posts/$postSlug/comments/$commentUUID/likes',
+    ));
+
+    request.cookies.addAll(await cookieJar.loadForRequest(
+      Uri.https('www.hejto.pl'),
+    ));
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+
+    HttpClientResponse response = await request.close();
+
+    await cookieJar.saveFromResponse(
+      Uri.https('www.hejto.pl'),
+      response.cookies,
+    );
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> unlikeComment({
+    required String? postSlug,
+    required String? commentUUID,
+    required BuildContext context,
+  }) async {
+    if (postSlug == null || commentUUID == null) return false;
+
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.deleteUrl(Uri.https(
+      'api.hejto.pl',
+      '/posts/$postSlug/comments/$commentUUID/likes',
+    ));
+
+    request.cookies.addAll(await cookieJar.loadForRequest(
+      Uri.https('www.hejto.pl'),
+    ));
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+
+    HttpClientResponse response = await request.close();
+
+    await cookieJar.saveFromResponse(
+      Uri.https('www.hejto.pl'),
+      response.cookies,
+    );
+
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<CommentItem?> getCommentDetails({
+    required String? postSlug,
+    required String? commentUUID,
+    required BuildContext context,
+  }) async {
+    if (postSlug == null || commentUUID == null) return null;
+
+    final accessToken = await _getAccessToken(context);
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        'api.hejto.pl',
+        '/posts/$postSlug/comments/$commentUUID',
+      ),
+    );
+
+    request.cookies.addAll(
+      await cookieJar.loadForRequest(
+        Uri.https('www.hejto.pl'),
+      ),
+    );
+
+    if (accessToken != null) {
+      request.headers.set(
+        HttpHeaders.authorizationHeader,
+        'Bearer $accessToken',
+      );
+    }
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    await cookieJar.saveFromResponse(
+      Uri.https('www.hejto.pl'),
+      response.cookies,
+    );
+
+    return CommentItem.fromJson(json.decode(stringData));
   }
 }

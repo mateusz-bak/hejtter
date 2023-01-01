@@ -63,6 +63,7 @@ class CommentItem {
     this.createdAt,
     this.uuid,
     this.links,
+    this.isLiked,
   });
 
   final String? postSlug;
@@ -76,6 +77,7 @@ class CommentItem {
   final String? uuid;
   final ItemLinks? links;
   final int? numLikes;
+  final bool? isLiked;
 
   factory CommentItem.fromJson(Map<String, dynamic> json) => CommentItem(
         postSlug: json["post_slug"],
@@ -99,6 +101,7 @@ class CommentItem {
         links:
             json["_links"] == null ? null : ItemLinks.fromJson(json["_links"]),
         numLikes: json["num_likes"],
+        isLiked: json["is_liked"],
       );
 }
 

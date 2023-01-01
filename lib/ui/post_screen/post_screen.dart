@@ -32,8 +32,9 @@ class _PostScreenState extends State<PostScreen> {
 
   late PostItem item;
 
-  final PagingController<int, CommentItem> _pagingController =
-      PagingController(firstPageKey: 1);
+  final PagingController<int, CommentItem> _pagingController = PagingController(
+    firstPageKey: 1,
+  );
 
   _goToUserScreen() {
     Navigator.push(
@@ -55,26 +56,15 @@ class _PostScreenState extends State<PostScreen> {
     timeago.setLocaleMessages('pl', timeago.PlMessages());
   }
 
-  Future<List<CommentItem>?> _getComments(int pageKey, int pageSize) async {
-    final queryParameters = {
-      'limit': '$pageSize',
-      'page': '$pageKey',
-    };
-
-    var response = await client.get(
-      Uri.https(
-        'api.hejto.pl',
-        '${item.links?.comments?.href}',
-        queryParameters,
-      ),
-    );
-
-    return commentsResponseFromJson(response.body).embedded?.items;
-  }
-
   Future<void> _fetchPage(int pageKey) async {
     try {
-      final newItems = await _getComments(pageKey, _pageSize);
+      final newItems = await hejtoApi.getComments(
+        pageKey: pageKey,
+        pageSize: _pageSize,
+        context: context,
+        commentsHref: item.links!.comments!.href!,
+      );
+
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -180,7 +170,7 @@ class _PostScreenState extends State<PostScreen> {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(5),
             child: Material(
               child: Card(
                 elevation: 5,
@@ -189,7 +179,7 @@ class _PostScreenState extends State<PostScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
                       decoration: BoxDecoration(
                         color: Colors.black.withAlpha(50),
                         borderRadius: const BorderRadius.only(
@@ -215,7 +205,7 @@ class _PostScreenState extends State<PostScreen> {
                             ),
                           ),
                           _buildHotIcon(),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 15),
                           Text(
                             item.numLikes != null
                                 ? item.numLikes.toString()
@@ -274,7 +264,7 @@ class _PostScreenState extends State<PostScreen> {
 
   Widget _buildComments() {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
       decoration: BoxDecoration(
         color: Colors.black.withAlpha(50),
         borderRadius: const BorderRadius.only(
@@ -291,13 +281,15 @@ class _PostScreenState extends State<PostScreen> {
         physics: const NeverScrollableScrollPhysics(),
         pagingController: _pagingController,
         builderDelegate: PagedChildBuilderDelegate<CommentItem>(
-            itemBuilder: (context, item, index) {
-          if (item.content != null) {
-            return CommentInPostScreen(comment: item);
-          } else {
-            return const SizedBox();
-          }
-        }),
+          noItemsFoundIndicatorBuilder: (context) => const SizedBox(),
+          itemBuilder: (context, item, index) {
+            if (item.content != null) {
+              return CommentInPostScreen(comment: item);
+            } else {
+              return const SizedBox();
+            }
+          },
+        ),
       ),
     );
   }
