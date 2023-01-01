@@ -346,8 +346,14 @@ class Comment {
         contentLinks: List<dynamic>.from(json["content_links"].map((x) => x)),
         author: CommentAuthor.fromJson(json["author"]),
         images: List<dynamic>.from(json["images"].map((x) => x)),
-        stats: CommentStats.fromJson(json["stats"]),
-        interactions: CommentInteractions.fromJson(json["interactions"]),
+        stats: json["stats"] == null
+            ? null
+            : CommentStats.fromJson(
+                json["stats"],
+              ),
+        interactions: json["interactions"] == null
+            ? null
+            : CommentInteractions.fromJson(json["interactions"]),
         createdAt: DateTime.parse(json["created_at"]),
         uuid: json["uuid"],
         links: CommentLinks.fromJson(json["_links"]),

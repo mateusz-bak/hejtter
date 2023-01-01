@@ -162,9 +162,11 @@ class _PostsTabViewState extends State<PostsTabView> {
       final newItems = await _getHotPosts(pageKey, _pageSize);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
+        if (!mounted) return;
         _hotPagingController.appendLastPage(newItems);
       } else {
         final nextPageKey = pageKey + 1;
+        if (!mounted) return;
         _hotPagingController.appendPage(newItems, nextPageKey);
       }
     } catch (error) {
@@ -177,8 +179,10 @@ class _PostsTabViewState extends State<PostsTabView> {
       final newItems = await _getTopPosts(pageKey, _pageSize);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
+        if (!mounted) return;
         _topPagingController.appendLastPage(newItems);
       } else {
+        if (!mounted) return;
         final nextPageKey = pageKey + 1;
         _topPagingController.appendPage(newItems, nextPageKey);
       }
@@ -192,8 +196,10 @@ class _PostsTabViewState extends State<PostsTabView> {
       final newItems = await _getNewPosts(pageKey, _pageSize);
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
+        if (!mounted) return;
         _newPagingController.appendLastPage(newItems);
       } else {
+        if (!mounted) return;
         final nextPageKey = pageKey + 1;
         _newPagingController.appendPage(newItems, nextPageKey);
       }
