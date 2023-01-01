@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dart_emoji/dart_emoji.dart';
@@ -178,8 +179,8 @@ class _PostScreenState extends State<PostScreen> {
                           _buildHotIcon(),
                           const SizedBox(width: 10),
                           Text(
-                            item.stats?.numLikes != null
-                                ? item.stats!.numLikes.toString()
+                            item.numLikes != null
+                                ? item.numLikes.toString()
                                 : 'null',
                           ),
                           const Padding(

@@ -92,8 +92,8 @@ class _PostCardState extends State<PostCard> {
                       _buildHotIcon(),
                       const SizedBox(width: 10),
                       Text(
-                        widget.item.stats?.numLikes != null
-                            ? widget.item.stats!.numLikes.toString()
+                        widget.item.numLikes != null
+                            ? widget.item.numLikes.toString()
                             : 'null',
                       ),
                       const Padding(

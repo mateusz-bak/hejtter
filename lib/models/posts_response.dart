@@ -60,11 +60,9 @@ class PostItem {
     this.excerpt,
     this.status,
     this.hot,
-    // this.contentLinks,
     this.images,
     this.tags,
     this.author,
-    this.stats,
     this.interactions,
     this.community,
     this.nsfw,
@@ -80,6 +78,7 @@ class PostItem {
     this.communityTopic,
     this.link,
     this.updatedAt,
+    this.numLikes,
   });
 
   final List<Comment>? comments;
@@ -91,11 +90,9 @@ class PostItem {
   final String? excerpt;
   final String? status;
   final bool? hot;
-  // final List<dynamic>? contentLinks;
   final List<PostImage>? images;
   final List<Tag>? tags;
   final ItemAuthor? author;
-  final ItemStats? stats;
   final ItemInteractions? interactions;
   final Community? community;
   final bool? nsfw;
@@ -111,6 +108,7 @@ class PostItem {
   final CommunityTopic? communityTopic;
   final String? link;
   final DateTime? updatedAt;
+  final int? numLikes;
 
   factory PostItem.fromJson(Map<String, dynamic> json) => PostItem(
         comments: json["comments"] == null
@@ -125,9 +123,6 @@ class PostItem {
         excerpt: json["excerpt"],
         status: json["status"],
         hot: json["hot"],
-        // contentLinks: json["content_links"] == null
-        //     ? null
-        //     : List<dynamic>.from(json["content_links"].map((x) => x)),
         images: json["images"] == null
             ? null
             : List<PostImage>.from(
@@ -137,7 +132,6 @@ class PostItem {
             : List<Tag>.from(json["tags"].map((x) => Tag.fromJson(x))),
         author:
             json["author"] == null ? null : ItemAuthor.fromJson(json["author"]),
-        stats: json["stats"] == null ? null : ItemStats.fromJson(json["stats"]),
         interactions: json["interactions"] == null
             ? null
             : ItemInteractions.fromJson(json["interactions"]),
@@ -164,6 +158,7 @@ class PostItem {
         updatedAt: json["updated_at"] == null
             ? null
             : DateTime.parse(json["updated_at"]),
+        numLikes: json["num_likes"],
       );
 }
 
