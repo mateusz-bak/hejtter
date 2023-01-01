@@ -1,10 +1,8 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/post_screen/comment_in_post_screen.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/ui/post_screen/picture_full_screen.dart';
@@ -94,22 +92,21 @@ class _PostScreenState extends State<PostScreen> {
     _refreshComments();
   }
 
+  Future _refreshPost() async {
+    final refreshedPost = await hejtoApi.getPostDetails(
+      postSlug: item.slug,
+      context: context,
+    );
+
+    setState(() {
+      item = refreshedPost;
+    });
+  }
+
   Future _refreshComments() async {
     Future.sync(
       () => _pagingController.refresh(),
     );
-  }
-
-  Future _refreshPost() async {
-    var response = await client.get(
-      Uri.https(
-        'api.hejto.pl',
-        '/posts/${item.slug}',
-      ),
-    );
-    setState(() {
-      item = PostItem.fromJson(json.decode(response.body));
-    });
   }
 
   @override
@@ -119,7 +116,10 @@ class _PostScreenState extends State<PostScreen> {
     });
 
     item = widget.item;
-    _refreshPost();
+    hejtoApi.getPostDetails(
+      postSlug: item.slug,
+      context: context,
+    );
     super.initState();
   }
 
@@ -183,9 +183,31 @@ class _PostScreenState extends State<PostScreen> {
                                 ? item.numLikes.toString()
                                 : 'null',
                           ),
-                          const Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Icon(Icons.bolt),
+                          Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: IconButton(
+                              icon: const Icon(Icons.bolt),
+                              onPressed: () async {
+                                if (item.slug == null) return;
+
+                                final postLiked = await hejtoApi.likePost(
+                                  postSlug: item.slug!,
+                                  context: context,
+                                );
+
+                                if (postLiked) {
+                                  final refreshedPost =
+                                      await hejtoApi.getPostDetails(
+                                    postSlug: item.slug,
+                                    context: context,
+                                  );
+
+                                  setState(() {
+                                    item = refreshedPost;
+                                  });
+                                }
+                              },
+                            ),
                           )
                         ],
                       ),

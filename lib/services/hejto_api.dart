@@ -2,6 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/auth_bloc.dart';
+import 'package:hejtter/models/posts_response.dart';
+
+final hejtoApi = HejtoApi();
 
 class HejtoApi {
   var cookieJar = CookieJar();
@@ -124,5 +130,91 @@ class HejtoApi {
     );
 
     return stringData;
+  }
+
+  String? _getAccessToken(BuildContext context) {
+    final state = context.read<AuthBloc>().state;
+
+    if (state is AuthorizedAuthState) {
+      return state.accessToken;
+    } else {
+      return null;
+    }
+  }
+
+  Future<bool> likePost({
+    required String postSlug,
+    required BuildContext context,
+  }) async {
+    final accessToken = _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.postUrl(Uri.https(
+      'api.hejto.pl',
+      '/posts/$postSlug/likes',
+    ));
+
+    request.cookies.addAll(await cookieJar.loadForRequest(
+      Uri.https('www.hejto.pl'),
+    ));
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+
+    HttpClientResponse response = await request.close();
+
+    await cookieJar.saveFromResponse(
+      Uri.https('www.hejto.pl'),
+      response.cookies,
+    );
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future getPostDetails({
+    required String? postSlug,
+    required BuildContext context,
+  }) async {
+    if (postSlug == null) return;
+    final accessToken = _getAccessToken(context);
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        'api.hejto.pl',
+        '/posts/$postSlug',
+      ),
+    );
+
+    request.cookies.addAll(
+      await cookieJar.loadForRequest(
+        Uri.https('www.hejto.pl'),
+      ),
+    );
+
+    if (accessToken != null) {
+      request.headers.set(
+        HttpHeaders.authorizationHeader,
+        'Bearer $accessToken',
+      );
+    }
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    await cookieJar.saveFromResponse(
+      Uri.https('www.hejto.pl'),
+      response.cookies,
+    );
+
+    return PostItem.fromJson(json.decode(stringData));
   }
 }

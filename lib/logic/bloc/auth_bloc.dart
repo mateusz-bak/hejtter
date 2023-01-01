@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:equatable/equatable.dart';
 import 'package:hejtter/models/session.dart';
@@ -10,8 +9,6 @@ part 'auth_state.dart';
 part 'auth_event.dart';
 
 class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
-  final hejtoApi = HejtoApi();
-
   AuthBloc() : super(const UnauthorizedAuthState()) {
     on<LogInAuthEvent>((event, emit) async {
       await hejtoApi.getProviders();
