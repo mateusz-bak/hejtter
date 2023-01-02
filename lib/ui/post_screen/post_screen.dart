@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:comment_box/comment/comment.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/post_screen/comment_in_post_screen.dart';
 import 'package:hejtter/models/comments_response.dart';
@@ -29,6 +32,9 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
+  final _scrollController = ScrollController();
+  final TextEditingController _commentController = TextEditingController();
+
   final client = http.Client();
   static const _pageSize = 20;
 
@@ -80,8 +86,8 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Future _refreshPostAndComments() async {
-    _refreshPost();
-    _refreshComments();
+    await _refreshPost();
+    await _refreshComments();
   }
 
   Future _refreshPost() async {
@@ -98,9 +104,7 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Future _refreshComments() async {
-    Future.sync(
-      () => _pagingController.refresh(),
-    );
+    _pagingController.refresh();
   }
 
   _likePost() async {
@@ -175,83 +179,148 @@ class _PostScreenState extends State<PostScreen> {
 
     return Scaffold(
       appBar: AppBar(),
-      body: RefreshIndicator(
-        onRefresh: () => Future.sync(
-          () => _refreshPostAndComments(),
-        ),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child: Material(
-              child: Card(
-                elevation: 5,
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withAlpha(50),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                          bottomLeft: Radius.circular(5),
-                          bottomRight: Radius.circular(5),
-                        ),
+      body: BlocBuilder<ProfileBloc, ProfileState>(
+        builder: (context, state) {
+          if (state is ProfilePresentState) {
+            return CommentBox(
+              userImage: CommentBox.commentImageParser(
+                imageURLorPath: state.avatar,
+              ),
+              labelText: 'Skomentuj',
+              withBorder: false,
+              sendButtonMethod: () async {
+                final message = _commentController.text;
+
+                if (message.isNotEmpty) {
+                  FocusScope.of(context).unfocus();
+
+                  final commentCreated = await hejtoApi.addComment(
+                    slug: item.slug,
+                    content: _commentController.text,
+                    context: context,
+                  );
+
+                  if (commentCreated) {
+                    await _refreshPostAndComments();
+                    await Future.delayed(Duration(milliseconds: 500));
+                    _scrollController.animateTo(
+                      _scrollController.position.maxScrollExtent,
+                      duration: Duration(milliseconds: 500),
+                      curve: Curves.ease,
+                    );
+                  }
+
+                  _commentController.clear();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Komentarz nie może być pusty'),
+                      action: SnackBarAction(
+                        label: 'OK',
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        },
                       ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          _buildAvatar(),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildUsernameAndRank(),
-                                const SizedBox(height: 3),
-                                _buildCommunityAndDate(),
-                              ],
-                            ),
+                    ),
+                  );
+                }
+              },
+              commentController: _commentController,
+              backgroundColor: Colors.blueGrey.shade900,
+              textColor: Colors.white,
+              sendWidget: const Icon(
+                Icons.send_sharp,
+                size: 24,
+                color: Color(0xff2295F3),
+              ),
+              child: _buildPost(),
+            );
+          } else {
+            return _buildPost();
+          }
+        },
+      ),
+    );
+  }
+
+  RefreshIndicator _buildPost() {
+    return RefreshIndicator(
+      onRefresh: () => Future.sync(
+        () => _refreshPostAndComments(),
+      ),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        controller: _scrollController,
+        child: Padding(
+          padding: const EdgeInsets.all(5),
+          child: Material(
+            child: Card(
+              elevation: 5,
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(50),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                        bottomLeft: Radius.circular(5),
+                        bottomRight: Radius.circular(5),
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _buildAvatar(),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildUsernameAndRank(),
+                              const SizedBox(height: 3),
+                              _buildCommunityAndDate(),
+                            ],
                           ),
-                          _buildHotIcon(),
-                          const SizedBox(width: 15),
-                          Text(
-                            item.numLikes != null
-                                ? item.numLikes.toString()
-                                : 'null',
-                            style: TextStyle(
-                              color: item.isLiked == true
-                                  ? const Color(0xffFFC009)
-                                  : null,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.bolt),
+                        ),
+                        _buildHotIcon(),
+                        const SizedBox(width: 15),
+                        Text(
+                          item.numLikes != null
+                              ? item.numLikes.toString()
+                              : 'null',
+                          style: TextStyle(
                             color: item.isLiked == true
                                 ? const Color(0xffFFC009)
                                 : null,
-                            onPressed:
-                                item.isLiked == true ? _unlikePost : _likePost,
-                          )
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 10),
-                        _buildContent(),
-                        _buildTags(),
-                        _buildPicture(),
-                        const SizedBox(height: 20),
-                        _buildComments(),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.bolt),
+                          color: item.isLiked == true
+                              ? const Color(0xffFFC009)
+                              : null,
+                          onPressed:
+                              item.isLiked == true ? _unlikePost : _likePost,
+                        )
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      _buildContent(),
+                      _buildTags(),
+                      _buildPicture(),
+                      const SizedBox(height: 20),
+                      _buildComments(),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

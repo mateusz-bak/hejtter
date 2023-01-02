@@ -592,4 +592,50 @@ class HejtoApi {
 
     return accountFromJson(stringData);
   }
+
+  Future<bool> addComment({
+    required String? slug,
+    required String content,
+    required BuildContext context,
+  }) async {
+    if (slug == null) return false;
+
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    final body = {
+      'content': content,
+    };
+
+    HttpClientRequest request = await client.postUrl(
+      Uri.https(
+        'api.hejto.pl',
+        '/posts/$slug/comments',
+      ),
+    );
+
+    final cookies = await cookieJar.loadForRequest(
+      Uri.https('www.hejto.pl'),
+    );
+
+    request.cookies.addAll(cookies);
+
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set('content-type', 'application/json');
+    request.add(utf8.encode(json.encode(body)));
+
+    HttpClientResponse response = await request.close();
+
+    await cookieJar.saveFromResponse(
+      Uri.https('www.hejto.pl'),
+      response.cookies,
+    );
+
+    if (response.statusCode != 201) {
+      _showSnackBar('Dodanie komentarza nieudane (${response.statusCode})');
+      return false;
+    }
+
+    return true;
+  }
 }
