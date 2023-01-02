@@ -214,15 +214,42 @@ class _PostsTabViewState extends State<PostsTabView> {
     );
   }
 
-  TabBar _buildTabBar() {
-    return const TabBar(
-      indicatorColor: Color(0xff2295F3),
-      indicatorPadding: EdgeInsets.symmetric(horizontal: 12),
-      tabs: [
-        Tab(child: Text('Gorące')),
-        Tab(child: Text('Top')),
-        Tab(child: Text('Nowe')),
-      ],
+  Widget _buildTabBar() {
+    return Builder(builder: (context) {
+      return TabBar(
+        indicatorColor: const Color(0xff2295F3),
+        indicatorPadding: const EdgeInsets.symmetric(horizontal: 12),
+        tabs: [
+          _buildTab(context, 0, 'Gorące'),
+          _buildTab(context, 1, 'Top'),
+          _buildTab(context, 2, 'Nowe'),
+        ],
+      );
+    });
+  }
+
+  Tab _buildTab(BuildContext context, int index, String text) {
+    return Tab(
+      child: GestureDetector(
+        onTap: (() {
+          if (DefaultTabController.of(context)?.index == index) {
+            switch (index) {
+              case 0:
+                _hotPagingController.refresh();
+                break;
+              case 1:
+                _topPagingController.refresh();
+                break;
+              case 2:
+                _newPagingController.refresh();
+                break;
+            }
+          } else {
+            DefaultTabController.of(context)?.animateTo(index);
+          }
+        }),
+        child: Text(text),
+      ),
     );
   }
 
