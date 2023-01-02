@@ -62,6 +62,50 @@ class _PostCardState extends State<PostCard>
     }
   }
 
+  _likePost() async {
+    if (item.slug == null) return;
+
+    final postLiked = await hejtoApi.likePost(
+      postSlug: item.slug!,
+      context: context,
+    );
+
+    if (postLiked) {
+      final refreshedPost = await hejtoApi.getPostDetails(
+        postSlug: item.slug,
+        context: context,
+      );
+
+      if (refreshedPost != null) {
+        setState(() {
+          item = refreshedPost;
+        });
+      }
+    }
+  }
+
+  _unlikePost() async {
+    if (item.slug == null) return;
+
+    final postUnliked = await hejtoApi.unlikePost(
+      postSlug: item.slug!,
+      context: context,
+    );
+
+    if (postUnliked) {
+      final refreshedPost = await hejtoApi.getPostDetails(
+        postSlug: item.slug,
+        context: context,
+      );
+
+      if (refreshedPost != null) {
+        setState(() {
+          item = refreshedPost;
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -91,7 +135,7 @@ class _PostCardState extends State<PostCard>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.only(left: 10),
                   decoration: BoxDecoration(
                     color: Colors.black.withAlpha(50),
                     borderRadius: const BorderRadius.only(
@@ -117,7 +161,7 @@ class _PostCardState extends State<PostCard>
                         ),
                       ),
                       _buildHotIcon(),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 20),
                       Text(
                         item.numLikes != null
                             ? item.numLikes.toString()
@@ -130,11 +174,15 @@ class _PostCardState extends State<PostCard>
                       ),
                       Padding(
                         padding: const EdgeInsets.all(5),
-                        child: Icon(
-                          Icons.bolt,
-                          color: item.isLiked == true
-                              ? const Color(0xffFFC009)
-                              : null,
+                        child: IconButton(
+                          onPressed:
+                              item.isLiked == true ? _unlikePost : _likePost,
+                          icon: Icon(
+                            Icons.bolt,
+                            color: item.isLiked == true
+                                ? const Color(0xffFFC009)
+                                : null,
+                          ),
                         ),
                       )
                     ],
@@ -173,10 +221,9 @@ class _PostCardState extends State<PostCard>
     );
   }
 
+  //TODO: widget.item should be just item (get post details returns empty comments section)
   Widget _buildComments() {
-    log(item.comments.toString());
-
-    if (item.comments != null && item.comments!.isNotEmpty) {
+    if (widget.item.comments != null && widget.item.comments!.isNotEmpty) {
       return Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
@@ -192,23 +239,23 @@ class _PostCardState extends State<PostCard>
           children: [
             const SizedBox(height: 15),
             CommentInPostCard(
-              comment: item.comments![0],
-              postItem: item,
+              comment: widget.item.comments![0],
+              postItem: widget.item,
               refreshCallback: _refreshPost,
             ),
-            SizedBox(height: item.comments!.length > 1 ? 10 : 0),
-            item.comments!.length > 1
+            SizedBox(height: widget.item.comments!.length > 1 ? 10 : 0),
+            widget.item.comments!.length > 1
                 ? CommentInPostCard(
-                    comment: item.comments![1],
-                    postItem: item,
+                    comment: widget.item.comments![1],
+                    postItem: widget.item,
                     refreshCallback: _refreshPost,
                   )
                 : const SizedBox(),
-            SizedBox(height: item.comments!.length > 2 ? 10 : 0),
-            item.comments!.length > 2
+            SizedBox(height: widget.item.comments!.length > 2 ? 10 : 0),
+            widget.item.comments!.length > 2
                 ? CommentInPostCard(
-                    comment: item.comments![2],
-                    postItem: item,
+                    comment: widget.item.comments![2],
+                    postItem: widget.item,
                     refreshCallback: _refreshPost,
                   )
                 : const SizedBox(),
@@ -243,8 +290,9 @@ class _PostCardState extends State<PostCard>
                 '#${tag.name!} ',
                 maxLines: 1,
                 overflow: TextOverflow.clip,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade400,
                 ),
               ),
             ),

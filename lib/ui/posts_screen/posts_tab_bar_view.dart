@@ -36,7 +36,7 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
           Expanded(
             child: PagedListView<int, PostItem>(
               pagingController: widget.controller,
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(5),
               builderDelegate: PagedChildBuilderDelegate<PostItem>(
                 itemBuilder: (context, item, index) => PostCard(item: item),
               ),
