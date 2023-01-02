@@ -260,7 +260,7 @@ class ContentLink {
     this.audios,
     this.images,
     this.videos,
-    this.favicon,
+    // this.favicon,
     this.description,
   });
 
@@ -271,7 +271,7 @@ class ContentLink {
   final List<dynamic>? audios;
   final List<Image>? images;
   final List<Video>? videos;
-  final Favicon? favicon;
+  // final Favicon? favicon;
   final String? description;
 
   factory ContentLink.fromJson(Map<String, dynamic> json) => ContentLink(
@@ -288,8 +288,8 @@ class ContentLink {
         videos: json["videos"] == null
             ? null
             : List<Video>.from(json["videos"].map((x) => Video.fromJson(x))),
-        favicon:
-            json["favicon"] == null ? null : Favicon.fromJson(json["favicon"]),
+        // favicon:
+        //     json["favicon"] == null ? null : Favicon.fromJson(json["favicon"]),
         description: json["description"],
       );
 }
