@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc.dart';
 import 'package:hejtter/main.dart';
@@ -14,6 +14,11 @@ final hejtoApi = HejtoApi();
 class HejtoApi {
   var cookieJar = CookieJar();
   var client = HttpClient();
+
+  _showSnackBar(String msg) {
+    SnackBar snackBar = SnackBar(content: Text(msg));
+    snackbarKey.currentState?.showSnackBar(snackBar);
+  }
 
   Future<dynamic> getProviders() async {
     HttpClientRequest request = await client.getUrl(
@@ -67,7 +72,7 @@ class HejtoApi {
     return token;
   }
 
-  Future<dynamic> postCredentials(
+  Future<String?> postCredentials(
     String csrfToken,
     String username,
     String password,
@@ -105,6 +110,11 @@ class HejtoApi {
       Uri.https('www.hejto.pl'),
       response.cookies,
     );
+
+    if (response.statusCode != 200) {
+      _showSnackBar('Logowanie nieudane (${response.statusCode})');
+      return null;
+    }
 
     return stringData;
   }

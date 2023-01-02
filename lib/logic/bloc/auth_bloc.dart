@@ -16,11 +16,16 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
 
       final csrfToken = await hejtoApi.getCSRFToken();
 
-      await hejtoApi.postCredentials(
+      final login = await hejtoApi.postCredentials(
         csrfToken,
         event.username,
         event.password,
       );
+
+      if (login == null) {
+        emit(const UnauthorizedAuthState());
+        event.onFailure();
+      }
 
       final session = Session.fromJson(
         jsonDecode(await hejtoApi.getSession()),

@@ -10,6 +10,9 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 
 late FlutterSecureStorage secureStorage;
+final GlobalKey<ScaffoldMessengerState> snackbarKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDisplayMode.setHighRefreshRate();
@@ -48,6 +51,7 @@ void main() async {
           } else {
             return MaterialApp(
               home: const LoginScreen(),
+              scaffoldMessengerKey: snackbarKey,
               theme: ThemeData.dark(useMaterial3: true).copyWith(
                 primaryColor: const Color(0xff2295F3),
               ),
