@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hejtter/logic/bloc/auth_bloc.dart';
+import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/main.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/models/posts_response.dart';

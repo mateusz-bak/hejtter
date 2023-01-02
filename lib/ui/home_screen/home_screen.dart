@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hejtter/logic/bloc/auth_bloc.dart';
+import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/ui/communities_screen/communities_screen.dart';
 import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
