@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/ui/communities_screen/community_card.dart';
-import 'package:hejtter/ui/home_screen/home_screen.dart';
-import 'package:hejtter/ui/login_screen/login_screen.dart';
+import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
+
+import 'package:hejtter/utils/enums.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class CommunitiesScreen extends StatefulWidget {
   const CommunitiesScreen({super.key});
@@ -21,11 +20,6 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
   final PagingController<int, Item> _pagingController =
       PagingController(firstPageKey: 1);
-
-  Future<String> _getAppVersion() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    return packageInfo.version;
-  }
 
   Future<List<Item>?> _getPosts(int pageKey, int pageSize) async {
     final queryParameters = {
@@ -77,75 +71,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       appBar: AppBar(
         title: const Text('Społeczności'),
       ),
-      drawer: Drawer(
-        child: Column(
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue.shade900,
-              ),
-              child: Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(25),
-                  child: Image.asset(
-                    'assets/logo.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            ),
-            ListTile(
-              title: const Text('Strona główna'),
-              onTap: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  (Route<dynamic> route) => false,
-                );
-              },
-            ),
-            ListTile(
-              title: const Text('Społeczności'),
-              onTap: () {},
-            ),
-            ListTile(
-              title: const Text('Zaloguj się w aplikacji'),
-              onTap: () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
-                  (Route<dynamic> route) => false,
-                );
-              },
-            ),
-            const Expanded(
-              child: SizedBox(),
-            ),
-            ListTile(
-              title: const Text('Github'),
-              onTap: () {
-                launchUrl(
-                  Uri.parse('https://github.com/mateusz-bak/hejtter'),
-                  mode: LaunchMode.externalApplication,
-                );
-              },
-            ),
-            FutureBuilder(
-              future: _getAppVersion(),
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                if (snapshot.hasData) {
-                  return ListTile(
-                    title: Text(snapshot.data.toString()),
-                    onTap: () {},
-                  );
-                } else {
-                  return const SizedBox();
-                }
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: const HejtoDrawer(currentScreen: CurrentScreen.communities),
       body: Column(
         children: [
           Expanded(

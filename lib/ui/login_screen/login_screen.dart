@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -35,6 +36,10 @@ class _LoginScreenState extends State<LoginScreen> {
           password: _passwordController.text,
           onSuccess: () {
             _changeLoadingStatus(false);
+
+            BlocProvider.of<ProfileBloc>(context).add(
+              SetProfileEvent(context: context),
+            );
 
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => const HomeScreen()),

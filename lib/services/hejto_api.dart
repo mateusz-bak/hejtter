@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/main.dart';
+import 'package:hejtter/models/account.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/models/posts_response.dart';
 
@@ -555,5 +556,40 @@ class HejtoApi {
     );
 
     return CommentItem.fromJson(json.decode(stringData));
+  }
+
+  Future<Account?> getAccount({
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return null;
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        'api.hejto.pl',
+        '/account',
+      ),
+    );
+
+    request.cookies.addAll(
+      await cookieJar.loadForRequest(
+        Uri.https('www.hejto.pl'),
+      ),
+    );
+
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    await cookieJar.saveFromResponse(
+      Uri.https('www.hejto.pl'),
+      response.cookies,
+    );
+
+    return accountFromJson(stringData);
   }
 }
