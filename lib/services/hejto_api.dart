@@ -463,6 +463,9 @@ class HejtoApi {
         }.entries);
         break;
       default:
+        queryParameters.addEntries(<String, String>{
+          'period': 'all',
+        }.entries);
         break;
     }
 
