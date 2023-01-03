@@ -11,6 +11,7 @@ import 'package:hejtter/ui/post_screen/comment_in_post_screen.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/ui/post_screen/picture_full_screen.dart';
 import 'package:hejtter/models/posts_response.dart';
+import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/posts_screen/posts_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -343,7 +344,7 @@ class _PostScreenState extends State<PostScreen> {
                         const SizedBox(height: 10),
                         _buildContent(),
                         _buildTags(),
-                        _buildPicture(),
+                        _buildPictures(),
                         Padding(
                           padding: const EdgeInsets.only(left: 5),
                           child: AnswerButton(
@@ -456,41 +457,61 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
-  Widget _buildPicture() {
-    if (item.images != null && item.images!.isNotEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Column(
-          children: [
-            const SizedBox(height: 15),
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(3),
-                child: GestureDetector(
-                    child: item.images![0].urls?.the1200X900 != null
-                        ? CachedNetworkImage(
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            imageUrl: '${item.images![0].urls?.the1200X900}',
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
-                          )
-                        : const SizedBox(),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) {
-                        return PictureFullScreen(
-                          imageUrl: '${item.images![0].urls?.the1200X900}',
-                        );
-                      }));
-                    }),
-              ),
-            ),
-          ],
-        ),
-      );
-    } else {
+  Widget _buildPictures() {
+    if (item.images == null || item.images!.isEmpty) {
       return const SizedBox();
     }
+
+    if (item.images!.length == 1) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+        height: 400,
+        child: Center(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: GestureDetector(
+              child: item.images![0].urls?.the1200X900 != null
+                  ? CachedNetworkImage(
+                      fit: BoxFit.cover,
+                      imageUrl: '${item.images![0].urls?.the1200X900}',
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
+                    )
+                  : const SizedBox(),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) {
+                  return PictureFullScreen(
+                    imageUrl: '${item.images![0].urls?.the1200X900}',
+                  );
+                }));
+              },
+            ),
+          ),
+        ),
+      );
+    }
+
+    final imageWidgets = List<Widget>.empty(growable: true);
+    int index = 0;
+
+    for (var image in item.images!) {
+      if (item.images?[index].urls?.the1200X900 != null) {
+        imageWidgets.add(PicturePreview(
+          imageUrl: item.images![index].urls!.the1200X900!,
+        ));
+      }
+      index++;
+    }
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxHeight: 400,
+      ),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: imageWidgets,
+      ),
+    );
   }
 
   Widget _buildContent() {

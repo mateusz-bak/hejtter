@@ -3,6 +3,7 @@ import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/posts_screen/comment_in_post_card.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/models/posts_response.dart';
@@ -195,7 +196,8 @@ class _PostCardState extends State<PostCard>
                     const SizedBox(height: 10),
                     _buildContent(),
                     _buildTags(),
-                    _buildPicture(),
+                    // _buildPicture(),
+                    _buildPictures(),
                     const SizedBox(height: 20),
                     _buildComments(),
                   ],
@@ -204,6 +206,55 @@ class _PostCardState extends State<PostCard>
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildPictures() {
+    if (item.images == null || item.images!.isEmpty) {
+      return const SizedBox();
+    }
+
+    if (item.images!.length == 1) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
+        height: 400,
+        child: Center(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: item.images![0].urls?.the1200X900 != null
+                ? CachedNetworkImage(
+                    fit: BoxFit.cover,
+                    imageUrl: '${item.images![0].urls?.the1200X900}',
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
+                  )
+                : const SizedBox(),
+          ),
+        ),
+      );
+    }
+
+    final imageWidgets = List<Widget>.empty(growable: true);
+    int index = 0;
+
+    for (var image in item.images!) {
+      if (item.images?[index].urls?.the1200X900 != null) {
+        imageWidgets.add(PicturePreview(
+          imageUrl: item.images![index].urls!.the1200X900!,
+          clickable: false,
+        ));
+      }
+      index++;
+    }
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxHeight: 400,
+      ),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: imageWidgets,
       ),
     );
   }
