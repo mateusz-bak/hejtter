@@ -40,17 +40,18 @@ class Embedded {
     this.items,
   });
 
-  final List<Item>? items;
+  final List<Community>? items;
 
   factory Embedded.fromJson(Map<String, dynamic> json) => Embedded(
         items: json["items"] == null
             ? null
-            : List<Item>.from(json["items"].map((x) => Item.fromJson(x))),
+            : List<Community>.from(
+                json["items"].map((x) => Community.fromJson(x))),
       );
 }
 
-class Item {
-  Item({
+class Community {
+  Community({
     this.name,
     this.slug,
     // this.status,
@@ -84,7 +85,7 @@ class Item {
   final ItemLinks? links;
   final String? description;
 
-  factory Item.fromJson(Map<String, dynamic> json) => Item(
+  factory Community.fromJson(Map<String, dynamic> json) => Community(
         name: json["name"],
         slug: json["slug"],
         // status:

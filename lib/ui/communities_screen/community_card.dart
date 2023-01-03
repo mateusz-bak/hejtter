@@ -9,7 +9,7 @@ class CommunityCard extends StatelessWidget {
     super.key,
   });
 
-  final Item item;
+  final Community item;
 
   @override
   Widget build(BuildContext context) {
@@ -17,12 +17,13 @@ class CommunityCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 0, top: 10),
       child: GestureDetector(
         onTap: (() {
-          if (item.name == null) return;
+          if (item.name == null || item.slug == null) return;
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => PostsScreen(
                 communityName: item.name!,
+                communitySlug: item.slug!,
               ),
             ),
           );
@@ -32,6 +33,7 @@ class CommunityCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(10),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
                   height: 80,
@@ -57,29 +59,61 @@ class CommunityCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      item.category?.name == item.name
+                          ? const SizedBox()
+                          : Text(
+                              '${item.category?.name}',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white70),
+                            ),
+                      item.description != null
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 5),
+                              child: Text('${item.description}'),
+                            )
+                          : const SizedBox(),
                       const SizedBox(height: 15),
                       Row(
                         children: [
                           const Icon(
                             Icons.person,
-                            size: 20,
+                            size: 18,
+                            color: Color(0xff2295F3),
                           ),
                           const SizedBox(width: 5),
-                          Text(
-                            item.numMembers.toString(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                            ),
+                          Text(item.numMembers.toString()),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.article,
+                            size: 18,
+                            color: Color(0xff2295F3),
                           ),
+                          const SizedBox(width: 5),
+                          Text(item.numPosts.toString()),
                         ],
                       ),
                     ],
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: const Text('Dołącz'),
-                ),
+                // ElevatedButton(
+                //   onPressed: () {},
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: item.isMember == true
+                //         ? null
+                //         : const Color(
+                //             0xff2295F3,
+                //           ),
+                //     foregroundColor: Colors.white,
+                //   ),
+                //   child: item.isMember == true
+                //       ? const Text('Opuść')
+                //       : const Text('Dołącz'),
+                // ),
               ],
             ),
           ),

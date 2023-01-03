@@ -8,6 +8,7 @@ import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/main.dart';
 import 'package:hejtter/models/account.dart';
 import 'package:hejtter/models/comments_response.dart';
+import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/models/posts_response.dart';
 
 final hejtoApi = HejtoApi();
@@ -271,7 +272,7 @@ class HejtoApi {
     required int pageKey,
     required int pageSize,
     required BuildContext context,
-    required String? communityName,
+    required String? communitySlug,
     required String? tagName,
     required String query,
     required String orderBy,
@@ -285,7 +286,7 @@ class HejtoApi {
       'orderBy': orderBy,
     };
 
-    queryParameters = _addCommunityFilter(queryParameters, communityName);
+    queryParameters = _addCommunityFilter(queryParameters, communitySlug);
     queryParameters = _addTagFilter(queryParameters, tagName);
     queryParameters = _addSearchQuery(queryParameters, query);
     queryParameters = _addPostsPeriod(queryParameters, postsPeriod);
@@ -637,5 +638,51 @@ class HejtoApi {
     }
 
     return true;
+  }
+
+  Future<List<Community>?> getCommunities({
+    required int pageKey,
+    required int pageSize,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+
+    final queryParameters = {
+      'limit': '$pageSize',
+      'page': '$pageKey',
+      'orderBy': 'numMembers',
+      'orderDir': 'desc',
+    };
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        'api.hejto.pl',
+        '/communities',
+        queryParameters,
+      ),
+    );
+
+    request.cookies.addAll(
+      await cookieJar.loadForRequest(
+        Uri.https('www.hejto.pl'),
+      ),
+    );
+
+    if (accessToken != null) {
+      request.headers.set(
+        HttpHeaders.authorizationHeader,
+        'Bearer $accessToken',
+      );
+    }
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    await cookieJar.saveFromResponse(
+      Uri.https('www.hejto.pl'),
+      response.cookies,
+    );
+
+    return communitiesResponseFromJson(stringData).embedded?.items;
   }
 }

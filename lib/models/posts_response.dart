@@ -97,7 +97,7 @@ class PostItem {
   final List<Tag>? tags;
   final ItemAuthor? author;
   final ItemInteractions? interactions;
-  final Community? community;
+  final CommunityShort? community;
   final bool? nsfw;
   final bool? controversial;
   final bool? commentsEnabled;
@@ -141,7 +141,7 @@ class PostItem {
             : ItemInteractions.fromJson(json["interactions"]),
         community: json["community"] == null
             ? null
-            : Community.fromJson(json["community"]),
+            : CommunityShort.fromJson(json["community"]),
         nsfw: json["nsfw"],
         controversial: json["controversial"],
         commentsEnabled: json["comments_enabled"],
@@ -433,8 +433,8 @@ class CommentStats {
       );
 }
 
-class Community {
-  Community({
+class CommunityShort {
+  CommunityShort({
     this.name,
     this.slug,
     this.avatar,
@@ -446,7 +446,7 @@ class Community {
   final CommunityAvatar? avatar;
   final CommunityBackground? background;
 
-  factory Community.fromJson(Map<String, dynamic> json) => Community(
+  factory CommunityShort.fromJson(Map<String, dynamic> json) => CommunityShort(
         name: json["name"],
         slug: json["slug"],
         avatar: json["avatar"] == null

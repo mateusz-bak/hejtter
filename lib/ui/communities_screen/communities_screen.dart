@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hejtter/models/communities_response.dart';
+import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/communities_screen/community_card.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
 
@@ -18,27 +19,17 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   final client = http.Client();
   static const _pageSize = 10;
 
-  final PagingController<int, Item> _pagingController =
+  final PagingController<int, Community> _pagingController =
       PagingController(firstPageKey: 1);
-
-  Future<List<Item>?> _getPosts(int pageKey, int pageSize) async {
-    final queryParameters = {
-      'limit': '$pageSize',
-      'page': '$pageKey',
-      'orderBy': 'numMembers',
-      'orderDir': 'desc',
-    };
-
-    var response = await client.get(
-      Uri.https('api.hejto.pl', '/communities', queryParameters),
-    );
-
-    return communitiesResponseFromJson(response.body).embedded?.items;
-  }
 
   Future<void> _fetchPage(int pageKey) async {
     try {
-      final newItems = await _getPosts(pageKey, _pageSize);
+      final newItems = await hejtoApi.getCommunities(
+        pageKey: pageKey,
+        pageSize: _pageSize,
+        context: context,
+      );
+
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -79,10 +70,10 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               onRefresh: () => Future.sync(
                 () => _pagingController.refresh(),
               ),
-              child: PagedListView<int, Item>(
+              child: PagedListView<int, Community>(
                 pagingController: _pagingController,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                builderDelegate: PagedChildBuilderDelegate<Item>(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                builderDelegate: PagedChildBuilderDelegate<Community>(
                   itemBuilder: (context, item, index) =>
                       CommunityCard(item: item),
                 ),

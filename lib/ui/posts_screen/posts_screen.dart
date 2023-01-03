@@ -6,10 +6,12 @@ class PostsScreen extends StatefulWidget {
   const PostsScreen({
     super.key,
     this.communityName,
+    this.communitySlug,
     this.tagName,
   });
 
   final String? communityName;
+  final String? communitySlug;
   final String? tagName;
 
   @override
@@ -29,7 +31,7 @@ class _PostsScreenState extends State<PostsScreen> {
         ],
       ),
       body: PostsTabView(
-        communityName: widget.communityName,
+        communitySlug: widget.communitySlug,
         tagName: widget.tagName,
         showSearchBar: _showSearchBar,
         focusNode: focusNode,

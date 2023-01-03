@@ -15,12 +15,12 @@ class PostsTabView extends StatefulWidget {
     super.key,
     this.showSearchBar = false,
     this.focusNode,
-    this.communityName,
+    this.communitySlug,
     this.tagName,
   });
 
   final bool showSearchBar;
-  final String? communityName;
+  final String? communitySlug;
   final String? tagName;
   final FocusNode? focusNode;
 
@@ -55,7 +55,7 @@ class _PostsTabViewState extends State<PostsTabView> {
         pageKey: pageKey,
         pageSize: _pageSize,
         context: context,
-        communityName: widget.communityName,
+        communitySlug: widget.communitySlug,
         tagName: widget.tagName,
         query: query,
         orderBy: 'p.hot',
@@ -81,7 +81,7 @@ class _PostsTabViewState extends State<PostsTabView> {
         pageKey: pageKey,
         pageSize: _pageSize,
         context: context,
-        communityName: widget.communityName,
+        communitySlug: widget.communitySlug,
         tagName: widget.tagName,
         query: query,
         orderBy: 'p.numLikes',
@@ -109,7 +109,7 @@ class _PostsTabViewState extends State<PostsTabView> {
         pageKey: pageKey,
         pageSize: _pageSize,
         context: context,
-        communityName: widget.communityName,
+        communitySlug: widget.communitySlug,
         tagName: widget.tagName,
         query: query,
         orderBy: 'p.createdAt',
