@@ -272,10 +272,14 @@ class HejtoApi {
     required int pageKey,
     required int pageSize,
     required BuildContext context,
-    required String? communitySlug,
-    required String? tagName,
-    required String query,
+    String? communitySlug,
+    String? tagName,
+    String? author,
+    String? commentedBy,
+    bool? favorited,
+    String query = '',
     required String orderBy,
+    String? orderDir,
     String? postsPeriod,
   }) async {
     final accessToken = await _getAccessToken(context);
@@ -290,6 +294,10 @@ class HejtoApi {
     queryParameters = _addTagFilter(queryParameters, tagName);
     queryParameters = _addSearchQuery(queryParameters, query);
     queryParameters = _addPostsPeriod(queryParameters, postsPeriod);
+    queryParameters = _addPostsAuthor(queryParameters, author);
+    queryParameters = _addPostsCommenter(queryParameters, commentedBy);
+    queryParameters = _addPostsFavorited(queryParameters, favorited);
+    queryParameters = _addPostsOrderDir(queryParameters, orderDir);
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
@@ -356,6 +364,58 @@ class HejtoApi {
     if (query.isNotEmpty) {
       queryParameters.addEntries(
         <String, String>{'query': query}.entries,
+      );
+    }
+
+    return queryParameters;
+  }
+
+  Map<String, String> _addPostsAuthor(
+    Map<String, String> queryParameters,
+    String? author,
+  ) {
+    if (author != null) {
+      queryParameters.addEntries(
+        <String, String>{'users[]': author}.entries,
+      );
+    }
+
+    return queryParameters;
+  }
+
+  Map<String, String> _addPostsCommenter(
+    Map<String, String> queryParameters,
+    String? commentedBy,
+  ) {
+    if (commentedBy != null) {
+      queryParameters.addEntries(
+        <String, String>{'commentedBy': commentedBy}.entries,
+      );
+    }
+
+    return queryParameters;
+  }
+
+  Map<String, String> _addPostsOrderDir(
+    Map<String, String> queryParameters,
+    String? orderDir,
+  ) {
+    if (orderDir != null) {
+      queryParameters.addEntries(
+        <String, String>{'orderDir': orderDir}.entries,
+      );
+    }
+
+    return queryParameters;
+  }
+
+  Map<String, String> _addPostsFavorited(
+    Map<String, String> queryParameters,
+    bool? favorited,
+  ) {
+    if (favorited == true) {
+      queryParameters.addEntries(
+        <String, String>{'favorited': '1'}.entries,
       );
     }
 

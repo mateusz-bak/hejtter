@@ -1,8 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/models/user_details_response.dart';
+import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/posts_screen/post_card.dart';
+import 'package:hejtter/ui/user_screen/user_app_bar.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -13,7 +18,6 @@ class UserScreen extends StatefulWidget {
   });
 
   final String? userName;
-  static const _pageSize = 10;
 
   @override
   State<UserScreen> createState() => _UserScreenState();
@@ -21,6 +25,15 @@ class UserScreen extends StatefulWidget {
 
 class _UserScreenState extends State<UserScreen> {
   final client = http.Client();
+  static const pageSize = 10;
+  String postsType = 'Wpisy dodane';
+  String orderType = 'Najnowsze';
+
+  late List<String> postTypes;
+  final List<String> orderTypes = ['Najnowsze', 'Najstarsze'];
+
+  late List<DropdownMenuItem<String>> postItems;
+  late List<DropdownMenuItem<String>> orderItems;
 
   final PagingController<int, PostItem> _pagingController =
       PagingController(firstPageKey: 1);
@@ -33,25 +46,55 @@ class _UserScreenState extends State<UserScreen> {
     return userDetailsResponseFromJson(response.body);
   }
 
-  Future<List<PostItem>?> _getUserPosts(int pageKey, int pageSize) async {
-    var queryParameters = {
-      'limit': '$pageSize',
-      'page': '$pageKey',
-      'users[]': widget.userName,
-      'orderBy': 'p.createdAt',
-    };
+  void _setDropdownValuesForCurrentUser() {
+    postTypes = <String>[
+      'Wpisy dodane',
+      'Wpisy komentowane',
+      'Wpisy ulubione',
+    ];
+  }
 
-    var response = await client.get(
-      Uri.https('api.hejto.pl', '/posts', queryParameters),
-    );
+  void _setDropdownValuesForOtherUsers() {
+    postTypes = <String>[
+      'Wpisy dodane',
+      'Wpisy komentowane',
+    ];
+  }
 
-    return postFromJson(response.body).embedded?.items;
+  void _createDropDownItems() {
+    postItems = postTypes
+        .map(
+          (String value) => DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          ),
+        )
+        .toList();
+
+    orderItems = orderTypes
+        .map(
+          (String value) => DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          ),
+        )
+        .toList();
   }
 
   Future<void> _fetchPosts(int pageKey) async {
     try {
-      final newItems = await _getUserPosts(pageKey, UserScreen._pageSize);
-      final isLastPage = newItems!.length < UserScreen._pageSize;
+      final newItems = await hejtoApi.getPosts(
+        pageKey: pageKey,
+        pageSize: pageSize,
+        author: postsType == 'Wpisy dodane' ? widget.userName : null,
+        context: context,
+        orderBy: 'p.createdAt',
+        commentedBy: postsType == 'Wpisy komentowane' ? widget.userName : null,
+        favorited: postsType == 'Wpisy ulubione' ? true : null,
+        orderDir: orderType == 'Najnowsze' ? 'desc' : 'asc',
+      );
+
+      final isLastPage = newItems!.length < pageSize;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
       } else {
@@ -81,144 +124,165 @@ class _UserScreenState extends State<UserScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<UserDetailsResponse>(
-      future: _getUser(),
-      builder:
-          (BuildContext context, AsyncSnapshot<UserDetailsResponse> snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('User')),
-            body: _buildUserScreen(snapshot.data!),
-          );
-        } else if (snapshot.hasError || snapshot.data == null) {
-          Scaffold(
-            appBar: AppBar(),
-            body: Padding(
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: FutureBuilder<UserDetailsResponse>(
+        future: _getUser(),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<UserDetailsResponse> snapshot,
+        ) {
+          if (snapshot.hasData) {
+            return BlocBuilder<ProfileBloc, ProfileState>(
+              builder: (context, state) {
+                if (state is ProfilePresentState &&
+                    state.username == snapshot.data?.username) {
+                  _setDropdownValuesForCurrentUser();
+                } else {
+                  _setDropdownValuesForOtherUsers();
+                }
+
+                _createDropDownItems();
+
+                return NestedScrollView(
+                  headerSliverBuilder: (context, value) {
+                    return [
+                      UserAppBar(user: snapshot.data!),
+                    ];
+                  },
+                  body: _buildUserPosts(snapshot.data!),
+                );
+              },
+            );
+          } else if (snapshot.hasError) {
+            return Padding(
               padding: const EdgeInsets.all(10),
               child: Center(
                 child: Text(
                   'Błąd przy pobieraniu informacji o użytkowniku ${widget.userName}',
                 ),
               ),
-            ),
-          );
-        }
+            );
+          }
 
-        return Scaffold(
-          appBar: AppBar(),
-          body: const Padding(
+          return const Padding(
             padding: EdgeInsets.all(10),
             child: Center(
               child: CircularProgressIndicator(),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildUserScreen(UserDetailsResponse data) {
+  Widget _buildUserPosts(UserDetailsResponse data) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(10),
-          child: Card(
-            child: Padding(
+        _buildUserDetails(data),
+        const SizedBox(height: 10),
+        _buildDropDowns(),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () => Future.sync(
+              () => _pagingController.refresh(),
+            ),
+            child: PagedListView<int, PostItem>(
+              pagingController: _pagingController,
               padding: const EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildAvatar(data.avatar?.urls?.the250X250),
-                      const SizedBox(width: 10),
-                      _buildUserDetails(data),
-                    ],
-                  ),
-                ],
+              builderDelegate: PagedChildBuilderDelegate<PostItem>(
+                itemBuilder: (context, item, index) => PostCard(item: item),
               ),
             ),
           ),
         ),
-        _buildUserPosts(),
       ],
     );
   }
 
-  Widget _buildUserPosts() {
-    return Expanded(
-      child: RefreshIndicator(
-        onRefresh: () => Future.sync(
-          () => _pagingController.refresh(),
-        ),
-        child: PagedListView<int, PostItem>(
-          pagingController: _pagingController,
-          padding: const EdgeInsets.all(10),
-          builderDelegate: PagedChildBuilderDelegate<PostItem>(
-            itemBuilder: (context, item, index) => PostCard(item: item),
+  Padding _buildDropDowns() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 13),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: DropdownButton<String>(
+              isExpanded: true,
+              items: postItems,
+              value: postsType,
+              onChanged: (value) {
+                if (value == null) return;
+
+                setState(() {
+                  postsType = value;
+                });
+
+                _pagingController.refresh();
+              },
+            ),
           ),
-        ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: DropdownButton<String>(
+              isExpanded: true,
+              items: orderItems,
+              value: orderType,
+              onChanged: (value) {
+                if (value == null) return;
+
+                setState(() {
+                  orderType = value;
+                });
+
+                _pagingController.refresh();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildUserDetails(UserDetailsResponse data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        data.currentRank != null ? _buildRankPlate(data) : const SizedBox(),
+        const SizedBox(width: 15),
         Row(
           children: [
-            data.username != null
-                ? Text(
-                    data.username!,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                    ),
-                  )
-                : const SizedBox(),
-            SizedBox(width: data.sponsor == true ? 5 : 0),
-            data.sponsor == true
-                ? Transform.rotate(
-                    angle: 180,
-                    child: const Icon(
-                      Icons.mode_night_rounded,
-                      color: Colors.brown,
-                    ),
-                  )
-                : const SizedBox(),
+            const Icon(
+              Icons.text_snippet_sharp,
+              size: 20,
+              color: primaryColor,
+            ),
+            const SizedBox(width: 5),
+            Text('${data.stats?.numPosts}'),
           ],
         ),
-        const SizedBox(height: 5),
-        data.currentRank != null ? _buildRankPlate(data) : const SizedBox(),
-        const SizedBox(height: 20),
+        const SizedBox(width: 15),
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                const Icon(Icons.text_snippet_sharp, size: 20),
-                const SizedBox(width: 5),
-                Text('${data.stats?.numPosts}'),
-              ],
+            const Icon(
+              Icons.comment,
+              size: 20,
+              color: primaryColor,
             ),
-            const SizedBox(width: 15),
-            Row(
-              children: [
-                const Icon(Icons.comment, size: 20),
-                const SizedBox(width: 5),
-                Text('${data.stats?.numComments}'),
-              ],
+            const SizedBox(width: 5),
+            Text('${data.stats?.numComments}'),
+          ],
+        ),
+        const SizedBox(width: 15),
+        Row(
+          children: [
+            const Icon(
+              Icons.person,
+              size: 20,
+              color: primaryColor,
             ),
-            const SizedBox(width: 15),
-            Row(
-              children: [
-                const Icon(Icons.person, size: 20),
-                const SizedBox(width: 5),
-                Text('${data.stats?.numFollows}'),
-              ],
-            ),
+            const SizedBox(width: 5),
+            Text('${data.stats?.numFollows}'),
           ],
         ),
       ],
@@ -235,7 +299,6 @@ class _UserScreenState extends State<UserScreen> {
       child: Text(
         data.currentRank!,
         style: TextStyle(
-          fontSize: 16,
           color: data.currentColor != null
               ? Color(
                   int.parse(

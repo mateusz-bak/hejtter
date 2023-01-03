@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +8,7 @@ import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/posts_screen/posts_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -129,7 +128,9 @@ class _PostCardState extends State<PostCard>
           }));
         },
         child: Material(
+          color: backgroundColor,
           child: Card(
+            color: backgroundColor,
             elevation: 5,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
