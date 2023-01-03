@@ -1,1 +1,1 @@
-enum CurrentScreen { home, communities }
+enum CurrentScreen { home, communities, followed }

@@ -277,6 +277,7 @@ class HejtoApi {
     String? author,
     String? commentedBy,
     bool? favorited,
+    bool? followed,
     String query = '',
     required String orderBy,
     String? orderDir,
@@ -298,6 +299,7 @@ class HejtoApi {
     queryParameters = _addPostsCommenter(queryParameters, commentedBy);
     queryParameters = _addPostsFavorited(queryParameters, favorited);
     queryParameters = _addPostsOrderDir(queryParameters, orderDir);
+    queryParameters = _addPostsFollowed(queryParameters, followed);
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
@@ -416,6 +418,19 @@ class HejtoApi {
     if (favorited == true) {
       queryParameters.addEntries(
         <String, String>{'favorited': '1'}.entries,
+      );
+    }
+
+    return queryParameters;
+  }
+
+  Map<String, String> _addPostsFollowed(
+    Map<String, String> queryParameters,
+    bool? followed,
+  ) {
+    if (followed == true) {
+      queryParameters.addEntries(
+        <String, String>{'followed': '1'}.entries,
       );
     }
 

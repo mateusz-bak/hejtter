@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/ui/communities_screen/communities_screen.dart';
+import 'package:hejtter/ui/followed_page/followed_screen.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
@@ -74,6 +75,13 @@ class HejtoDrawer extends StatelessWidget {
                     builder: (context) => const CommunitiesScreen(),
                   ),
                 );
+              } else if (currentScreen == CurrentScreen.followed) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CommunitiesScreen(),
+                  ),
+                );
               } else if (currentScreen == CurrentScreen.communities) {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
@@ -83,10 +91,36 @@ class HejtoDrawer extends StatelessWidget {
               }
             },
           ),
-          _buildLoginLogoutTile(),
+          ListTile(
+            title: const Text('Obserwowane'),
+            onTap: () {
+              if (currentScreen == CurrentScreen.home) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FollowedScreen(),
+                  ),
+                );
+              } else if (currentScreen == CurrentScreen.communities) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FollowedScreen(),
+                  ),
+                );
+              } else if (currentScreen == CurrentScreen.followed) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (context) => const FollowedScreen()),
+                  (Route<dynamic> route) => false,
+                );
+              }
+            },
+          ),
           const Expanded(
             child: SizedBox(),
           ),
+          _buildLoginLogoutTile(),
           ListTile(
             title: const Text('Github'),
             onTap: () {
