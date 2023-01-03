@@ -7,6 +7,7 @@ import 'package:hejtter/ui/communities_screen/communities_screen.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,6 +28,7 @@ class HejtoDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: backgroundColor,
       child: Column(
         children: [
           DrawerHeader(

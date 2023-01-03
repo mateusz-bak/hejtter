@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hejtter/logic/cubit/search_cubit.dart';
+import 'package:hejtter/utils/constants.dart';
 
 class PostsSearchBar extends StatelessWidget {
   PostsSearchBar({
@@ -23,7 +24,9 @@ class PostsSearchBar extends StatelessWidget {
             duration: const Duration(milliseconds: 250),
             width: double.infinity,
             height: show ? 75 : 0,
-            decoration: const BoxDecoration(),
+            decoration: const BoxDecoration(
+              color: backgroundColor,
+            ),
             clipBehavior: Clip.hardEdge,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -21,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Hejtter'),
+        backgroundColor: backgroundColor,
         actions: [_buildSearchButton(context)],
       ),
       drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),

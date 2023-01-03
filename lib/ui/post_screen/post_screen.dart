@@ -13,6 +13,7 @@ import 'package:hejtter/ui/post_screen/picture_full_screen.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/posts_screen/posts_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
@@ -233,7 +234,10 @@ class _PostScreenState extends State<PostScreen> {
     _setTimeAgoLocale();
 
     return Scaffold(
-      appBar: AppBar(),
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: backgroundColor,
+      ),
       body: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
           if (state is ProfilePresentState) {
@@ -246,7 +250,7 @@ class _PostScreenState extends State<PostScreen> {
               withBorder: false,
               sendButtonMethod: _sendComment,
               commentController: _commentController,
-              backgroundColor: Colors.blueGrey.shade900,
+              backgroundColor: backgroundColor,
               textColor: Colors.white,
               sendWidget: const Icon(
                 Icons.send_sharp,
@@ -263,90 +267,95 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
-  RefreshIndicator _buildPost() {
-    return RefreshIndicator(
-      onRefresh: () => Future.sync(
-        () => _refreshPostAndComments(),
-      ),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        controller: _scrollController,
-        child: Padding(
-          padding: const EdgeInsets.all(5),
-          child: Material(
-            child: Card(
-              elevation: 5,
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withAlpha(50),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                        bottomLeft: Radius.circular(5),
-                        bottomRight: Radius.circular(5),
-                      ),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        _buildAvatar(),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildUsernameAndRank(),
-                              const SizedBox(height: 3),
-                              _buildCommunityAndDate(),
-                            ],
-                          ),
+  Widget _buildPost() {
+    return Container(
+      color: backgroundColor,
+      child: RefreshIndicator(
+        onRefresh: () => Future.sync(
+          () => _refreshPostAndComments(),
+        ),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          controller: _scrollController,
+          child: Padding(
+            padding: const EdgeInsets.all(5),
+            child: Material(
+              color: backgroundColor,
+              child: Card(
+                color: backgroundColor,
+                elevation: 5,
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withAlpha(50),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10),
+                          bottomLeft: Radius.circular(5),
+                          bottomRight: Radius.circular(5),
                         ),
-                        _buildHotIcon(),
-                        const SizedBox(width: 15),
-                        Text(
-                          item.numLikes != null
-                              ? item.numLikes.toString()
-                              : 'null',
-                          style: TextStyle(
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          _buildAvatar(),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildUsernameAndRank(),
+                                const SizedBox(height: 3),
+                                _buildCommunityAndDate(),
+                              ],
+                            ),
+                          ),
+                          _buildHotIcon(),
+                          const SizedBox(width: 15),
+                          Text(
+                            item.numLikes != null
+                                ? item.numLikes.toString()
+                                : 'null',
+                            style: TextStyle(
+                              color: item.isLiked == true
+                                  ? const Color(0xffFFC009)
+                                  : null,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.bolt),
                             color: item.isLiked == true
                                 ? const Color(0xffFFC009)
                                 : null,
+                            onPressed:
+                                item.isLiked == true ? _unlikePost : _likePost,
+                          )
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 10),
+                        _buildContent(),
+                        _buildTags(),
+                        _buildPicture(),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: AnswerButton(
+                            username: item.author?.username,
+                            respondToUser: _respondToUser,
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.bolt),
-                          color: item.isLiked == true
-                              ? const Color(0xffFFC009)
-                              : null,
-                          onPressed:
-                              item.isLiked == true ? _unlikePost : _likePost,
-                        )
+                        _buildComments(),
                       ],
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 10),
-                      _buildContent(),
-                      _buildTags(),
-                      _buildPicture(),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5),
-                        child: AnswerButton(
-                          username: item.author?.username,
-                          respondToUser: _respondToUser,
-                        ),
-                      ),
-                      _buildComments(),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

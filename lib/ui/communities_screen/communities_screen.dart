@@ -3,6 +3,7 @@ import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/communities_screen/community_card.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
+import 'package:hejtter/utils/constants.dart';
 
 import 'package:hejtter/utils/enums.dart';
 import 'package:http/http.dart' as http;
@@ -59,7 +60,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
+        backgroundColor: backgroundColor,
         title: const Text('Społeczności'),
       ),
       drawer: const HejtoDrawer(currentScreen: CurrentScreen.communities),

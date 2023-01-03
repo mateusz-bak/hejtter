@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
+import 'package:hejtter/utils/constants.dart';
 
 class PostsScreen extends StatefulWidget {
   const PostsScreen({
@@ -26,6 +27,7 @@ class _PostsScreenState extends State<PostsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.communityName ?? '#${widget.tagName}'),
+        backgroundColor: backgroundColor,
         actions: [
           _buildSearchButton(context),
         ],

@@ -5,6 +5,7 @@ import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:hejtter/models/posts_response.dart';
@@ -176,37 +177,40 @@ class _PostsTabViewState extends State<PostsTabView> {
           focusNode: widget.focusNode,
         ),
         Expanded(
-          child: DefaultTabController(
-            length: 3,
-            child: Column(
-              children: [
-                _buildTabBar(),
-                StreamBuilder<String>(
-                  stream: searchCubit.searchString,
-                  builder: (context, AsyncSnapshot<String> snapshot) {
-                    if (snapshot.hasData) {
-                      if (snapshot.data != query) {
-                        query = snapshot.data!;
+          child: Container(
+            color: backgroundColor,
+            child: DefaultTabController(
+              length: 3,
+              child: Column(
+                children: [
+                  _buildTabBar(),
+                  StreamBuilder<String>(
+                    stream: searchCubit.searchString,
+                    builder: (context, AsyncSnapshot<String> snapshot) {
+                      if (snapshot.hasData) {
+                        if (snapshot.data != query) {
+                          query = snapshot.data!;
 
-                        _refreshAllControllers();
+                          _refreshAllControllers();
+                        }
                       }
-                    }
 
-                    return Expanded(
-                      child: TabBarView(
-                        children: [
-                          PostsTabBarView(controller: _hotPagingController),
-                          PostsTabBarView(
-                            controller: _topPagingController,
-                            topDropdown: _buildTopDropdown(),
-                          ),
-                          PostsTabBarView(controller: _newPagingController),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
+                      return Expanded(
+                        child: TabBarView(
+                          children: [
+                            PostsTabBarView(controller: _hotPagingController),
+                            PostsTabBarView(
+                              controller: _topPagingController,
+                              topDropdown: _buildTopDropdown(),
+                            ),
+                            PostsTabBarView(controller: _newPagingController),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
