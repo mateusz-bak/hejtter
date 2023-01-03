@@ -91,29 +91,37 @@ class HejtoDrawer extends StatelessWidget {
               }
             },
           ),
-          ListTile(
-            title: const Text('Obserwowane'),
-            onTap: () {
-              if (currentScreen == CurrentScreen.home) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const FollowedScreen(),
-                  ),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state is AuthorizedAuthState) {
+                return ListTile(
+                  title: const Text('Obserwowane'),
+                  onTap: () {
+                    if (currentScreen == CurrentScreen.home) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FollowedScreen(),
+                        ),
+                      );
+                    } else if (currentScreen == CurrentScreen.communities) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FollowedScreen(),
+                        ),
+                      );
+                    } else if (currentScreen == CurrentScreen.followed) {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => const FollowedScreen()),
+                        (Route<dynamic> route) => false,
+                      );
+                    }
+                  },
                 );
-              } else if (currentScreen == CurrentScreen.communities) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const FollowedScreen(),
-                  ),
-                );
-              } else if (currentScreen == CurrentScreen.followed) {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => const FollowedScreen()),
-                  (Route<dynamic> route) => false,
-                );
+              } else {
+                return const SizedBox();
               }
             },
           ),
