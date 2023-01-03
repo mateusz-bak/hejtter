@@ -10,6 +10,7 @@ import 'package:hejtter/models/account.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/models/posts_response.dart';
+import 'package:hejtter/utils/constants.dart';
 
 final hejtoApi = HejtoApi();
 
@@ -22,27 +23,41 @@ class HejtoApi {
     snackbarKey.currentState?.showSnackBar(snackBar);
   }
 
+  Future<HttpClientRequest> _addCookiesToRequest(
+    HttpClientRequest request,
+  ) async {
+    request.cookies.addAll(
+      await cookieJar.loadForRequest(
+        Uri.https(hejtoUrl),
+      ),
+    );
+
+    return request;
+  }
+
+  _saveCookiesFromResponse(
+    HttpClientResponse response,
+  ) async {
+    await cookieJar.saveFromResponse(
+      Uri.https(hejtoUrl),
+      response.cookies,
+    );
+  }
+
   Future<dynamic> getProviders() async {
     HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'www.hejto.pl',
+        hejtoUrl,
         '/api/auth/providers',
       ),
     );
 
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
+    request = await _addCookiesToRequest(request);
 
     HttpClientResponse response = await request.close();
     final stringData = await response.transform(utf8.decoder).join();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     return stringData;
   }
@@ -50,24 +65,17 @@ class HejtoApi {
   Future<dynamic> getCSRFToken() async {
     HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'www.hejto.pl',
+        hejtoUrl,
         '/api/auth/csrf',
       ),
     );
 
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
+    request = await _addCookiesToRequest(request);
 
     HttpClientResponse response = await request.close();
     final stringData = await response.transform(utf8.decoder).join();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     final token = jsonDecode(stringData)['csrfToken'];
 
@@ -91,16 +99,12 @@ class HejtoApi {
 
     HttpClientRequest request = await client.postUrl(
       Uri.https(
-        'www.hejto.pl',
+        hejtoUrl,
         '/api/auth/callback/credentials',
       ),
     );
 
-    final cookies = await cookieJar.loadForRequest(
-      Uri.https('www.hejto.pl'),
-    );
-
-    request.cookies.addAll(cookies);
+    request = await _addCookiesToRequest(request);
 
     request.headers.set('content-type', 'application/json');
     request.add(utf8.encode(json.encode(body)));
@@ -108,10 +112,7 @@ class HejtoApi {
     HttpClientResponse response = await request.close();
     final stringData = await response.transform(utf8.decoder).join();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     if (response.statusCode != 200) {
       _showSnackBar('Logowanie nieudane (${response.statusCode})');
@@ -124,24 +125,17 @@ class HejtoApi {
   Future<dynamic> getSession() async {
     HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'www.hejto.pl',
+        hejtoUrl,
         '/api/auth/session',
       ),
     );
 
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
+    request = await _addCookiesToRequest(request);
 
     HttpClientResponse response = await request.close();
     final stringData = await response.transform(utf8.decoder).join();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     return stringData;
   }
@@ -164,25 +158,20 @@ class HejtoApi {
     if (accessToken == null) return false;
 
     HttpClientRequest request = await client.postUrl(Uri.https(
-      'api.hejto.pl',
+      hejtoApiUrl,
       '/posts/$postSlug/likes',
     ));
 
-    request.cookies.addAll(await cookieJar.loadForRequest(
-      Uri.https('www.hejto.pl'),
-    ));
+    request = await _addCookiesToRequest(request);
 
     request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
     request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
-    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
 
     HttpClientResponse response = await request.close();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     if (response.statusCode == 201) {
       return true;
@@ -199,25 +188,20 @@ class HejtoApi {
     if (accessToken == null) return false;
 
     HttpClientRequest request = await client.deleteUrl(Uri.https(
-      'api.hejto.pl',
+      hejtoApiUrl,
       '/posts/$postSlug/likes',
     ));
 
-    request.cookies.addAll(await cookieJar.loadForRequest(
-      Uri.https('www.hejto.pl'),
-    ));
+    request = await _addCookiesToRequest(request);
 
     request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
     request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
-    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
 
     HttpClientResponse response = await request.close();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     if (response.statusCode == 204) {
       return true;
@@ -235,16 +219,12 @@ class HejtoApi {
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'api.hejto.pl',
+        hejtoApiUrl,
         '/posts/$postSlug',
       ),
     );
 
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
+    request = await _addCookiesToRequest(request);
 
     if (accessToken != null) {
       request.headers.set(
@@ -255,15 +235,12 @@ class HejtoApi {
 
     request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
 
     HttpClientResponse response = await request.close();
     final stringData = await response.transform(utf8.decoder).join();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     return PostItem.fromJson(json.decode(stringData));
   }
@@ -303,17 +280,13 @@ class HejtoApi {
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'api.hejto.pl',
+        hejtoApiUrl,
         '/posts/',
         queryParameters,
       ),
     );
 
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
+    request = await _addCookiesToRequest(request);
 
     if (accessToken != null) {
       request.headers.set(
@@ -325,10 +298,7 @@ class HejtoApi {
     HttpClientResponse response = await request.close();
     final stringData = await response.transform(utf8.decoder).join();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     return postFromJson(stringData).embedded?.items;
   }
@@ -487,17 +457,13 @@ class HejtoApi {
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'api.hejto.pl',
+        hejtoApiUrl,
         commentsHref,
         queryParameters,
       ),
     );
 
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
+    request = await _addCookiesToRequest(request);
 
     if (accessToken != null) {
       request.headers.set(
@@ -509,10 +475,7 @@ class HejtoApi {
     HttpClientResponse response = await request.close();
     final stringData = await response.transform(utf8.decoder).join();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     return commentsResponseFromJson(stringData).embedded?.items;
   }
@@ -528,25 +491,20 @@ class HejtoApi {
     if (accessToken == null) return false;
 
     HttpClientRequest request = await client.postUrl(Uri.https(
-      'api.hejto.pl',
+      hejtoApiUrl,
       '/posts/$postSlug/comments/$commentUUID/likes',
     ));
 
-    request.cookies.addAll(await cookieJar.loadForRequest(
-      Uri.https('www.hejto.pl'),
-    ));
+    request = await _addCookiesToRequest(request);
 
     request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
     request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
-    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
 
     HttpClientResponse response = await request.close();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     if (response.statusCode == 201) {
       return true;
@@ -566,25 +524,20 @@ class HejtoApi {
     if (accessToken == null) return false;
 
     HttpClientRequest request = await client.deleteUrl(Uri.https(
-      'api.hejto.pl',
+      hejtoApiUrl,
       '/posts/$postSlug/comments/$commentUUID/likes',
     ));
 
-    request.cookies.addAll(await cookieJar.loadForRequest(
-      Uri.https('www.hejto.pl'),
-    ));
+    request = await _addCookiesToRequest(request);
 
     request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
     request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
-    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
 
     HttpClientResponse response = await request.close();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     if (response.statusCode == 204) {
       return true;
@@ -604,16 +557,12 @@ class HejtoApi {
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'api.hejto.pl',
+        hejtoApiUrl,
         '/posts/$postSlug/comments/$commentUUID',
       ),
     );
 
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
+    request = await _addCookiesToRequest(request);
 
     if (accessToken != null) {
       request.headers.set(
@@ -624,15 +573,12 @@ class HejtoApi {
 
     request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
 
     HttpClientResponse response = await request.close();
     final stringData = await response.transform(utf8.decoder).join();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     return CommentItem.fromJson(json.decode(stringData));
   }
@@ -645,29 +591,22 @@ class HejtoApi {
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'api.hejto.pl',
+        hejtoApiUrl,
         '/account',
       ),
     );
 
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
+    request = await _addCookiesToRequest(request);
 
     request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
     request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
-    request.headers.set(HttpHeaders.hostHeader, 'api.hejto.pl');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
 
     HttpClientResponse response = await request.close();
     final stringData = await response.transform(utf8.decoder).join();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     return accountFromJson(stringData);
   }
@@ -688,16 +627,12 @@ class HejtoApi {
 
     HttpClientRequest request = await client.postUrl(
       Uri.https(
-        'api.hejto.pl',
+        hejtoApiUrl,
         '/posts/$slug/comments',
       ),
     );
 
-    final cookies = await cookieJar.loadForRequest(
-      Uri.https('www.hejto.pl'),
-    );
-
-    request.cookies.addAll(cookies);
+    request = await _addCookiesToRequest(request);
 
     request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
     request.headers.set('content-type', 'application/json');
@@ -705,10 +640,7 @@ class HejtoApi {
 
     HttpClientResponse response = await request.close();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     if (response.statusCode != 201) {
       _showSnackBar('Dodanie komentarza nieudane (${response.statusCode})');
@@ -734,17 +666,13 @@ class HejtoApi {
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
-        'api.hejto.pl',
+        hejtoApiUrl,
         '/communities',
         queryParameters,
       ),
     );
 
-    request.cookies.addAll(
-      await cookieJar.loadForRequest(
-        Uri.https('www.hejto.pl'),
-      ),
-    );
+    request = await _addCookiesToRequest(request);
 
     if (accessToken != null) {
       request.headers.set(
@@ -756,10 +684,7 @@ class HejtoApi {
     HttpClientResponse response = await request.close();
     final stringData = await response.transform(utf8.decoder).join();
 
-    await cookieJar.saveFromResponse(
-      Uri.https('www.hejto.pl'),
-      response.cookies,
-    );
+    _saveCookiesFromResponse(response);
 
     return communitiesResponseFromJson(stringData).embedded?.items;
   }
