@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/post_screen/answer_button.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
@@ -11,10 +12,12 @@ import 'package:url_launcher/url_launcher.dart';
 class CommentInPostScreen extends StatefulWidget {
   const CommentInPostScreen({
     required this.comment,
+    required this.respondToUser,
     super.key,
   });
 
   final CommentItem comment;
+  final Function(String?) respondToUser;
 
   @override
   State<CommentInPostScreen> createState() => _CommentInPostScreenState();
@@ -94,6 +97,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
     _setTimeAgoLocale();
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -102,7 +106,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
               child: Row(
                 children: [
                   _buildAvatar(context),
-                  const SizedBox(width: 5),
+                  const SizedBox(width: 8),
                   _buildUsernameAndDate(context),
                   const SizedBox(width: 15),
                 ],
@@ -111,9 +115,16 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
             _buildLikes(comment?.numLikes, context),
           ],
         ),
-        const SizedBox(height: 0),
         _buildContent(context),
-        const SizedBox(height: 15),
+        Padding(
+          padding: const EdgeInsets.only(left: 26),
+          child: AnswerButton(
+            isSmaller: true,
+            username: widget.comment.author?.username,
+            respondToUser: widget.respondToUser,
+          ),
+        ),
+        const SizedBox(height: 0),
       ],
     );
   }
@@ -121,7 +132,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
   Row _buildContent(BuildContext context) {
     return Row(
       children: [
-        const SizedBox(width: 33),
+        const SizedBox(width: 35),
         Expanded(
           child: MarkdownBody(
             data: _addEmojis('${comment?.content}'),

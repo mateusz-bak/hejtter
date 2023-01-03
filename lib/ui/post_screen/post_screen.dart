@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/post_screen/answer_button.dart';
 import 'package:hejtter/ui/post_screen/comment_in_post_screen.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/ui/post_screen/picture_full_screen.dart';
@@ -33,6 +34,7 @@ class PostScreen extends StatefulWidget {
 
 class _PostScreenState extends State<PostScreen> {
   final _scrollController = ScrollController();
+  FocusNode focusNode = FocusNode();
   final TextEditingController _commentController = TextEditingController();
 
   final client = http.Client();
@@ -155,6 +157,59 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
+  _sendComment() async {
+    final message = _commentController.text;
+
+    if (message.isNotEmpty) {
+      FocusScope.of(context).unfocus();
+
+      final commentCreated = await hejtoApi.addComment(
+        slug: item.slug,
+        content: _commentController.text,
+        context: context,
+      );
+
+      if (commentCreated) {
+        await _refreshPostAndComments();
+        await Future.delayed(const Duration(milliseconds: 500));
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.ease,
+        );
+      }
+
+      _commentController.clear();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Komentarz nie może być pusty'),
+          action: SnackBarAction(
+            label: 'OK',
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+        ),
+      );
+    }
+  }
+
+  _respondToUser(String? username) {
+    if (username == null) return;
+
+    if (_commentController.text.isEmpty) {
+      _commentController.text = '@$username ';
+    } else {
+      _commentController.text = '${_commentController.text}\n@$username ';
+    }
+
+    FocusScope.of(context).requestFocus(focusNode);
+    _commentController.selection = TextSelection.fromPosition(
+      TextPosition(offset: _commentController.text.length),
+    );
+  }
+
   @override
   void initState() {
     _pagingController.addPageRequestListener((pageKey) {
@@ -183,48 +238,13 @@ class _PostScreenState extends State<PostScreen> {
         builder: (context, state) {
           if (state is ProfilePresentState) {
             return CommentBox(
+              focusNode: focusNode,
               userImage: CommentBox.commentImageParser(
                 imageURLorPath: state.avatar,
               ),
               labelText: 'Skomentuj',
               withBorder: false,
-              sendButtonMethod: () async {
-                final message = _commentController.text;
-
-                if (message.isNotEmpty) {
-                  FocusScope.of(context).unfocus();
-
-                  final commentCreated = await hejtoApi.addComment(
-                    slug: item.slug,
-                    content: _commentController.text,
-                    context: context,
-                  );
-
-                  if (commentCreated) {
-                    await _refreshPostAndComments();
-                    await Future.delayed(Duration(milliseconds: 500));
-                    _scrollController.animateTo(
-                      _scrollController.position.maxScrollExtent,
-                      duration: Duration(milliseconds: 500),
-                      curve: Curves.ease,
-                    );
-                  }
-
-                  _commentController.clear();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Komentarz nie może być pusty'),
-                      action: SnackBarAction(
-                        label: 'OK',
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        },
-                      ),
-                    ),
-                  );
-                }
-              },
+              sendButtonMethod: _sendComment,
               commentController: _commentController,
               backgroundColor: Colors.blueGrey.shade900,
               textColor: Colors.white,
@@ -316,7 +336,13 @@ class _PostScreenState extends State<PostScreen> {
                       _buildContent(),
                       _buildTags(),
                       _buildPicture(),
-                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 5),
+                        child: AnswerButton(
+                          username: item.author?.username,
+                          respondToUser: _respondToUser,
+                        ),
+                      ),
                       _buildComments(),
                     ],
                   ),
@@ -365,7 +391,10 @@ class _PostScreenState extends State<PostScreen> {
           noItemsFoundIndicatorBuilder: (context) => const SizedBox(),
           itemBuilder: (context, item, index) {
             if (item.content != null) {
-              return CommentInPostScreen(comment: item);
+              return CommentInPostScreen(
+                comment: item,
+                respondToUser: _respondToUser,
+              );
             } else {
               return const SizedBox();
             }
