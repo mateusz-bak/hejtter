@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
@@ -16,7 +17,11 @@ final GlobalKey<ScaffoldMessengerState> snackbarKey =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDisplayMode.setHighRefreshRate();
+
+  // iOS has problems with high refresh rate - update to latest flutter *MAY* fix it according to info I found
+  if (Platform.isAndroid) {
+    await FlutterDisplayMode.setHighRefreshRate();
+  }
 
   await FlutterDownloader.initialize(
     debug: true,
