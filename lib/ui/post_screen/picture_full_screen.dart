@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:hejtter/ui/post_screen/sliding_app_bar.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -74,10 +75,12 @@ class _PictureFullScreenState extends State<PictureFullScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: SlidingAppBar(
         controller: _appbarAnimController,
         visible: _appBarVisible,
         child: AppBar(
+          backgroundColor: backgroundColor,
           actions: [
             IconButton(
               onPressed: _downloadPicture,
