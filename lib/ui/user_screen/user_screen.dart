@@ -310,21 +310,4 @@ class _UserScreenState extends State<UserScreen> {
       ),
     );
   }
-
-  Widget _buildAvatar(String? avatarUrl) {
-    const defaultAvatarUrl =
-        'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
-
-    return SizedBox(
-      height: 120,
-      width: 120,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(7),
-        child: CachedNetworkImage(
-          imageUrl: avatarUrl != null ? avatarUrl.toString() : defaultAvatarUrl,
-          errorWidget: (context, url, error) => const Icon(Icons.error),
-        ),
-      ),
-    );
-  }
 }

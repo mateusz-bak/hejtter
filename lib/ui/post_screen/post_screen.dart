@@ -245,7 +245,7 @@ class _PostScreenState extends State<PostScreen> {
             return CommentBox(
               focusNode: focusNode,
               userImage: CommentBox.commentImageParser(
-                imageURLorPath: state.avatar,
+                imageURLorPath: state.avatar ?? defaultAvatar,
               ),
               labelText: 'Skomentuj',
               withBorder: false,
@@ -538,8 +538,6 @@ class _PostScreenState extends State<PostScreen> {
 
   Widget _buildAvatar() {
     final avatarUrl = item.author?.avatar?.urls?.the100X100;
-    const defaultAvatarUrl =
-        'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
     return GestureDetector(
       onTap: _goToUserScreen,
@@ -549,8 +547,7 @@ class _PostScreenState extends State<PostScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(7),
           child: CachedNetworkImage(
-            imageUrl:
-                avatarUrl != null ? avatarUrl.toString() : defaultAvatarUrl,
+            imageUrl: avatarUrl ?? defaultAvatar,
             errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
         ),

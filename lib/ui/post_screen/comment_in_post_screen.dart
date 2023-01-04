@@ -6,6 +6,7 @@ import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/post_screen/answer_button.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -182,8 +183,6 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
 
   Widget _buildAvatar(BuildContext context) {
     final avatarUrl = comment?.author?.avatar?.urls?.the100X100;
-    const defaultAvatarUrl =
-        'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
     return GestureDetector(
       onTap: () => _goToUserScreen(context),
@@ -193,8 +192,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(7),
           child: CachedNetworkImage(
-            imageUrl:
-                avatarUrl != null ? avatarUrl.toString() : defaultAvatarUrl,
+            imageUrl: avatarUrl ?? defaultAvatar,
             errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
         ),

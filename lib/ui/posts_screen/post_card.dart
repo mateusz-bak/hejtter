@@ -421,8 +421,6 @@ class _PostCardState extends State<PostCard>
 
   Widget _buildAvatar() {
     final avatarUrl = item.author?.avatar?.urls?.the100X100;
-    const defaultAvatarUrl =
-        'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
     return GestureDetector(
       onTap: _goToUserScreen,
@@ -432,8 +430,7 @@ class _PostCardState extends State<PostCard>
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: CachedNetworkImage(
-            imageUrl:
-                avatarUrl != null ? avatarUrl.toString() : defaultAvatarUrl,
+            imageUrl: avatarUrl ?? defaultAvatar,
             errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
         ),

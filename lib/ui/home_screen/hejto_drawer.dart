@@ -195,9 +195,6 @@ class HejtoDrawer extends StatelessWidget {
   BlocBuilder<ProfileBloc, ProfileState> _buildUserTile() {
     return BlocBuilder<ProfileBloc, ProfileState>(
       builder: (context, state) {
-        const defaultAvatarUrl =
-            'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
-
         if (state is ProfilePresentState) {
           final avatar = state.avatar;
 
@@ -211,8 +208,7 @@ class HejtoDrawer extends StatelessWidget {
                   child: CachedNetworkImage(
                     height: 50,
                     width: 50,
-                    imageUrl:
-                        avatar != null ? avatar.toString() : defaultAvatarUrl,
+                    imageUrl: avatar ?? defaultAvatar,
                     errorWidget: (context, url, error) =>
                         const Icon(Icons.error),
                   ),
