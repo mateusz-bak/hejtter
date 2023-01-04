@@ -626,12 +626,12 @@ class _PostScreenState extends State<PostScreen> {
         Flexible(
           child: GestureDetector(
             onTap: (() {
-              if (item.community?.name == null) return;
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => PostsScreen(
-                    communityName: item.community!.name!,
+                    communityName: item.community!.name,
+                    communitySlug: item.community!.slug,
                   ),
                 ),
               );

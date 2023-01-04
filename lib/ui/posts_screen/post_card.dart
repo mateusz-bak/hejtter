@@ -512,12 +512,12 @@ class _PostCardState extends State<PostCard>
         Flexible(
           child: GestureDetector(
             onTap: (() {
-              if (item.community?.name == null) return;
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => PostsScreen(
-                    communityName: item.community!.name!,
+                    communityName: item.community!.name,
+                    communitySlug: item.community!.slug,
                   ),
                 ),
               );
