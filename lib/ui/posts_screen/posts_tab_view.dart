@@ -6,7 +6,6 @@ import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:hejtter/utils/constants.dart';
-import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -30,7 +29,7 @@ class PostsTabView extends StatefulWidget {
 }
 
 class _PostsTabViewState extends State<PostsTabView> {
-  static const _pageSize = 10;
+  static const _pageSize = 20;
   String query = '';
 
   final List<String> items = [
@@ -64,11 +63,16 @@ class _PostsTabViewState extends State<PostsTabView> {
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         if (!mounted) return;
-        _hotPagingController.appendLastPage(newItems);
+        _hotPagingController.appendLastPage(
+          _removeDoubledPosts(_newPagingController, newItems),
+        );
       } else {
         final nextPageKey = pageKey + 1;
         if (!mounted) return;
-        _hotPagingController.appendPage(newItems, nextPageKey);
+        _hotPagingController.appendPage(
+          _removeDoubledPosts(_newPagingController, newItems),
+          nextPageKey,
+        );
       }
     } catch (error) {
       _hotPagingController.error = error;
@@ -92,11 +96,16 @@ class _PostsTabViewState extends State<PostsTabView> {
       final isLastPage = newItems.length < _pageSize;
       if (isLastPage) {
         if (!mounted) return;
-        _topPagingController.appendLastPage(newItems);
+        _topPagingController.appendLastPage(
+          _removeDoubledPosts(_newPagingController, newItems),
+        );
       } else {
         if (!mounted) return;
         final nextPageKey = pageKey + 1;
-        _topPagingController.appendPage(newItems, nextPageKey);
+        _topPagingController.appendPage(
+          _removeDoubledPosts(_newPagingController, newItems),
+          nextPageKey,
+        );
       }
     } catch (error) {
       _topPagingController.error = error;
@@ -118,15 +127,36 @@ class _PostsTabViewState extends State<PostsTabView> {
       final isLastPage = newItems!.length < _pageSize;
       if (isLastPage) {
         if (!mounted) return;
-        _newPagingController.appendLastPage(newItems);
+        _newPagingController.appendLastPage(
+          _removeDoubledPosts(_newPagingController, newItems),
+        );
       } else {
         if (!mounted) return;
         final nextPageKey = pageKey + 1;
-        _newPagingController.appendPage(newItems, nextPageKey);
+        _newPagingController.appendPage(
+          _removeDoubledPosts(_newPagingController, newItems),
+          nextPageKey,
+        );
       }
     } catch (error) {
       _newPagingController.error = error;
     }
+  }
+
+  List<PostItem> _removeDoubledPosts(
+    PagingController<int, dynamic> controller,
+    List<PostItem> items,
+  ) {
+    final checkedItems = List<PostItem>.empty(growable: true);
+    final currentList = controller.itemList;
+
+    for (var item in items) {
+      if (currentList?.contains(item) != true) {
+        checkedItems.add(item);
+      }
+    }
+
+    return checkedItems;
   }
 
   _refreshAllControllers() async {

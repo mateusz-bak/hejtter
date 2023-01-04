@@ -6,7 +6,6 @@ import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
 import 'package:hejtter/utils/constants.dart';
 
 import 'package:hejtter/utils/enums.dart';
-import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class CommunitiesScreen extends StatefulWidget {
@@ -17,8 +16,7 @@ class CommunitiesScreen extends StatefulWidget {
 }
 
 class _CommunitiesScreenState extends State<CommunitiesScreen> {
-  final client = http.Client();
-  static const _pageSize = 10;
+  static const _pageSize = 20;
 
   final PagingController<int, Community> _pagingController =
       PagingController(firstPageKey: 1);

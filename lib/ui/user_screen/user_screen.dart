@@ -25,7 +25,7 @@ class UserScreen extends StatefulWidget {
 
 class _UserScreenState extends State<UserScreen> {
   final client = http.Client();
-  static const pageSize = 10;
+  static const pageSize = 20;
   String postsType = 'Wpisy dodane';
   String orderType = 'Najnowsze';
 

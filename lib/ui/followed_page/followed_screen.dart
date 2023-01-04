@@ -17,7 +17,7 @@ class FollowedScreen extends StatefulWidget {
 class _FollowedScreenState extends State<FollowedScreen> {
   final PagingController<int, PostItem> _followedPagingController =
       PagingController(firstPageKey: 1);
-  static const _pageSize = 10;
+  static const _pageSize = 20;
 
   Future<void> _fetchFollowedPage(int pageKey) async {
     try {

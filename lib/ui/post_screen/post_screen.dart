@@ -18,7 +18,6 @@ import 'package:hejtter/utils/constants.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
 
 class PostScreen extends StatefulWidget {
   const PostScreen({
@@ -39,7 +38,6 @@ class _PostScreenState extends State<PostScreen> {
   FocusNode focusNode = FocusNode();
   final TextEditingController _commentController = TextEditingController();
 
-  final client = http.Client();
   static const _pageSize = 20;
 
   late PostItem item;
