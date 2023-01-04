@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
@@ -6,6 +5,7 @@ import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/models/user_details_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/posts_screen/post_card.dart';
+import 'package:hejtter/ui/user_screen/user_action_button.dart';
 import 'package:hejtter/ui/user_screen/user_app_bar.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:http/http.dart' as http;
@@ -37,14 +37,6 @@ class _UserScreenState extends State<UserScreen> {
 
   final PagingController<int, PostItem> _pagingController =
       PagingController(firstPageKey: 1);
-
-  Future<UserDetailsResponse> _getUser() async {
-    var response = await client.get(
-      Uri.https('api.hejto.pl', '/users/${widget.userName}'),
-    );
-
-    return userDetailsResponseFromJson(response.body);
-  }
 
   void _setDropdownValuesForCurrentUser() {
     postTypes = <String>[
@@ -106,6 +98,60 @@ class _UserScreenState extends State<UserScreen> {
     }
   }
 
+  _blockUser(String? username) async {
+    if (username == null) return;
+
+    final result = await hejtoApi.blockUser(
+      username: username,
+      context: context,
+    );
+
+    if (result) {
+      _pagingController.refresh();
+      setState(() {});
+    }
+  }
+
+  _unblockUser(String? username) async {
+    if (username == null) return;
+
+    final result = await hejtoApi.unblockUser(
+      username: username,
+      context: context,
+    );
+
+    if (result) {
+      _pagingController.refresh();
+      setState(() {});
+    }
+  }
+
+  _followUser(String? username) async {
+    if (username == null) return;
+
+    final result = await hejtoApi.followUser(
+      username: username,
+      context: context,
+    );
+
+    if (result) {
+      setState(() {});
+    }
+  }
+
+  _unfollowUser(String? username) async {
+    if (username == null) return;
+
+    final result = await hejtoApi.unfollowUser(
+      username: username,
+      context: context,
+    );
+
+    if (result) {
+      setState(() {});
+    }
+  }
+
   @override
   void initState() {
     _pagingController.addPageRequestListener((pageKey) {
@@ -127,7 +173,10 @@ class _UserScreenState extends State<UserScreen> {
     return Scaffold(
       backgroundColor: backgroundColor,
       body: FutureBuilder<UserDetailsResponse>(
-        future: _getUser(),
+        future: hejtoApi.getUserDetails(
+          username: widget.userName.toString(),
+          context: context,
+        ),
         builder: (
           BuildContext context,
           AsyncSnapshot<UserDetailsResponse> snapshot,
@@ -135,11 +184,22 @@ class _UserScreenState extends State<UserScreen> {
           if (snapshot.hasData) {
             return BlocBuilder<ProfileBloc, ProfileState>(
               builder: (context, state) {
+                late bool isLoggedIn;
+                late bool isCurrentUser;
+
+                if (state is ProfilePresentState) {
+                  isLoggedIn = true;
+                } else {
+                  isLoggedIn = false;
+                }
+
                 if (state is ProfilePresentState &&
                     state.username == snapshot.data?.username) {
                   _setDropdownValuesForCurrentUser();
+                  isCurrentUser = true;
                 } else {
                   _setDropdownValuesForOtherUsers();
+                  isCurrentUser = false;
                 }
 
                 _createDropDownItems();
@@ -150,7 +210,11 @@ class _UserScreenState extends State<UserScreen> {
                       UserAppBar(user: snapshot.data!),
                     ];
                   },
-                  body: _buildUserPosts(snapshot.data!),
+                  body: _buildUserScreen(
+                    data: snapshot.data!,
+                    isLoggedIn: isLoggedIn,
+                    isCurrentUser: isCurrentUser,
+                  ),
                 );
               },
             );
@@ -176,16 +240,63 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
-  Widget _buildUserPosts(UserDetailsResponse data) {
+  Widget _buildUserScreen({
+    required UserDetailsResponse data,
+    required bool isLoggedIn,
+    required bool isCurrentUser,
+  }) {
     return Column(
       children: [
-        _buildUserDetails(data),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 13),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildUserDetails(data),
+              !isCurrentUser
+                  ? UserActionButton(
+                      icon: data.interactions?.isBlocked == true
+                          ? Icons.lock_open
+                          : Icons.lock,
+                      onPressed: data.interactions?.isBlocked == true
+                          ? () => _unblockUser(data.username)
+                          : () => _blockUser(data.username),
+                    )
+                  : const SizedBox(),
+            ],
+          ),
+        ),
         const SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 13),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildUserJoinedDate(data),
+              isLoggedIn && !isCurrentUser
+                  ? UserActionButton(
+                      icon: data.interactions?.isFollowed == true
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      onPressed: data.interactions?.isFollowed == true
+                          ? () => _unfollowUser(data.username)
+                          : () => _followUser(data.username),
+                    )
+                  : const SizedBox(),
+            ],
+          ),
+        ),
+        const SizedBox(height: 15),
         _buildDropDowns(),
         Expanded(
           child: RefreshIndicator(
             onRefresh: () => Future.sync(
-              () => _pagingController.refresh(),
+              () {
+                _pagingController.refresh();
+                setState(() {});
+              },
             ),
             child: PagedListView<int, PostItem>(
               pagingController: _pagingController,
@@ -194,6 +305,33 @@ class _UserScreenState extends State<UserScreen> {
                 itemBuilder: (context, item, index) => PostCard(item: item),
               ),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUserJoinedDate(UserDetailsResponse data) {
+    if (data.createdAt == null) {
+      return const SizedBox();
+    }
+
+    final joinYear = data.createdAt!.year;
+    final joinMonth = data.createdAt!.month;
+    final joinDay = data.createdAt!.day;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const Text(
+          'Dołączył/a: ',
+          style: TextStyle(fontSize: 16),
+        ),
+        Text(
+          '$joinDay.$joinMonth.$joinYear',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ],
@@ -246,7 +384,7 @@ class _UserScreenState extends State<UserScreen> {
 
   Widget _buildUserDetails(UserDetailsResponse data) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         data.currentRank != null ? _buildRankPlate(data) : const SizedBox(),
         const SizedBox(width: 15),
@@ -299,6 +437,7 @@ class _UserScreenState extends State<UserScreen> {
       child: Text(
         data.currentRank!,
         style: TextStyle(
+          fontWeight: FontWeight.bold,
           color: data.currentColor != null
               ? Color(
                   int.parse(
