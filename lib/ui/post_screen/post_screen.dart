@@ -17,6 +17,7 @@ import 'package:hejtter/ui/posts_screen/posts_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -271,6 +272,8 @@ class _PostScreenState extends State<PostScreen> {
   _sharePost() async {
     if (post.links?.self == null) return;
     final postUrl = 'https://www.hejto.pl/wpis/${post.slug}';
+
+    Share.share(postUrl);
   }
 
   _reportPost() async {
