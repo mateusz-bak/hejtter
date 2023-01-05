@@ -8,11 +8,13 @@ class ProfilePresentState extends ProfileState {
   final String username;
   final String? avatar;
   final String? background;
+  final bool blurNsfw;
 
   const ProfilePresentState({
     required this.username,
     required this.avatar,
     required this.background,
+    required this.blurNsfw,
   });
 
   @override
@@ -20,6 +22,7 @@ class ProfilePresentState extends ProfileState {
         username,
         avatar,
         background,
+        blurNsfw,
       ];
 }
 

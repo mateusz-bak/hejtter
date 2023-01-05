@@ -196,8 +196,7 @@ class _PostCardState extends State<PostCard>
                     const SizedBox(height: 10),
                     _buildContent(),
                     _buildTags(),
-                    // _buildPicture(),
-                    _buildPictures(),
+                    _buildPicture(),
                     const SizedBox(height: 20),
                     _buildComments(),
                   ],
@@ -210,52 +209,19 @@ class _PostCardState extends State<PostCard>
     );
   }
 
-  Widget _buildPictures() {
-    if (item.images == null || item.images!.isEmpty) {
+  Widget _buildPicture() {
+    if (item.images == null ||
+        item.images!.isEmpty ||
+        item.images![0].urls?.the1200X900 == null) {
       return const SizedBox();
     }
 
-    if (item.images!.length == 1) {
-      return Container(
-        padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
-        height: 400,
-        child: Center(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: item.images![0].urls?.the1200X900 != null
-                ? CachedNetworkImage(
-                    fit: BoxFit.cover,
-                    imageUrl: '${item.images![0].urls?.the1200X900}',
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
-                  )
-                : const SizedBox(),
-          ),
-        ),
-      );
-    }
+    final bool multiplePics = item.images!.length > 1;
 
-    final imageWidgets = List<Widget>.empty(growable: true);
-    int index = 0;
-
-    for (var image in item.images!) {
-      if (item.images?[index].urls?.the1200X900 != null) {
-        imageWidgets.add(PicturePreview(
-          imageUrl: item.images![index].urls!.the1200X900!,
-          clickable: false,
-        ));
-      }
-      index++;
-    }
-
-    return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxHeight: 400,
-      ),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: imageWidgets,
-      ),
+    return PicturePreview(
+      imageUrl: item.images![0].urls!.the1200X900!,
+      multiplePics: multiplePics,
+      nsfw: item.nsfw ?? false,
     );
   }
 
@@ -356,32 +322,6 @@ class _PostCardState extends State<PostCard>
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
         child: Wrap(
           children: tags,
-        ),
-      );
-    } else {
-      return const SizedBox();
-    }
-  }
-
-  Widget _buildPicture() {
-    if (item.images != null && item.images!.isNotEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Column(
-          children: [
-            const SizedBox(height: 15),
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(3),
-                child: CachedNetworkImage(
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  imageUrl: '${item.images![0].urls?.the500X500}',
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                ),
-              ),
-            )
-          ],
         ),
       );
     } else {

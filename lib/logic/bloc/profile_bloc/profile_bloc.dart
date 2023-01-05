@@ -17,6 +17,7 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
           username: account.username!,
           avatar: account.avatar?.urls?.the250X250,
           background: account.background?.urls?.the1200X900!,
+          blurNsfw: account.blurNsfw ?? true,
         ));
       } else {
         emit(const ProfileAbsentState());
@@ -32,12 +33,14 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
     final username = json['username'] as String?;
     final avatar = json['avatar'] as String?;
     final background = json['background'] as String?;
+    final blurNsfw = json['blur_nsfw'] as bool?;
 
     if (username != null) {
       return ProfilePresentState(
         username: username,
         avatar: avatar,
         background: background,
+        blurNsfw: blurNsfw ?? true,
       );
     } else {
       return const ProfileAbsentState();
@@ -51,12 +54,14 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
         'username': state.username,
         'avatar': state.avatar,
         'background': state.background,
+        'blur_nsfw': state.blurNsfw,
       };
     } else {
       return {
         'username': null,
         'avatar': null,
         'background': null,
+        'blur_nsfw': null,
       };
     }
   }
