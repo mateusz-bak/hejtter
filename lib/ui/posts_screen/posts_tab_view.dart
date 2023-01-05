@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hejtter/logic/cubit/search_cubit.dart';
+import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:hejtter/models/posts_response.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 class PostsTabView extends StatefulWidget {
@@ -41,11 +41,11 @@ class _PostsTabViewState extends State<PostsTabView> {
   ];
   String _postsPeriod = '6h';
 
-  final PagingController<int, PostItem> _hotPagingController =
+  final PagingController<int, Post> _hotPagingController =
       PagingController(firstPageKey: 1);
-  final PagingController<int, PostItem> _topPagingController =
+  final PagingController<int, Post> _topPagingController =
       PagingController(firstPageKey: 1);
-  final PagingController<int, PostItem> _newPagingController =
+  final PagingController<int, Post> _newPagingController =
       PagingController(firstPageKey: 1);
 
   Future<void> _fetchHotPage(int pageKey) async {
@@ -143,11 +143,11 @@ class _PostsTabViewState extends State<PostsTabView> {
     }
   }
 
-  List<PostItem> _removeDoubledPosts(
+  List<Post> _removeDoubledPosts(
     PagingController<int, dynamic> controller,
-    List<PostItem> items,
+    List<Post> items,
   ) {
-    final checkedItems = List<PostItem>.empty(growable: true);
+    final checkedItems = List<Post>.empty(growable: true);
     final currentList = controller.itemList;
 
     for (var item in items) {

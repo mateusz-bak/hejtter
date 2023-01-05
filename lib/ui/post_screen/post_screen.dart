@@ -3,14 +3,15 @@ import 'package:comment_box/comment/comment.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
+import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/post_screen/answer_button.dart';
 import 'package:hejtter/ui/post_screen/comment_in_post_screen.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/ui/post_screen/picture_full_screen.dart';
-import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/posts_screen/posts_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
@@ -21,12 +22,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({
-    required this.item,
+    required this.post,
     required this.refreshCallback,
     Key? key,
   }) : super(key: key);
 
-  final PostItem item;
+  final Post post;
   final Function() refreshCallback;
 
   @override
@@ -40,18 +41,31 @@ class _PostScreenState extends State<PostScreen> {
 
   static const _pageSize = 20;
 
-  late PostItem item;
+  late Post post;
 
   final PagingController<int, CommentItem> _pagingController = PagingController(
     firstPageKey: 1,
   );
+
+  late Set<String> moreButtonOptions;
+
+  final moreButtonOptionsFavorited = {
+    'Usuń z ulubionych',
+    'Udostępnij',
+    'Zgłoś',
+  };
+  final moreButtonOptionsNotFavorited = {
+    'Dodaj do ulubionych',
+    'Udostępnij',
+    'Zgłoś',
+  };
 
   _goToUserScreen() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => UserScreen(
-          userName: item.author?.username,
+          userName: post.author?.username,
         ),
       ),
     );
@@ -72,7 +86,7 @@ class _PostScreenState extends State<PostScreen> {
         pageKey: pageKey,
         pageSize: _pageSize,
         context: context,
-        commentsHref: item.links!.comments!.href!,
+        commentsHref: post.links!.comments!.href!,
       );
 
       final isLastPage = newItems!.length < _pageSize;
@@ -94,13 +108,13 @@ class _PostScreenState extends State<PostScreen> {
 
   Future _refreshPost() async {
     final refreshedPost = await hejtoApi.getPostDetails(
-      postSlug: item.slug,
+      postSlug: post.slug,
       context: context,
     );
 
     if (refreshedPost != null) {
       setState(() {
-        item = refreshedPost;
+        post = refreshedPost;
       });
     }
   }
@@ -110,22 +124,22 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   _likePost() async {
-    if (item.slug == null) return;
+    if (post.slug == null) return;
 
     final postLiked = await hejtoApi.likePost(
-      postSlug: item.slug!,
+      postSlug: post.slug!,
       context: context,
     );
 
     if (postLiked) {
       final refreshedPost = await hejtoApi.getPostDetails(
-        postSlug: item.slug,
+        postSlug: post.slug,
         context: context,
       );
 
       if (refreshedPost != null) {
         setState(() {
-          item = refreshedPost;
+          post = refreshedPost;
         });
       }
 
@@ -134,22 +148,22 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   _unlikePost() async {
-    if (item.slug == null) return;
+    if (post.slug == null) return;
 
     final postUnliked = await hejtoApi.unlikePost(
-      postSlug: item.slug!,
+      postSlug: post.slug!,
       context: context,
     );
 
     if (postUnliked) {
       final refreshedPost = await hejtoApi.getPostDetails(
-        postSlug: item.slug,
+        postSlug: post.slug,
         context: context,
       );
 
       if (refreshedPost != null) {
         setState(() {
-          item = refreshedPost;
+          post = refreshedPost;
         });
       }
 
@@ -164,7 +178,7 @@ class _PostScreenState extends State<PostScreen> {
       FocusScope.of(context).unfocus();
 
       final commentCreated = await hejtoApi.addComment(
-        slug: item.slug,
+        slug: post.slug,
         content: _commentController.text,
         context: context,
       );
@@ -210,13 +224,89 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
+  _addPostToFavorites() async {
+    if (post.slug == null) return;
+
+    final result = await hejtoApi.addPostToFavorites(
+      postSlug: post.slug!,
+      context: context,
+    );
+
+    if (result) {
+      final refreshedPost = await hejtoApi.getPostDetails(
+        postSlug: post.slug,
+        context: context,
+      );
+
+      if (refreshedPost != null) {
+        setState(() {
+          post = refreshedPost;
+        });
+      }
+    }
+  }
+
+  _removePostFromFavorites() async {
+    if (post.slug == null) return;
+
+    final result = await hejtoApi.removePostFromFavorites(
+      postSlug: post.slug!,
+      context: context,
+    );
+
+    if (result) {
+      final refreshedPost = await hejtoApi.getPostDetails(
+        postSlug: post.slug,
+        context: context,
+      );
+
+      if (refreshedPost != null) {
+        setState(() {
+          post = refreshedPost;
+        });
+      }
+    }
+  }
+
+  _sharePost() async {
+    if (post.links?.self == null) return;
+    final postUrl = 'https://www.hejto.pl/wpis/${post.slug}';
+  }
+
+  _reportPost() async {
+    if (post.links?.self == null) return;
+    const firstPart = 'Zgłaszam złamanie regulaminu:\n\n';
+    final postUrl = 'https://www.hejto.pl/wpis/${post.slug}';
+    const lastpart = '\n\nPozdrawiam';
+
+    final Email email = Email(
+      body: '$firstPart$postUrl$lastpart',
+      subject: 'Złamanie regulaminu',
+      recipients: ['support@hejto.pl'],
+      isHTML: false,
+    );
+
+    FlutterEmailSender.send(email).then((value) {
+      const SnackBar snackBar = SnackBar(content: Text('Zgłoszono wpis'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
+
+  _setMoreOptionsButtons() {
+    if (post.isFavorited == true) {
+      moreButtonOptions = moreButtonOptionsFavorited;
+    } else {
+      moreButtonOptions = moreButtonOptionsNotFavorited;
+    }
+  }
+
   @override
   void initState() {
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
 
-    item = widget.item;
+    post = widget.post;
 
     _refreshPost();
     super.initState();
@@ -231,11 +321,36 @@ class _PostScreenState extends State<PostScreen> {
   @override
   Widget build(BuildContext context) {
     _setTimeAgoLocale();
+    _setMoreOptionsButtons();
 
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: backgroundColor,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (_) {},
+            itemBuilder: (BuildContext context) {
+              return moreButtonOptions.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                  onTap: () {
+                    if (choice == 'Dodaj do ulubionych') {
+                      _addPostToFavorites();
+                    } else if (choice == 'Usuń z ulubionych') {
+                      _removePostFromFavorites();
+                    } else if (choice == 'Udostępnij') {
+                      _sharePost();
+                    } else if (choice == 'Zgłoś') {
+                      _reportPost();
+                    }
+                  },
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
@@ -316,22 +431,22 @@ class _PostScreenState extends State<PostScreen> {
                           _buildHotIcon(),
                           const SizedBox(width: 15),
                           Text(
-                            item.numLikes != null
-                                ? item.numLikes.toString()
+                            post.numLikes != null
+                                ? post.numLikes.toString()
                                 : 'null',
                             style: TextStyle(
-                              color: item.isLiked == true
+                              color: post.isLiked == true
                                   ? const Color(0xffFFC009)
                                   : null,
                             ),
                           ),
                           IconButton(
                             icon: const Icon(Icons.bolt),
-                            color: item.isLiked == true
+                            color: post.isLiked == true
                                 ? const Color(0xffFFC009)
                                 : null,
                             onPressed:
-                                item.isLiked == true ? _unlikePost : _likePost,
+                                post.isLiked == true ? _unlikePost : _likePost,
                           )
                         ],
                       ),
@@ -346,7 +461,7 @@ class _PostScreenState extends State<PostScreen> {
                         Padding(
                           padding: const EdgeInsets.only(left: 5),
                           child: AnswerButton(
-                            username: item.author?.username,
+                            username: post.author?.username,
                             respondToUser: _respondToUser,
                           ),
                         ),
@@ -366,8 +481,8 @@ class _PostScreenState extends State<PostScreen> {
   Widget _buildHotIcon() {
     return Column(
       children: [
-        SizedBox(width: widget.item.hot == true ? 5 : 0),
-        widget.item.hot == true
+        SizedBox(width: widget.post.hot == true ? 5 : 0),
+        widget.post.hot == true
             ? const Icon(
                 Icons.local_fire_department_outlined,
                 color: Color(0xff2295F3),
@@ -413,10 +528,10 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildTags() {
-    if (item.tags != null && item.tags!.isNotEmpty) {
+    if (post.tags != null && post.tags!.isNotEmpty) {
       List<Widget> tags = List.empty(growable: true);
 
-      for (var tag in item.tags!) {
+      for (var tag in post.tags!) {
         if (tag.name != null) {
           tags.add(GestureDetector(
             onTap: () {
@@ -456,11 +571,11 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildPictures() {
-    if (item.images == null || item.images!.isEmpty) {
+    if (post.images == null || post.images!.isEmpty) {
       return const SizedBox();
     }
 
-    if (item.images!.length == 1) {
+    if (post.images!.length == 1) {
       return Container(
         padding: const EdgeInsets.fromLTRB(10, 15, 10, 0),
         height: 400,
@@ -468,10 +583,10 @@ class _PostScreenState extends State<PostScreen> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(3),
             child: GestureDetector(
-              child: item.images![0].urls?.the1200X900 != null
+              child: post.images![0].urls?.the1200X900 != null
                   ? CachedNetworkImage(
                       fit: BoxFit.cover,
-                      imageUrl: '${item.images![0].urls?.the1200X900}',
+                      imageUrl: '${post.images![0].urls?.the1200X900}',
                       errorWidget: (context, url, error) =>
                           const Icon(Icons.error),
                     )
@@ -479,7 +594,7 @@ class _PostScreenState extends State<PostScreen> {
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) {
                   return PictureFullScreen(
-                    imageUrl: '${item.images![0].urls?.the1200X900}',
+                    imageUrl: '${post.images![0].urls?.the1200X900}',
                   );
                 }));
               },
@@ -492,10 +607,10 @@ class _PostScreenState extends State<PostScreen> {
     final imageWidgets = List<Widget>.empty(growable: true);
     int index = 0;
 
-    for (var image in item.images!) {
-      if (item.images?[index].urls?.the1200X900 != null) {
+    for (var image in post.images!) {
+      if (post.images?[index].urls?.the1200X900 != null) {
         imageWidgets.add(PicturePreview(
-          imageUrl: item.images![index].urls!.the1200X900!,
+          imageUrl: post.images![index].urls!.the1200X900!,
         ));
       }
       index++;
@@ -516,7 +631,7 @@ class _PostScreenState extends State<PostScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: MarkdownBody(
-        data: _addEmojis(item.content.toString()),
+        data: _addEmojis(post.content.toString()),
         styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
           blockquoteDecoration: BoxDecoration(
             color: Colors.black54,
@@ -535,7 +650,7 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildAvatar() {
-    final avatarUrl = item.author?.avatar?.urls?.the100X100;
+    final avatarUrl = post.author?.avatar?.urls?.the100X100;
 
     return GestureDetector(
       onTap: _goToUserScreen,
@@ -564,8 +679,8 @@ class _PostScreenState extends State<PostScreen> {
               children: [
                 Flexible(
                   child: Text(
-                    item.author != null
-                        ? item.author!.username.toString()
+                    post.author != null
+                        ? post.author!.username.toString()
                         : 'null',
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -574,8 +689,8 @@ class _PostScreenState extends State<PostScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: widget.item.author?.sponsor == true ? 5 : 0),
-                widget.item.author?.sponsor == true
+                SizedBox(width: widget.post.author?.sponsor == true ? 5 : 0),
+                widget.post.author?.sponsor == true
                     ? Transform.rotate(
                         angle: 180,
                         child: const Icon(
@@ -603,13 +718,13 @@ class _PostScreenState extends State<PostScreen> {
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
-        item.author != null ? item.author!.currentRank.toString() : 'null',
+        post.author != null ? post.author!.currentRank.toString() : 'null',
         style: TextStyle(
           fontSize: 12,
-          color: item.author?.currentColor != null
+          color: post.author?.currentColor != null
               ? Color(
                   int.parse(
-                    item.author!.currentColor!.replaceAll('#', '0xff'),
+                    post.author!.currentColor!.replaceAll('#', '0xff'),
                   ),
                 )
               : null,
@@ -630,15 +745,15 @@ class _PostScreenState extends State<PostScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => PostsScreen(
-                    communityName: item.community!.name,
-                    communitySlug: item.community!.slug,
+                    communityName: post.community!.name,
+                    communitySlug: post.community!.slug,
                   ),
                 ),
               );
             }),
             child: Text(
-              item.community?.name != null
-                  ? item.community!.name.toString()
+              post.community?.name != null
+                  ? post.community!.name.toString()
                   : 'null',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
@@ -650,8 +765,8 @@ class _PostScreenState extends State<PostScreen> {
         ),
         const SizedBox(width: 5),
         Text(
-          item.createdAt != null
-              ? timeago.format(DateTime.parse(item.createdAt.toString()),
+          post.createdAt != null
+              ? timeago.format(DateTime.parse(post.createdAt.toString()),
                   locale: 'pl')
               : 'null',
           style: const TextStyle(fontSize: 12),

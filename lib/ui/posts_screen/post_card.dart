@@ -2,11 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/posts_screen/comment_in_post_card.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
-import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/posts_screen/posts_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -19,7 +19,7 @@ class PostCard extends StatefulWidget {
     Key? key,
   }) : super(key: key);
 
-  final PostItem item;
+  final Post item;
 
   @override
   State<PostCard> createState() => _PostCardState();
@@ -27,7 +27,7 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard>
     with AutomaticKeepAliveClientMixin {
-  late PostItem item;
+  late Post item;
 
   _goToUserScreen() {
     Navigator.push(
@@ -123,7 +123,7 @@ class _PostCardState extends State<PostCard>
         onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) {
             return PostScreen(
-              item: item,
+              post: item,
               refreshCallback: _refreshPost,
             );
           }));
@@ -404,7 +404,7 @@ class _PostCardState extends State<PostCard>
         onTapText: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) {
             return PostScreen(
-              item: item,
+              post: item,
               refreshCallback: _refreshPost,
             );
           }));

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:hejtter/models/comments_response.dart';
+import 'package:hejtter/models/post.dart';
 
 PostsResponse postFromJson(String str) =>
     PostsResponse.fromJson(json.decode(str));
@@ -41,129 +41,12 @@ class Embedded {
     this.items,
   });
 
-  final List<PostItem>? items;
+  final List<Post>? items;
 
   factory Embedded.fromJson(Map<String, dynamic> json) => Embedded(
         items: json["items"] == null
             ? null
-            : List<PostItem>.from(
-                json["items"].map((x) => PostItem.fromJson(x))),
-      );
-}
-
-class PostItem {
-  PostItem({
-    this.comments,
-    this.type,
-    this.title,
-    this.slug,
-    this.content,
-    this.contentPlain,
-    this.excerpt,
-    this.status,
-    this.hot,
-    this.images,
-    this.tags,
-    this.author,
-    this.interactions,
-    this.community,
-    this.nsfw,
-    this.controversial,
-    this.commentsEnabled,
-    this.favoritesEnabled,
-    this.likesEnabled,
-    this.reportsEnabled,
-    this.sharesEnabled,
-    this.createdAt,
-    this.discr,
-    this.links,
-    this.communityTopic,
-    this.link,
-    this.updatedAt,
-    this.numLikes,
-    this.isLiked,
-  });
-
-  final List<CommentItem>? comments;
-  final String? type;
-  final String? title;
-  final String? slug;
-  final String? content;
-  final String? contentPlain;
-  final String? excerpt;
-  final String? status;
-  final bool? hot;
-  final List<PostImage>? images;
-  final List<Tag>? tags;
-  final ItemAuthor? author;
-  final ItemInteractions? interactions;
-  final CommunityShort? community;
-  final bool? nsfw;
-  final bool? controversial;
-  final bool? commentsEnabled;
-  final bool? favoritesEnabled;
-  final bool? likesEnabled;
-  final bool? reportsEnabled;
-  final bool? sharesEnabled;
-  final DateTime? createdAt;
-  final String? discr;
-  final ItemLinks? links;
-  final CommunityTopic? communityTopic;
-  final String? link;
-  final DateTime? updatedAt;
-  final int? numLikes;
-  final bool? isLiked;
-
-  factory PostItem.fromJson(Map<String, dynamic> json) => PostItem(
-        comments: json["comments"] == null
-            ? null
-            : List<CommentItem>.from(
-                json["comments"].map((x) => CommentItem.fromJson(x))),
-        type: json["type"],
-        title: json["title"],
-        slug: json["slug"],
-        content: json["content"],
-        contentPlain: json["content_plain"],
-        excerpt: json["excerpt"],
-        status: json["status"],
-        hot: json["hot"],
-        images: json["images"] == null
-            ? null
-            : List<PostImage>.from(
-                json["images"].map((x) => PostImage.fromJson(x))),
-        tags: json["tags"] == null
-            ? null
-            : List<Tag>.from(json["tags"].map((x) => Tag.fromJson(x))),
-        author:
-            json["author"] == null ? null : ItemAuthor.fromJson(json["author"]),
-        interactions: json["interactions"] == null
-            ? null
-            : ItemInteractions.fromJson(json["interactions"]),
-        community: json["community"] == null
-            ? null
-            : CommunityShort.fromJson(json["community"]),
-        nsfw: json["nsfw"],
-        controversial: json["controversial"],
-        commentsEnabled: json["comments_enabled"],
-        favoritesEnabled: json["favorites_enabled"],
-        likesEnabled: json["likes_enabled"],
-        reportsEnabled: json["reports_enabled"],
-        sharesEnabled: json["shares_enabled"],
-        createdAt: json["created_at"] == null
-            ? null
-            : DateTime.parse(json["created_at"]),
-        discr: json["discr"],
-        links:
-            json["_links"] == null ? null : ItemLinks.fromJson(json["_links"]),
-        communityTopic: json["community_topic"] == null
-            ? null
-            : CommunityTopic.fromJson(json["community_topic"]),
-        link: json["link"],
-        updatedAt: json["updated_at"] == null
-            ? null
-            : DateTime.parse(json["updated_at"]),
-        numLikes: json["num_likes"],
-        isLiked: json["is_liked"],
+            : List<Post>.from(json["items"].map((x) => Post.fromJson(x))),
       );
 }
 
@@ -509,46 +392,6 @@ class ImageUrls {
       );
 }
 
-class ItemInteractions {
-  ItemInteractions({
-    this.isLiked,
-    this.isCommented,
-    this.isFavorited,
-  });
-
-  final bool? isLiked;
-  final bool? isCommented;
-  final bool? isFavorited;
-
-  factory ItemInteractions.fromJson(Map<String, dynamic> json) =>
-      ItemInteractions(
-        isLiked: json["is_liked"],
-        isCommented: json["is_commented"],
-        isFavorited: json["is_favorited"],
-      );
-}
-
-class ItemLinks {
-  ItemLinks({
-    this.self,
-    this.comments,
-    this.likes,
-    this.favorites,
-  });
-
-  final First? self;
-  final First? comments;
-  final First? likes;
-  final First? favorites;
-
-  factory ItemLinks.fromJson(Map<String, dynamic> json) => ItemLinks(
-        self: First.fromJson(json["self"]),
-        comments: First.fromJson(json["comments"]),
-        likes: First.fromJson(json["likes"]),
-        favorites: First.fromJson(json["favorites"]),
-      );
-}
-
 class ItemStats {
   ItemStats({
     this.numLikes,
@@ -600,6 +443,27 @@ class TagLinks {
         self: First.fromJson(json["self"]),
         follows: First.fromJson(json["follows"]),
         blocks: First.fromJson(json["blocks"]),
+      );
+}
+
+class ItemLinks {
+  ItemLinks({
+    this.self,
+    this.comments,
+    this.likes,
+    this.favorites,
+  });
+
+  final First? self;
+  final First? comments;
+  final First? likes;
+  final First? favorites;
+
+  factory ItemLinks.fromJson(Map<String, dynamic> json) => ItemLinks(
+        self: First.fromJson(json["self"]),
+        comments: First.fromJson(json["comments"]),
+        likes: First.fromJson(json["likes"]),
+        favorites: First.fromJson(json["favorites"]),
       );
 }
 

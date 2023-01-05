@@ -9,6 +9,7 @@ import 'package:hejtter/main.dart';
 import 'package:hejtter/models/account.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/models/communities_response.dart';
+import 'package:hejtter/models/post.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/models/user_details_response.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -211,7 +212,7 @@ class HejtoApi {
     }
   }
 
-  Future<PostItem?> getPostDetails({
+  Future<Post?> getPostDetails({
     required String? postSlug,
     required BuildContext context,
   }) async {
@@ -243,10 +244,10 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    return PostItem.fromJson(json.decode(stringData));
+    return Post.fromJson(json.decode(stringData));
   }
 
-  Future<List<PostItem>?> getPosts({
+  Future<List<Post>?> getPosts({
     required int pageKey,
     required int pageSize,
     required BuildContext context,
@@ -827,6 +828,70 @@ class HejtoApi {
       Uri.https(
         hejtoApiUrl,
         '/users/$username/follows',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> addPostToFavorites({
+    required String postSlug,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.postUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/posts/$postSlug/favorites',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> removePostFromFavorites({
+    required String postSlug,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.deleteUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/posts/$postSlug/favorites',
       ),
     );
 

@@ -75,7 +75,7 @@ class CommentItem {
   final Interactions? interactions;
   final DateTime? createdAt;
   final String? uuid;
-  final ItemLinks? links;
+  final CommentLinks? links;
   final int? numLikes;
   final bool? isLiked;
 
@@ -98,8 +98,9 @@ class CommentItem {
             ? null
             : DateTime.parse(json["created_at"]),
         uuid: json["uuid"],
-        links:
-            json["_links"] == null ? null : ItemLinks.fromJson(json["_links"]),
+        links: json["_links"] == null
+            ? null
+            : CommentLinks.fromJson(json["_links"]),
         numLikes: json["num_likes"],
         isLiked: json["is_liked"],
       );
@@ -369,8 +370,8 @@ class Interactions {
       );
 }
 
-class ItemLinks {
-  ItemLinks({
+class CommentLinks {
+  CommentLinks({
     this.self,
     this.likes,
   });
@@ -378,7 +379,7 @@ class ItemLinks {
   final First? self;
   final First? likes;
 
-  factory ItemLinks.fromJson(Map<String, dynamic> json) => ItemLinks(
+  factory CommentLinks.fromJson(Map<String, dynamic> json) => CommentLinks(
         self: json["self"] == null ? null : First.fromJson(json["self"]),
         likes: json["likes"] == null ? null : First.fromJson(json["likes"]),
       );

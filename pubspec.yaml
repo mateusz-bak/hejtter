@@ -35,6 +35,7 @@ dependencies:
   hydrated_bloc: ^9.0.0
   flutter_secure_storage: ^7.0.1
   comment_box: ^0.0.18
+  flutter_email_sender: ^5.2.0
 
 
 dev_dependencies:

@@ -3,7 +3,7 @@ import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/models/comments_response.dart';
-import 'package:hejtter/models/posts_response.dart';
+import 'package:hejtter/models/post.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -19,7 +19,7 @@ class CommentInPostCard extends StatelessWidget {
   });
 
   final CommentItem comment;
-  final PostItem postItem;
+  final Post postItem;
   final Function() refreshCallback;
 
   _goToUserScreen(BuildContext context) {
@@ -82,7 +82,7 @@ class CommentInPostCard extends StatelessWidget {
               onTapText: () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) {
                   return PostScreen(
-                    item: postItem,
+                    post: postItem,
                     refreshCallback: refreshCallback,
                   );
                 }));

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hejtter/models/post.dart';
 import 'package:hejtter/ui/posts_screen/post_card.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:hejtter/models/posts_response.dart';
 
 class PostsTabBarView extends StatefulWidget {
   const PostsTabBarView({
@@ -10,7 +10,7 @@ class PostsTabBarView extends StatefulWidget {
     this.topDropdown = const SizedBox(),
   });
 
-  final PagingController<int, PostItem> controller;
+  final PagingController<int, Post> controller;
   final Widget topDropdown;
 
   @override
@@ -34,10 +34,10 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
         children: [
           widget.topDropdown,
           Expanded(
-            child: PagedListView<int, PostItem>(
+            child: PagedListView<int, Post>(
               pagingController: widget.controller,
               padding: const EdgeInsets.all(5),
-              builderDelegate: PagedChildBuilderDelegate<PostItem>(
+              builderDelegate: PagedChildBuilderDelegate<Post>(
                 itemBuilder: (context, item, index) => PostCard(item: item),
               ),
             ),

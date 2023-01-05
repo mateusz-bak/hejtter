@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hejtter/models/posts_response.dart';
+import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
@@ -15,7 +15,7 @@ class FollowedScreen extends StatefulWidget {
 }
 
 class _FollowedScreenState extends State<FollowedScreen> {
-  final PagingController<int, PostItem> _followedPagingController =
+  final PagingController<int, Post> _followedPagingController =
       PagingController(firstPageKey: 1);
   static const _pageSize = 20;
 
