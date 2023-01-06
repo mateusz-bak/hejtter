@@ -49,6 +49,12 @@ void main() async {
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is AuthorizedAuthState || state is LoginSkippedAuthState) {
+            if (state is AuthorizedAuthState) {
+              BlocProvider.of<ProfileBloc>(context).add(
+                SetProfileEvent(context: context),
+              );
+            }
+
             return MaterialApp(
               home: const HomeScreen(),
               theme: ThemeData.dark(useMaterial3: true).copyWith(

@@ -7,11 +7,10 @@ import 'package:hejtter/ui/communities_screen/communities_screen.dart';
 import 'package:hejtter/ui/followed_page/followed_screen.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
+import 'package:hejtter/ui/settings_screen/settings_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HejtoDrawer extends StatelessWidget {
   const HejtoDrawer({
@@ -20,11 +19,6 @@ class HejtoDrawer extends StatelessWidget {
   });
 
   final CurrentScreen currentScreen;
-
-  Future<String> _getAppVersion() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    return packageInfo.version;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,27 +124,17 @@ class HejtoDrawer extends StatelessWidget {
           ),
           _buildLoginLogoutTile(),
           ListTile(
-            title: const Text('Github'),
+            title: const Text('Ustawienia'),
             onTap: () {
-              launchUrl(
-                Uri.parse('https://github.com/mateusz-bak/hejtter'),
-                mode: LaunchMode.externalApplication,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
               );
             },
           ),
-          FutureBuilder(
-            future: _getAppVersion(),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-              if (snapshot.hasData) {
-                return ListTile(
-                  title: Text(snapshot.data.toString()),
-                  onTap: () {},
-                );
-              } else {
-                return const SizedBox();
-              }
-            },
-          ),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -165,6 +149,10 @@ class HejtoDrawer extends StatelessWidget {
             onTap: () {
               BlocProvider.of<AuthBloc>(context).add(
                 const LogOutAuthEvent(),
+              );
+
+              BlocProvider.of<ProfileBloc>(context).add(
+                const ClearProfileEvent(),
               );
 
               Navigator.of(context).pushAndRemoveUntil(

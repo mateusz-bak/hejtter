@@ -5,6 +5,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/main.dart';
 import 'package:hejtter/models/account.dart';
 import 'package:hejtter/models/comments_response.dart';
@@ -901,6 +902,48 @@ class HejtoApi {
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
     request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
     request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> updateAccountSettings({
+    required BuildContext context,
+    required ProfilePresentState current,
+    bool? showNsfw,
+    bool? showControversial,
+    bool? blurNsfw,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    final body = {
+      'show_nsfw': showNsfw ?? current.showNsfw,
+      'show_controversial': showControversial ?? current.showControversial,
+      'blur_nsfw': blurNsfw ?? current.blurNsfw,
+    };
+
+    HttpClientRequest request = await client.patchUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/account/settings',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+    request.add(utf8.encode(json.encode(body)));
 
     HttpClientResponse response = await request.close();
 
