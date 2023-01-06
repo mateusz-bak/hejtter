@@ -3,18 +3,22 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/post_screen/sliding_app_bar.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class PictureFullScreen extends StatefulWidget {
   const PictureFullScreen({
     super.key,
-    required this.imageUrl,
+    required this.imagesUrls,
   });
 
-  final String imageUrl;
+  final List<PostImage>? imagesUrls;
 
   @override
   State<PictureFullScreen> createState() => _PictureFullScreenState();
@@ -22,9 +26,10 @@ class PictureFullScreen extends StatefulWidget {
 
 class _PictureFullScreenState extends State<PictureFullScreen>
     with SingleTickerProviderStateMixin {
-  TransformationController controllerT = TransformationController();
-  dynamic initialControllerValue = null;
+  final _pageController = PageController();
+  int currentIndex = 0;
   bool _appBarVisible = true;
+
   late final _appbarAnimController = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 400),
@@ -57,8 +62,11 @@ class _PictureFullScreenState extends State<PictureFullScreen>
     final downloadPath = await getDownloadPath();
     if (downloadPath == null) return;
 
+    final imageUrl = widget.imagesUrls?[currentIndex].urls?.the1200X900;
+    if (imageUrl == null) return;
+
     await FlutterDownloader.enqueue(
-      url: widget.imageUrl,
+      url: imageUrl,
       savedDir: downloadPath,
       saveInPublicStorage: true,
       showNotification: true,
@@ -67,20 +75,20 @@ class _PictureFullScreenState extends State<PictureFullScreen>
   }
 
   @override
-  void dispose() {
-    controllerT.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: backgroundColor,
       appBar: SlidingAppBar(
         controller: _appbarAnimController,
         visible: _appBarVisible,
         child: AppBar(
           backgroundColor: backgroundColor,
+          title: (widget.imagesUrls != null && widget.imagesUrls!.length > 1)
+              ? Text(
+                  'Obraz ${currentIndex + 1}/${widget.imagesUrls?.length}',
+                )
+              : const SizedBox(),
           actions: [
             IconButton(
               onPressed: _downloadPicture,
@@ -95,24 +103,40 @@ class _PictureFullScreenState extends State<PictureFullScreen>
         children: [
           Expanded(
             child: GestureDetector(
-              child: InteractiveViewer(
-                transformationController: controllerT,
-                minScale: 1.0,
-                maxScale: 4.0,
-                onInteractionStart: (details) {
-                  initialControllerValue ??= controllerT.value;
-                },
-                child: CachedNetworkImage(
-                  imageUrl: widget.imageUrl,
-                  fit: BoxFit.contain,
-                ),
-              ),
-              onTap: () => setState(() {
-                _appBarVisible = !_appBarVisible;
-              }),
-              onDoubleTap: () {
-                controllerT.value = initialControllerValue;
+              onTap: () {
+                setState(() {
+                  _appBarVisible = !_appBarVisible;
+                });
               },
+              child: PhotoViewGallery.builder(
+                scrollPhysics: const BouncingScrollPhysics(),
+                wantKeepAlive: true,
+                builder: (BuildContext context, int index) {
+                  return PhotoViewGalleryPageOptions(
+                    imageProvider: CachedNetworkImageProvider(
+                      '${widget.imagesUrls?[index].urls?.the1200X900}',
+                    ),
+                    minScale: PhotoViewComputedScale.contained,
+                    maxScale: PhotoViewComputedScale.contained * 3,
+                  );
+                },
+                itemCount: widget.imagesUrls?.length ?? 0,
+                loadingBuilder: (context, event) => Center(
+                  child: LoadingAnimationWidget.fourRotatingDots(
+                    color: Colors.white.withOpacity(0.5),
+                    size: 32,
+                  ),
+                ),
+                backgroundDecoration: const BoxDecoration(
+                  color: backgroundColor,
+                ),
+                pageController: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    currentIndex = index;
+                  });
+                },
+              ),
             ),
           ),
         ],

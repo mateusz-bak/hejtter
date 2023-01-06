@@ -222,6 +222,7 @@ class _PostCardState extends State<PostCard>
       imageUrl: item.images![0].urls!.the1200X900!,
       multiplePics: multiplePics,
       nsfw: item.nsfw ?? false,
+      imagesUrls: item.images,
     );
   }
 

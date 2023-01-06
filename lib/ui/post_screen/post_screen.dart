@@ -586,6 +586,7 @@ class _PostScreenState extends State<PostScreen> {
       imageUrl: post.images![0].urls!.the1200X900!,
       multiplePics: multiplePics,
       nsfw: post.nsfw ?? false,
+      imagesUrls: post.images,
     );
   }
 
