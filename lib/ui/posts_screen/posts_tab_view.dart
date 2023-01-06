@@ -36,8 +36,8 @@ class _PostsTabViewState extends State<PostsTabView> {
     '6h',
     '12h',
     '24h',
-    'tydzień',
-    'od początku',
+    'Tydzień',
+    'Od początku',
   ];
   String _postsPeriod = '6h';
 
@@ -304,7 +304,7 @@ class _PostsTabViewState extends State<PostsTabView> {
           child: DropdownButton2(
             buttonWidth: MediaQuery.of(context).size.width,
             hint: Text(
-              'Select Item',
+              'Wybierz pozycję',
               style: TextStyle(
                 fontSize: 14,
                 color: Theme.of(context).hintColor,
