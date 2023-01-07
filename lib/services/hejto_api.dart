@@ -120,7 +120,7 @@ class HejtoApi {
     _saveCookiesFromResponse(response);
 
     if (response.statusCode != 200) {
-      _showSnackBar('Logowanie nieudane (${response.statusCode})');
+      _showSnackBar('Logowanie nieudane (${response.statusCode} - ${response.reasonPhrase})');
       return null;
     }
 
@@ -432,7 +432,7 @@ class HejtoApi {
           'period': '24h',
         }.entries);
         break;
-      case 'tydzień':
+      case 'Tydzień':
         queryParameters.addEntries(<String, String>{
           'period': 'week',
         }.entries);

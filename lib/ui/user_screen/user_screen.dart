@@ -226,7 +226,7 @@ class _UserScreenState extends State<UserScreen> {
               padding: const EdgeInsets.all(10),
               child: Center(
                 child: Text(
-                  'Błąd przy pobieraniu informacji o użytkowniku ${widget.userName}',
+                  'Błąd przy pobieraniu informacji o użytkowniku ${widget.userName} - ${snapshot.stackTrace}',
                 ),
               ),
             );

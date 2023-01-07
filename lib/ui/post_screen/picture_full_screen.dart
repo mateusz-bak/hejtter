@@ -54,7 +54,7 @@ class _PictureFullScreenState extends State<PictureFullScreen>
         }
       }
     } catch (err) {
-      print("Cannot get download folder path: $err");
+      print("Nie znaleziono ścieżki pobrań: $err");
     }
     return directory?.path;
   }
