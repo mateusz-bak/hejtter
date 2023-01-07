@@ -1,13 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:dart_emoji/dart_emoji.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
+
 import 'package:timeago/timeago.dart' as timeago;
+
 import 'package:url_launcher/url_launcher.dart';
 
 class CommentInPostCard extends StatelessWidget {

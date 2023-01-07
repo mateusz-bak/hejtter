@@ -1,14 +1,20 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/post_screen/sliding_app_bar.dart';
 import 'package:hejtter/utils/constants.dart';
+
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+
 import 'package:path_provider/path_provider.dart';
+
 import 'package:permission_handler/permission_handler.dart';
+
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 

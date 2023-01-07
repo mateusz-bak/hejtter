@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/models/user_details_response.dart';
@@ -8,7 +9,9 @@ import 'package:hejtter/ui/posts_screen/post_card.dart';
 import 'package:hejtter/ui/user_screen/user_action_button.dart';
 import 'package:hejtter/ui/user_screen/user_app_bar.dart';
 import 'package:hejtter/utils/constants.dart';
+
 import 'package:http/http.dart' as http;
+
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class UserScreen extends StatefulWidget {

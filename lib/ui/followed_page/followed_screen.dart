@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
+
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class FollowedScreen extends StatefulWidget {
