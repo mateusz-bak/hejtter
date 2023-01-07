@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/settings_screen/settings_section.dart';
 import 'package:hejtter/ui/settings_screen/switch_setting.dart';
 import 'package:hejtter/ui/settings_screen/text_setting.dart';
 import 'package:hejtter/utils/constants.dart';
+
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:url_launcher/url_launcher.dart';

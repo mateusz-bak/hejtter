@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
+
 import 'package:hejtter/main.dart';
 import 'package:hejtter/models/session.dart';
 import 'package:hejtter/services/hejto_api.dart';
+
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
 part 'auth_state.dart';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:hejtter/utils/constants.dart';
 
 class SettingsSection extends StatelessWidget {
