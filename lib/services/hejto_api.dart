@@ -16,6 +16,7 @@ import 'package:hejtter/models/post.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/models/user_details_response.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/utils/locale.dart';
 
 final hejtoApi = HejtoApi();
 
@@ -120,7 +121,7 @@ class HejtoApi {
     _saveCookiesFromResponse(response);
 
     if (response.statusCode != 200) {
-      _showSnackBar('Logowanie nieudane (${response.statusCode} - ${response.reasonPhrase})');
+      _showSnackBar('$loginFailedText (${response.statusCode} - ${response.reasonPhrase})');
       return null;
     }
 
@@ -417,24 +418,24 @@ class HejtoApi {
     String? postsPeriod,
   ) {
     switch (postsPeriod) {
-      case '6h':
+      case '$sixHoursText':
         queryParameters.addEntries(<String, String>{
-          'period': '6h',
+          'period': '$sixHoursText',
         }.entries);
         break;
-      case '12h':
+      case '$twelveHoursText':
         queryParameters.addEntries(<String, String>{
-          'period': '12h',
+          'period': '$twelveHoursText',
         }.entries);
         break;
-      case '24h':
+      case '$dailyHoursText':
         queryParameters.addEntries(<String, String>{
-          'period': '24h',
+          'period': '$dailyHoursText',
         }.entries);
         break;
-      case 'Tydzień':
+      case '$weeklyTimeframeText':
         queryParameters.addEntries(<String, String>{
-          'period': 'week',
+          'period': '$weeklyTimeframeText',
         }.entries);
         break;
       default:
@@ -648,7 +649,7 @@ class HejtoApi {
     _saveCookiesFromResponse(response);
 
     if (response.statusCode != 201) {
-      _showSnackBar('Dodanie komentarza nieudane (${response.statusCode})');
+      _showSnackBar('$commentAddingFailedText- (${response.statusCode})');
       return false;
     }
 

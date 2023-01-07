@@ -6,6 +6,7 @@ import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
+import 'package:hejtter/utils/locale.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -61,7 +62,7 @@ class _FollowedScreenState extends State<FollowedScreen> {
       drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
       appBar: AppBar(
         backgroundColor: backgroundColor,
-        title: const Text('Obserwowane'),
+        title: const Text('$observedText'),
       ),
       body: PostsTabBarView(
         controller: _followedPagingController,

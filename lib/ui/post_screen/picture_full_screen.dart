@@ -8,6 +8,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/post_screen/sliding_app_bar.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/utils/locale.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -54,7 +55,7 @@ class _PictureFullScreenState extends State<PictureFullScreen>
         }
       }
     } catch (err) {
-      print("Nie znaleziono ścieżki pobrań: $err");
+      print("$downloadPathNotFoundText: $err");
     }
     return directory?.path;
   }
@@ -92,7 +93,7 @@ class _PictureFullScreenState extends State<PictureFullScreen>
           backgroundColor: backgroundColor,
           title: (widget.imagesUrls != null && widget.imagesUrls!.length > 1)
               ? Text(
-                  'Obraz ${currentIndex + 1}/${widget.imagesUrls?.length}',
+                  '$imageText ${currentIndex + 1}/${widget.imagesUrls?.length}',
                 )
               : const SizedBox(),
           actions: [

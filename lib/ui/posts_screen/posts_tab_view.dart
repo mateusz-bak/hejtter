@@ -8,6 +8,7 @@ import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/utils/locale.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -36,11 +37,11 @@ class _PostsTabViewState extends State<PostsTabView> {
   String query = '';
 
   final List<String> items = [
-    '6h',
-    '12h',
-    '24h',
-    'Tydzień',
-    'Od początku',
+    '$sixHoursText',
+    '$twelveHoursText',
+    '$dailyHoursText',
+    '$weeklyTimeframeText',
+    '$sinceTheStartText',
   ];
   String _postsPeriod = '6h';
 
@@ -256,9 +257,9 @@ class _PostsTabViewState extends State<PostsTabView> {
         indicatorColor: const Color(0xff2295F3),
         indicatorPadding: const EdgeInsets.symmetric(horizontal: 12),
         tabs: [
-          _buildTab(context, 0, 'Gorące'),
-          _buildTab(context, 1, 'Top'),
-          _buildTab(context, 2, 'Nowe'),
+          _buildTab(context, 0, '$hotText'),
+          _buildTab(context, 1, '$topText'),
+          _buildTab(context, 2, '$newText'),
         ],
       );
     });
@@ -307,7 +308,7 @@ class _PostsTabViewState extends State<PostsTabView> {
           child: DropdownButton2(
             buttonWidth: MediaQuery.of(context).size.width,
             hint: Text(
-              'Wybierz pozycję',
+              '$itemSelectText',
               style: TextStyle(
                 fontSize: 14,
                 color: Theme.of(context).hintColor,

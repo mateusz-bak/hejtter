@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:hejtter/utils/locale.dart';
+
 class AnswerButton extends StatelessWidget {
   const AnswerButton({
     super.key,
@@ -25,7 +27,7 @@ class AnswerButton extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Text(
-            'Odpowiedz',
+            '$answerText',
             style: TextStyle(fontSize: isSmaller ? 12 : null),
           ),
         ],

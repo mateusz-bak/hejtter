@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/utils/locale.dart';
 
 class PostsSearchBar extends StatelessWidget {
   PostsSearchBar({
@@ -52,7 +53,7 @@ class PostsSearchBar extends StatelessWidget {
                         focusNode: focusNode,
                         textInputAction: TextInputAction.search,
                         decoration: const InputDecoration.collapsed(
-                          hintText: 'Szukaj w postach',
+                          hintText: '$searchInPostsText',
                         ),
                         onSubmitted: (value) {
                           searchCubit.changeString(value);

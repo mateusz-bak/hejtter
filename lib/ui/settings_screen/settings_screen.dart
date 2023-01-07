@@ -7,6 +7,7 @@ import 'package:hejtter/ui/settings_screen/settings_section.dart';
 import 'package:hejtter/ui/settings_screen/switch_setting.dart';
 import 'package:hejtter/ui/settings_screen/text_setting.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/utils/locale.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -102,7 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text('Ustawienia'),
+        title: const Text('$settingsText'),
         backgroundColor: backgroundColor,
       ),
       body: Padding(
@@ -130,11 +131,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(children: [
                 _buildAccountPreferences(),
                 const SettingsSection(
-                  title: 'O aplikacji',
+                  title: '$aboutTheAppText',
                   leading: Icons.smartphone,
                 ),
                 TextSetting(
-                  title: 'Kod źródłowy',
+                  title: '$sourceCodeText',
                   onPressed: () {
                     launchUrl(
                       Uri.parse('https://github.com/mateusz-bak/hejtter'),
@@ -173,7 +174,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return Column(
             children: [
               const SettingsSection(
-                title: 'Konto',
+                title: '$accountText',
                 leading: Icons.person,
               ),
               _buildShowNSFW(),
@@ -195,7 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (state is ProfilePresentState) {
           if (state.showNsfw) {
             return SwitchSetting(
-              title: 'Pokazuj wpisy NSFW',
+              title: '$showNSFWText',
               value: true,
               onChanged: (value) {
                 _changeShowNsfwPref(value, state);
@@ -203,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
           } else {
             return SwitchSetting(
-              title: 'Pokazuj wpisy NSFW',
+              title: '$showNSFWText',
               value: false,
               onChanged: (value) {
                 _changeShowNsfwPref(value, state);
@@ -223,7 +224,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (state is ProfilePresentState) {
           if (state.blurNsfw) {
             return SwitchSetting(
-              title: 'Rozmazuj obrazy NSFW',
+              title: '$blurNSFWText',
               value: true,
               onChanged: (value) {
                 _changeBlurNsfwPref(value, state);
@@ -231,7 +232,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
           } else {
             return SwitchSetting(
-              title: 'Rozmazuj obrazy NSFW',
+              title: '$$blurNSFWTex',
               value: false,
               onChanged: (value) {
                 _changeBlurNsfwPref(value, state);
@@ -251,7 +252,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (state is ProfilePresentState) {
           if (state.showControversial) {
             return SwitchSetting(
-              title: 'Pokazuj wpisy kontrowersyjne',
+              title: '$showControversialText',
               value: true,
               onChanged: (value) {
                 _changeShowControversialPref(value, state);
@@ -259,7 +260,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             );
           } else {
             return SwitchSetting(
-              title: 'Pokazuj wpisy kontrowersyjne',
+              title: '$showControversialText',
               value: false,
               onChanged: (value) {
                 _changeShowControversialPref(value, state);

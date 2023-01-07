@@ -5,6 +5,7 @@ import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/utils/locale.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -108,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       SizedBox(height: 5),
                       Text(
-                        'Mobilna aplikacja serwisu Hejto.pl tworzona przez społeczność',
+                        '$welcomeScreenText',
                       ),
                     ],
                   ),
@@ -148,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       textInputAction: TextInputAction.done,
                       obscureText: !_passwordVisible,
                       decoration: InputDecoration(
-                          hintText: 'Hasło',
+                          hintText: '$passwordText',
                           border: InputBorder.none,
                           suffixIcon: IconButton(
                             onPressed: () {
@@ -188,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: CircularProgressIndicator(),
                             ),
                           )
-                        : const Text('Zaloguj się'),
+                        : const Text('$loginText'),
                   ),
                 ),
               ],
@@ -201,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Kontynuuj bez logowania'),
+                  child: const Text('$continueWithoutLoginText'),
                 ),
               ],
             ),

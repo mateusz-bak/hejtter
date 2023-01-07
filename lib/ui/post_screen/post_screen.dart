@@ -20,6 +20,7 @@ import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/posts_screen/posts_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/utils/locale.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -59,14 +60,14 @@ class _PostScreenState extends State<PostScreen> {
   late Set<String> moreButtonOptions;
 
   final moreButtonOptionsFavorited = {
-    'Usuń z ulubionych',
-    'Udostępnij',
-    'Zgłoś',
+    '$removeFromWatchedText',
+    '$shareText',
+    '$reportText',
   };
   final moreButtonOptionsNotFavorited = {
-    'Dodaj do ulubionych',
-    'Udostępnij',
-    'Zgłoś',
+    '$addPToFavoritesText',
+    '$shareText',
+    '$reportText',
   };
 
   _goToUserScreen() {
@@ -206,7 +207,7 @@ class _PostScreenState extends State<PostScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Komentarz nie może być pusty'),
+          content: const Text('$commentEmptyText'),
           action: SnackBarAction(
             label: 'OK',
             onPressed: () {
@@ -286,19 +287,19 @@ class _PostScreenState extends State<PostScreen> {
 
   _reportPost() async {
     if (post.links?.self == null) return;
-    const firstPart = 'Zgłaszam złamanie regulaminu:\n\n';
+    const firstPart = '$reportViolationText';
     final postUrl = 'https://www.hejto.pl/wpis/${post.slug}';
-    const lastpart = '\n\nPozdrawiam';
+    const lastpart = '\n\n$cheersText';
 
     final Email email = Email(
       body: '$firstPart$postUrl$lastpart',
-      subject: 'Złamanie regulaminu',
+      subject: '$licenseViolatonText',
       recipients: ['support@hejto.pl'],
       isHTML: false,
     );
 
     FlutterEmailSender.send(email).then((value) {
-      const SnackBar snackBar = SnackBar(content: Text('Zgłoszono wpis'));
+      const SnackBar snackBar = SnackBar(content: Text('$messageNotificationText'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
   }
@@ -347,13 +348,13 @@ class _PostScreenState extends State<PostScreen> {
                   value: choice,
                   child: Text(choice),
                   onTap: () {
-                    if (choice == 'Dodaj do ulubionych') {
+                    if (choice == '$addPToFavoritesText') {
                       _addPostToFavorites();
-                    } else if (choice == 'Usuń z ulubionych') {
+                    } else if (choice == '$removeFromBookmarksText') {
                       _removePostFromFavorites();
-                    } else if (choice == 'Udostępnij') {
+                    } else if (choice == '$shareText') {
                       _sharePost();
-                    } else if (choice == 'Zgłoś') {
+                    } else if (choice == '$reportText') {
                       _reportPost();
                     }
                   },
@@ -371,7 +372,7 @@ class _PostScreenState extends State<PostScreen> {
               userImage: CommentBox.commentImageParser(
                 imageURLorPath: state.avatar ?? defaultAvatar,
               ),
-              labelText: 'Skomentuj',
+              labelText: '$commentText',
               withBorder: false,
               sendButtonMethod: _sendComment,
               commentController: _commentController,

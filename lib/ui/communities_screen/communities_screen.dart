@@ -6,6 +6,7 @@ import 'package:hejtter/ui/communities_screen/community_card.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
+import 'package:hejtter/utils/locale.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -62,7 +63,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: backgroundColor,
-        title: const Text('Społeczności'),
+        title: const Text('$societiesText'),
       ),
       drawer: const HejtoDrawer(currentScreen: CurrentScreen.communities),
       body: Column(

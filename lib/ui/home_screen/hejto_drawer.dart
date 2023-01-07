@@ -13,6 +13,7 @@ import 'package:hejtter/ui/settings_screen/settings_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
+import 'package:hejtter/utils/locale.dart';
 
 class HejtoDrawer extends StatelessWidget {
   const HejtoDrawer({
@@ -53,7 +54,7 @@ class HejtoDrawer extends StatelessWidget {
           ),
           _buildUserTile(),
           ListTile(
-            title: const Text('Strona główna'),
+            title: const Text('$mainPagetext'),
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -62,7 +63,7 @@ class HejtoDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            title: const Text('Społeczności'),
+            title: const Text('$societiesText'),
             onTap: () {
               if (currentScreen == CurrentScreen.home) {
                 Navigator.push(
@@ -91,7 +92,7 @@ class HejtoDrawer extends StatelessWidget {
             builder: (context, state) {
               if (state is AuthorizedAuthState) {
                 return ListTile(
-                  title: const Text('Obserwowane'),
+                  title: const Text('$observedText'),
                   onTap: () {
                     if (currentScreen == CurrentScreen.home) {
                       Navigator.push(
@@ -126,7 +127,7 @@ class HejtoDrawer extends StatelessWidget {
           ),
           _buildLoginLogoutTile(),
           ListTile(
-            title: const Text('Ustawienia'),
+            title: const Text('$userSettingsText'),
             onTap: () {
               Navigator.push(
                 context,
@@ -147,7 +148,7 @@ class HejtoDrawer extends StatelessWidget {
       builder: (context, state) {
         if (state is AuthorizedAuthState) {
           return ListTile(
-            title: const Text('Wyloguj się'),
+            title: const Text('$logoutText'),
             onTap: () {
               BlocProvider.of<AuthBloc>(context).add(
                 const LogOutAuthEvent(),
@@ -167,7 +168,7 @@ class HejtoDrawer extends StatelessWidget {
           );
         } else {
           return ListTile(
-            title: const Text('Zaloguj się w aplikacji'),
+            title: const Text('$loginText'),
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(

@@ -9,6 +9,7 @@ import 'package:hejtter/ui/posts_screen/post_card.dart';
 import 'package:hejtter/ui/user_screen/user_action_button.dart';
 import 'package:hejtter/ui/user_screen/user_app_bar.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/utils/locale.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -29,11 +30,11 @@ class UserScreen extends StatefulWidget {
 class _UserScreenState extends State<UserScreen> {
   final client = http.Client();
   static const pageSize = 20;
-  String postsType = 'Wpisy dodane';
-  String orderType = 'Najnowsze';
+  String postsType = '$addedEntriesText';
+  String orderType = '$newestEntriesText';
 
   late List<String> postTypes;
-  final List<String> orderTypes = ['Najnowsze', 'Najstarsze'];
+  final List<String> orderTypes = ['$newestEntriesText', '$oldestEntriesText'];
 
   late List<DropdownMenuItem<String>> postItems;
   late List<DropdownMenuItem<String>> orderItems;
@@ -43,16 +44,16 @@ class _UserScreenState extends State<UserScreen> {
 
   void _setDropdownValuesForCurrentUser() {
     postTypes = <String>[
-      'Wpisy dodane',
-      'Wpisy komentowane',
-      'Wpisy ulubione',
+      '$addedEntriesText',
+      '$commentedEntriesText',
+      '$likedEntriesText',
     ];
   }
 
   void _setDropdownValuesForOtherUsers() {
     postTypes = <String>[
-      'Wpisy dodane',
-      'Wpisy komentowane',
+      '$addedEntriesText',
+      '$commentedEntriesText',
     ];
   }
 
@@ -81,12 +82,12 @@ class _UserScreenState extends State<UserScreen> {
       final newItems = await hejtoApi.getPosts(
         pageKey: pageKey,
         pageSize: pageSize,
-        author: postsType == 'Wpisy dodane' ? widget.userName : null,
+        author: postsType == '$addedEntriesText' ? widget.userName : null,
         context: context,
         orderBy: 'p.createdAt',
-        commentedBy: postsType == 'Wpisy komentowane' ? widget.userName : null,
-        favorited: postsType == 'Wpisy ulubione' ? true : null,
-        orderDir: orderType == 'Najnowsze' ? 'desc' : 'asc',
+        commentedBy: postsType == '$commentedEntriesText' ? widget.userName : null,
+        favorited: postsType == '$likedEntriesText' ? true : null,
+        orderDir: orderType == '$newestEntriesText' ? 'desc' : 'asc',
       );
 
       final isLastPage = newItems!.length < pageSize;
@@ -226,7 +227,7 @@ class _UserScreenState extends State<UserScreen> {
               padding: const EdgeInsets.all(10),
               child: Center(
                 child: Text(
-                  'Błąd przy pobieraniu informacji o użytkowniku ${widget.userName} - ${snapshot.stackTrace}',
+                  '$userAccountFetchErrorText ${widget.userName} - ${snapshot.stackTrace}',
                 ),
               ),
             );
@@ -327,7 +328,7 @@ class _UserScreenState extends State<UserScreen> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         const Text(
-          'Dołączył/a: ',
+          '$userJoinedText',
           style: TextStyle(fontSize: 16),
         ),
         Text(
