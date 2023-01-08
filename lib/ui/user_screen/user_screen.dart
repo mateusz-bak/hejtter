@@ -129,6 +129,45 @@ class _UserScreenState extends State<UserScreen> {
     }
   }
 
+  _blockUserLocally({
+    required String? username,
+    required List<String>? currentList,
+  }) async {
+    if (username == null) return;
+
+    if (currentList == null) {
+      BlocProvider.of<ProfileBloc>(context).add(
+        UpdateUnloggedBlocksProfileEvent(usernames: [username]),
+      );
+    } else {
+      currentList.add(username);
+      BlocProvider.of<ProfileBloc>(context).add(
+        UpdateUnloggedBlocksProfileEvent(usernames: currentList),
+      );
+    }
+  }
+
+  _unblockUserLocally({
+    required String? username,
+    required List<String> currentList,
+  }) async {
+    if (username == null) return;
+
+    currentList.removeWhere((element) {
+      return element == username;
+    });
+
+    if (currentList.isEmpty) {
+      BlocProvider.of<ProfileBloc>(context).add(
+        const UpdateUnloggedBlocksProfileEvent(),
+      );
+    } else {
+      BlocProvider.of<ProfileBloc>(context).add(
+        UpdateUnloggedBlocksProfileEvent(usernames: currentList),
+      );
+    }
+  }
+
   _followUser(String? username) async {
     if (username == null) return;
 
@@ -258,14 +297,16 @@ class _UserScreenState extends State<UserScreen> {
             children: [
               _buildUserDetails(data),
               !isCurrentUser
-                  ? UserActionButton(
-                      icon: data.interactions?.isBlocked == true
-                          ? Icons.lock_open
-                          : Icons.lock,
-                      onPressed: data.interactions?.isBlocked == true
-                          ? () => _unblockUser(data.username)
-                          : () => _blockUser(data.username),
-                    )
+                  ? isLoggedIn
+                      ? UserActionButton(
+                          icon: data.interactions?.isBlocked == true
+                              ? Icons.lock_open
+                              : Icons.lock,
+                          onPressed: data.interactions?.isBlocked == true
+                              ? () => _unblockUser(data.username)
+                              : () => _blockUser(data.username),
+                        )
+                      : _buildLocalBlockButton(data)
                   : const SizedBox(),
             ],
           ),
@@ -311,6 +352,44 @@ class _UserScreenState extends State<UserScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLocalBlockButton(UserDetailsResponse data) {
+    return BlocBuilder<ProfileBloc, ProfileState>(
+      builder: (context, state) {
+        if (state is ProfileAbsentState) {
+          if (state.blockedUsers != null) {
+            if (state.blockedUsers!.contains(data.username)) {
+              return UserActionButton(
+                icon: Icons.lock_open,
+                onPressed: () => _unblockUserLocally(
+                  username: data.username,
+                  currentList: state.blockedUsers!,
+                ),
+              );
+            } else {
+              return UserActionButton(
+                icon: Icons.lock,
+                onPressed: () => _blockUserLocally(
+                  username: data.username,
+                  currentList: state.blockedUsers!,
+                ),
+              );
+            }
+          } else {
+            return UserActionButton(
+              icon: Icons.lock,
+              onPressed: () => _blockUserLocally(
+                username: data.username,
+                currentList: null,
+              ),
+            );
+          }
+        } else {
+          return const SizedBox();
+        }
+      },
     );
   }
 

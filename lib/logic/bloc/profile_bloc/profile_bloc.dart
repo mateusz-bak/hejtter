@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -28,6 +30,17 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
     on<ClearProfileEvent>((event, emit) async {
       emit(const ProfileAbsentState());
     });
+    on<UpdateUnloggedBlocksProfileEvent>((event, emit) async {
+      if (event.usernames == null) {
+        log('users: null');
+      } else {
+        log(event.usernames!.join('|').toString());
+      }
+
+      emit(
+        ProfileAbsentState(blockedUsers: event.usernames),
+      );
+    });
   }
 
   @override
@@ -38,6 +51,7 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
     final showNsfw = json['show_nsfw'] as bool?;
     final showControversial = json['show_controversial'] as bool?;
     final blurNsfw = json['blur_nsfw'] as bool?;
+    final blockedUsernames = json['blocked_usernames'] as String?;
 
     if (username != null) {
       return ProfilePresentState(
@@ -49,7 +63,7 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
         blurNsfw: blurNsfw ?? true,
       );
     } else {
-      return const ProfileAbsentState();
+      return ProfileAbsentState(blockedUsers: blockedUsernames?.split('|||'));
     }
   }
 
@@ -63,6 +77,17 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
         'show_nsfw': state.showNsfw,
         'show_controversial': state.showControversial,
         'blur_nsfw': state.blurNsfw,
+        'blocked_usernames': null,
+      };
+    } else if (state is ProfileAbsentState) {
+      return {
+        'username': null,
+        'avatar': null,
+        'background': null,
+        'show_nsfw': null,
+        'show_controversial': null,
+        'blur_nsfw': null,
+        'blocked_usernames': state.blockedUsers?.join('|||'),
       };
     } else {
       return {
@@ -72,6 +97,7 @@ class ProfileBloc extends HydratedBloc<ProfileEvent, ProfileState> {
         'show_nsfw': null,
         'show_controversial': null,
         'blur_nsfw': null,
+        'blocked_usernames': null,
       };
     }
   }

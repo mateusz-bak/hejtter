@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 
 import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/models/post.dart';
@@ -51,6 +53,21 @@ class _PostsTabViewState extends State<PostsTabView> {
   final PagingController<int, Post> _newPagingController =
       PagingController(firstPageKey: 1);
 
+  List<Post> _filterLocallyBlockedUsers(List<Post> list) {
+    final state = BlocProvider.of<ProfileBloc>(context).state;
+    if (state is ProfileAbsentState) {
+      if (state.blockedUsers == null) return list;
+
+      list.removeWhere((element) {
+        return state.blockedUsers!.contains(element.author?.username);
+      });
+
+      return list;
+    } else {
+      return list;
+    }
+  }
+
   Future<void> _fetchHotPage(int pageKey) async {
     try {
       final newItems = await hejtoApi.getPosts(
@@ -67,13 +84,17 @@ class _PostsTabViewState extends State<PostsTabView> {
       if (isLastPage) {
         if (!mounted) return;
         _hotPagingController.appendLastPage(
-          _removeDoubledPosts(_newPagingController, newItems),
+          _filterLocallyBlockedUsers(
+            _removeDoubledPosts(_newPagingController, newItems),
+          ),
         );
       } else {
         final nextPageKey = pageKey + 1;
         if (!mounted) return;
         _hotPagingController.appendPage(
-          _removeDoubledPosts(_newPagingController, newItems),
+          _filterLocallyBlockedUsers(
+            _removeDoubledPosts(_newPagingController, newItems),
+          ),
           nextPageKey,
         );
       }
@@ -100,13 +121,17 @@ class _PostsTabViewState extends State<PostsTabView> {
       if (isLastPage) {
         if (!mounted) return;
         _topPagingController.appendLastPage(
-          _removeDoubledPosts(_newPagingController, newItems),
+          _filterLocallyBlockedUsers(
+            _removeDoubledPosts(_newPagingController, newItems),
+          ),
         );
       } else {
         if (!mounted) return;
         final nextPageKey = pageKey + 1;
         _topPagingController.appendPage(
-          _removeDoubledPosts(_newPagingController, newItems),
+          _filterLocallyBlockedUsers(
+            _removeDoubledPosts(_newPagingController, newItems),
+          ),
           nextPageKey,
         );
       }
@@ -131,13 +156,17 @@ class _PostsTabViewState extends State<PostsTabView> {
       if (isLastPage) {
         if (!mounted) return;
         _newPagingController.appendLastPage(
-          _removeDoubledPosts(_newPagingController, newItems),
+          _filterLocallyBlockedUsers(
+            _removeDoubledPosts(_newPagingController, newItems),
+          ),
         );
       } else {
         if (!mounted) return;
         final nextPageKey = pageKey + 1;
         _newPagingController.appendPage(
-          _removeDoubledPosts(_newPagingController, newItems),
+          _filterLocallyBlockedUsers(
+            _removeDoubledPosts(_newPagingController, newItems),
+          ),
           nextPageKey,
         );
       }

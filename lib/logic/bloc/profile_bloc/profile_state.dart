@@ -33,8 +33,12 @@ class ProfilePresentState extends ProfileState {
 }
 
 class ProfileAbsentState extends ProfileState {
-  const ProfileAbsentState();
+  const ProfileAbsentState({
+    this.blockedUsers,
+  });
+
+  final List<String>? blockedUsers;
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [blockedUsers];
 }

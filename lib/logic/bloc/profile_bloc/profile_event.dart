@@ -21,3 +21,14 @@ class ClearProfileEvent extends ProfileEvent {
   @override
   List<Object?> get props => [];
 }
+
+class UpdateUnloggedBlocksProfileEvent extends ProfileEvent {
+  const UpdateUnloggedBlocksProfileEvent({
+    this.usernames,
+  });
+
+  final List<String>? usernames;
+
+  @override
+  List<Object?> get props => [];
+}

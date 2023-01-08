@@ -97,6 +97,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
+  _unblockUserLocally({
+    required String? username,
+    required List<String> currentList,
+  }) async {
+    if (username == null) return;
+
+    currentList.removeWhere((element) {
+      return element == username;
+    });
+
+    if (currentList.isEmpty) {
+      BlocProvider.of<ProfileBloc>(context).add(
+        const UpdateUnloggedBlocksProfileEvent(),
+      );
+    } else {
+      BlocProvider.of<ProfileBloc>(context).add(
+        UpdateUnloggedBlocksProfileEvent(usernames: currentList),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,6 +150,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SingleChildScrollView(
               child: Column(children: [
                 _buildAccountPreferences(),
+                _buildUnloggedBlacklist(),
                 const SettingsSection(
                   title: 'O aplikacji',
                   leading: Icons.smartphone,
@@ -181,6 +203,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildShowControversial(),
               const SizedBox(height: 20),
             ],
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
+    );
+  }
+
+  Widget _buildUnloggedBlacklist() {
+    return BlocBuilder<ProfileBloc, ProfileState>(
+      builder: (context, state) {
+        if (state is ProfileAbsentState && state.blockedUsers != null) {
+          final blockedUsers = List<Widget>.empty(growable: true);
+
+          for (var user in state.blockedUsers!) {
+            blockedUsers.add(Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(user),
+                TextButton(
+                  onPressed: () => _unblockUserLocally(
+                    currentList: state.blockedUsers!,
+                    username: user,
+                  ),
+                  child: const Text('Odblokuj'),
+                )
+              ],
+            ));
+          }
+
+          return TextSetting(
+            title: 'Zablokowani użytkownicy',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return SimpleDialog(
+                    title: const Text('Zablokowani użytkownicy'),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Column(
+                          children: blockedUsers,
+                        ),
+                      )
+                    ],
+                  );
+                },
+              );
+            },
           );
         } else {
           return const SizedBox();
