@@ -8,6 +8,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/post_screen/answer_button.dart';
+import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 
@@ -121,7 +122,8 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
             _buildLikes(comment?.numLikes, context),
           ],
         ),
-        _buildContent(context),
+        _buildContent(),
+        _buildPictures(),
         Padding(
           padding: const EdgeInsets.only(left: 26),
           child: AnswerButton(
@@ -135,7 +137,25 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
     );
   }
 
-  Row _buildContent(BuildContext context) {
+  Widget _buildPictures() {
+    final images = comment?.images;
+
+    if (images != null && images.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 22),
+        child: PicturePreview(
+          imageUrl: '${images[0].urls?.the1200X900}',
+          imagesUrls: images,
+          multiplePics: images.length > 1,
+          nsfw: false,
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
+  }
+
+  Row _buildContent() {
     return Row(
       children: [
         const SizedBox(width: 35),
@@ -158,6 +178,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
             },
           ),
         ),
+        const SizedBox(width: 10),
       ],
     );
   }

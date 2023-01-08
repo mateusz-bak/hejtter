@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:hejtter/models/posts_response.dart';
+
 CommentsResponse commentsResponseFromJson(String str) =>
     CommentsResponse.fromJson(json.decode(str));
 
@@ -71,7 +73,7 @@ class CommentItem {
   final String? contentPlain;
   final List<ContentLink>? contentLinks;
   final Author? author;
-  final List<dynamic>? images;
+  final List<PostImage>? images;
   final Interactions? interactions;
   final DateTime? createdAt;
   final String? uuid;
@@ -90,7 +92,8 @@ class CommentItem {
         author: json["author"] == null ? null : Author.fromJson(json["author"]),
         images: json["images"] == null
             ? null
-            : List<dynamic>.from(json["images"].map((x) => x)),
+            : List<PostImage>.from(
+                json["images"].map((x) => PostImage.fromJson(x))),
         interactions: json["interactions"] == null
             ? null
             : Interactions.fromJson(json["interactions"]),
