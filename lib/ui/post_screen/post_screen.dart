@@ -47,7 +47,7 @@ class _PostScreenState extends State<PostScreen> {
   FocusNode focusNode = FocusNode();
   final TextEditingController _commentController = TextEditingController();
 
-  static const _pageSize = 20;
+  static const _pageSize = 50;
 
   late Post post;
 
@@ -94,7 +94,7 @@ class _PostScreenState extends State<PostScreen> {
         pageKey: pageKey,
         pageSize: _pageSize,
         context: context,
-        commentsHref: post.links!.comments!.href!,
+        slug: post.slug,
       );
 
       final isLastPage = newItems!.length < _pageSize;
@@ -516,7 +516,6 @@ class _PostScreenState extends State<PostScreen> {
       ),
       child: PagedListView<int, CommentItem>(
         shrinkWrap: true,
-        reverse: true,
         clipBehavior: Clip.antiAlias,
         physics: const NeverScrollableScrollPhysics(),
         pagingController: _pagingController,

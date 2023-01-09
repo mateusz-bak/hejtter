@@ -453,19 +453,21 @@ class HejtoApi {
     required int pageKey,
     required int pageSize,
     required BuildContext context,
-    required String commentsHref,
+    required String? slug,
   }) async {
     final accessToken = await _getAccessToken(context);
+    if (slug == null) return null;
 
     final queryParameters = {
       'limit': '$pageSize',
       'page': '$pageKey',
+      'orderDir': 'asc',
     };
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
         hejtoApiUrl,
-        commentsHref,
+        '/posts/$slug/comments',
         queryParameters,
       ),
     );
