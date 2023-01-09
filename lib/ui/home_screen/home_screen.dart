@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 
 import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/services/hejto_api.dart';
@@ -47,14 +49,26 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [_buildSearchButton(context)],
       ),
       drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _openAddPostDialog,
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: _buildNewPostFAB(),
       body: PostsTabView(
         showSearchBar: _showSearchBar,
         focusNode: focusNode,
       ),
+    );
+  }
+
+  Widget _buildNewPostFAB() {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthorizedAuthState) {
+          return FloatingActionButton(
+            onPressed: _openAddPostDialog,
+            child: const Icon(Icons.add),
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
     );
   }
 
