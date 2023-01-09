@@ -120,7 +120,9 @@ class HejtoApi {
     _saveCookiesFromResponse(response);
 
     if (response.statusCode != 200) {
-      _showSnackBar('Logowanie nieudane (${response.statusCode} - ${response.reasonPhrase})');
+      _showSnackBar(
+        'Logowanie nieudane (${response.statusCode} - ${response.reasonPhrase})',
+      );
       return null;
     }
 
@@ -659,6 +661,7 @@ class HejtoApi {
     required int pageKey,
     required int pageSize,
     required BuildContext context,
+    String query = '',
   }) async {
     final accessToken = await _getAccessToken(context);
 
@@ -667,6 +670,7 @@ class HejtoApi {
       'page': '$pageKey',
       'orderBy': 'numMembers',
       'orderDir': 'desc',
+      'query': query,
     };
 
     HttpClientRequest request = await client.getUrl(
@@ -954,6 +958,52 @@ class HejtoApi {
     if (response.statusCode == 204) {
       return true;
     } else {
+      return false;
+    }
+  }
+
+  Future<bool> createPost({
+    required String content,
+    required String communitySlug,
+    required BuildContext context,
+    required bool isNsfw,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    final body = {
+      'type': 'discussion',
+      'community': communitySlug,
+      'content': content,
+      'tags': [],
+      'nsfw': isNsfw,
+    };
+
+    HttpClientRequest request = await client.postUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/posts',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+    request.add(utf8.encode(json.encode(body)));
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      _showSnackBar(
+        'Dodawanie posta nie powiodło się: (${response.statusCode})',
+      );
       return false;
     }
   }

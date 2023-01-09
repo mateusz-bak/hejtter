@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:hejtter/logic/cubit/search_cubit.dart';
+import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/home_screen/add_post_dialog.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -17,6 +19,25 @@ class _HomeScreenState extends State<HomeScreen> {
   FocusNode focusNode = FocusNode();
   var _showSearchBar = false;
 
+  Future<bool> _addPost(
+    String content,
+    bool isNsfw,
+    String communitySlug,
+  ) async {
+    final result = await hejtoApi.createPost(
+      context: context,
+      content: content,
+      isNsfw: isNsfw,
+      communitySlug: communitySlug,
+    );
+
+    if (result && mounted) {
+      Navigator.pop(context);
+    }
+
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,10 +47,32 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [_buildSearchButton(context)],
       ),
       drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openAddPostDialog,
+        child: const Icon(Icons.add),
+      ),
       body: PostsTabView(
         showSearchBar: _showSearchBar,
         focusNode: focusNode,
       ),
+    );
+  }
+
+  _openAddPostDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.black,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+            child: Container(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            top: MediaQuery.of(context).viewInsets.top,
+          ),
+          child: AddPostDialog(addPost: _addPost),
+        ));
+      },
     );
   }
 
