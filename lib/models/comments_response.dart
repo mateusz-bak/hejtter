@@ -57,7 +57,7 @@ class CommentItem {
     this.postSlug,
     this.content,
     this.contentPlain,
-    this.contentLinks,
+    // this.contentLinks,
     this.author,
     this.images,
     this.numLikes,
@@ -71,7 +71,7 @@ class CommentItem {
   final String? postSlug;
   final String? content;
   final String? contentPlain;
-  final List<ContentLink>? contentLinks;
+  // final List<ContentLink>? contentLinks;
   final Author? author;
   final List<PostImage>? images;
   final Interactions? interactions;
@@ -85,10 +85,10 @@ class CommentItem {
         postSlug: json["post_slug"],
         content: json["content"],
         contentPlain: json["content_plain"],
-        contentLinks: json["content_links"] == null
-            ? null
-            : List<ContentLink>.from(
-                json["content_links"].map((x) => ContentLink.fromJson(x))),
+        // contentLinks: json["content_links"] == null
+        //     ? null
+        //     : List<ContentLink>.from(
+        //         json["content_links"].map((x) => ContentLink.fromJson(x))),
         author: json["author"] == null ? null : Author.fromJson(json["author"]),
         images: json["images"] == null
             ? null
