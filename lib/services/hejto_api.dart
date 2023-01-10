@@ -1069,4 +1069,36 @@ class HejtoApi {
       return null;
     }
   }
+
+  Future<bool> removePost({
+    required String postSlug,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.deleteUrl(Uri.https(
+      hejtoApiUrl,
+      '/posts/$postSlug',
+    ));
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      _showFlushBar(context, 'Błąd usuwania posta: ${response.statusCode}');
+
+      return false;
+    }
+  }
 }

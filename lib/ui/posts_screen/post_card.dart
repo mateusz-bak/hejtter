@@ -32,14 +32,14 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard>
     with AutomaticKeepAliveClientMixin {
-  late Post item;
+  late Post? item;
 
   _goToUserScreen() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => UserScreen(
-          userName: item.author?.username,
+          userName: item?.author?.username,
         ),
       ),
     );
@@ -56,28 +56,26 @@ class _PostCardState extends State<PostCard>
 
   _refreshPost() async {
     final newItem = await hejtoApi.getPostDetails(
-      postSlug: item.slug,
+      postSlug: item?.slug,
       context: context,
     );
 
-    if (newItem != null) {
-      setState(() {
-        item = newItem;
-      });
-    }
+    setState(() {
+      item = newItem?.slug != null ? newItem : null;
+    });
   }
 
   _likePost() async {
-    if (item.slug == null) return;
+    if (item?.slug == null) return;
 
     final postLiked = await hejtoApi.likePost(
-      postSlug: item.slug!,
+      postSlug: item!.slug!,
       context: context,
     );
 
     if (postLiked) {
       final refreshedPost = await hejtoApi.getPostDetails(
-        postSlug: item.slug,
+        postSlug: item!.slug,
         context: context,
       );
 
@@ -90,16 +88,16 @@ class _PostCardState extends State<PostCard>
   }
 
   _unlikePost() async {
-    if (item.slug == null) return;
+    if (item?.slug == null) return;
 
     final postUnliked = await hejtoApi.unlikePost(
-      postSlug: item.slug!,
+      postSlug: item!.slug!,
       context: context,
     );
 
     if (postUnliked) {
       final refreshedPost = await hejtoApi.getPostDetails(
-        postSlug: item.slug,
+        postSlug: item!.slug,
         context: context,
       );
 
@@ -122,13 +120,17 @@ class _PostCardState extends State<PostCard>
     super.build(context);
     _setTimeAgoLocale();
 
+    if (item == null) return const SizedBox();
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: GestureDetector(
         onTap: () {
+          if (item == null) return;
+
           Navigator.push(context, MaterialPageRoute(builder: (_) {
             return PostScreen(
-              post: item,
+              post: item!,
               refreshCallback: _refreshPost,
             );
           }));
@@ -170,11 +172,11 @@ class _PostCardState extends State<PostCard>
                       _buildHotIcon(),
                       const SizedBox(width: 20),
                       Text(
-                        item.numLikes != null
-                            ? item.numLikes.toString()
+                        item?.numLikes != null
+                            ? item!.numLikes.toString()
                             : 'null',
                         style: TextStyle(
-                          color: item.isLiked == true
+                          color: item?.isLiked == true
                               ? const Color(0xffFFC009)
                               : null,
                         ),
@@ -183,10 +185,10 @@ class _PostCardState extends State<PostCard>
                         padding: const EdgeInsets.all(5),
                         child: IconButton(
                           onPressed:
-                              item.isLiked == true ? _unlikePost : _likePost,
+                              item?.isLiked == true ? _unlikePost : _likePost,
                           icon: Icon(
                             Icons.bolt,
-                            color: item.isLiked == true
+                            color: item?.isLiked == true
                                 ? const Color(0xffFFC009)
                                 : null,
                           ),
@@ -215,27 +217,28 @@ class _PostCardState extends State<PostCard>
   }
 
   Widget _buildPicture() {
-    if (item.images == null ||
-        item.images!.isEmpty ||
-        item.images![0].urls?.the1200X900 == null) {
+    if (item == null ||
+        item!.images == null ||
+        item!.images!.isEmpty ||
+        item!.images![0].urls?.the1200X900 == null) {
       return const SizedBox();
     }
 
-    final bool multiplePics = item.images!.length > 1;
+    final bool multiplePics = item!.images!.length > 1;
 
     return PicturePreview(
-      imageUrl: item.images![0].urls!.the1200X900!,
+      imageUrl: item!.images![0].urls!.the1200X900!,
       multiplePics: multiplePics,
-      nsfw: item.nsfw ?? false,
-      imagesUrls: item.images,
+      nsfw: item!.nsfw ?? false,
+      imagesUrls: item!.images,
     );
   }
 
   Widget _buildHotIcon() {
     return Column(
       children: [
-        SizedBox(width: item.hot == true ? 5 : 0),
-        item.hot == true
+        SizedBox(width: item?.hot == true ? 5 : 0),
+        item?.hot == true
             ? const Icon(
                 Icons.local_fire_department_outlined,
                 color: Color(0xff2295F3),
@@ -292,10 +295,10 @@ class _PostCardState extends State<PostCard>
   }
 
   Widget _buildTags() {
-    if (item.tags != null && item.tags!.isNotEmpty) {
+    if (item?.tags != null && item!.tags!.isNotEmpty) {
       List<Widget> tags = List.empty(growable: true);
 
-      for (var tag in item.tags!) {
+      for (var tag in item!.tags!) {
         if (tag.name != null) {
           tags.add(GestureDetector(
             onTap: () {
@@ -339,7 +342,7 @@ class _PostCardState extends State<PostCard>
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: MarkdownBody(
-        data: _addEmojis(item.content.toString()),
+        data: _addEmojis(item?.content.toString() ?? ''),
         styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
           blockquoteDecoration: BoxDecoration(
             color: Colors.black54,
@@ -348,9 +351,11 @@ class _PostCardState extends State<PostCard>
         ),
         selectable: true,
         onTapText: () {
+          if (item == null) return;
+
           Navigator.push(context, MaterialPageRoute(builder: (_) {
             return PostScreen(
-              post: item,
+              post: item!,
               refreshCallback: _refreshPost,
             );
           }));
@@ -366,7 +371,7 @@ class _PostCardState extends State<PostCard>
   }
 
   Widget _buildAvatar() {
-    final avatarUrl = item.author?.avatar?.urls?.the100X100;
+    final avatarUrl = item?.author?.avatar?.urls?.the100X100;
 
     return GestureDetector(
       onTap: _goToUserScreen,
@@ -396,8 +401,8 @@ class _PostCardState extends State<PostCard>
               children: [
                 Flexible(
                   child: Text(
-                    item.author != null
-                        ? item.author!.username.toString()
+                    item?.author != null
+                        ? item!.author!.username.toString()
                         : 'null',
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -406,8 +411,8 @@ class _PostCardState extends State<PostCard>
                     ),
                   ),
                 ),
-                SizedBox(width: item.author?.sponsor == true ? 5 : 0),
-                item.author?.sponsor == true
+                SizedBox(width: item?.author?.sponsor == true ? 5 : 0),
+                item?.author?.sponsor == true
                     ? Transform.rotate(
                         angle: 180,
                         child: const Icon(
@@ -435,13 +440,13 @@ class _PostCardState extends State<PostCard>
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
-        item.author != null ? item.author!.currentRank.toString() : 'null',
+        item?.author != null ? item!.author!.currentRank.toString() : 'null',
         style: TextStyle(
           fontSize: 11,
-          color: item.author?.currentColor != null
+          color: item?.author?.currentColor != null
               ? Color(
                   int.parse(
-                    item.author!.currentColor!.replaceAll('#', '0xff'),
+                    item!.author!.currentColor!.replaceAll('#', '0xff'),
                   ),
                 )
               : null,
@@ -458,19 +463,21 @@ class _PostCardState extends State<PostCard>
         Flexible(
           child: GestureDetector(
             onTap: (() {
+              if (item?.community == null) return;
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => PostsScreen(
-                    communityName: item.community!.name,
-                    communitySlug: item.community!.slug,
+                    communityName: item!.community!.name,
+                    communitySlug: item!.community!.slug,
                   ),
                 ),
               );
             }),
             child: Text(
-              item.community?.name != null
-                  ? item.community!.name.toString()
+              item?.community?.name != null
+                  ? item!.community!.name.toString()
                   : 'null',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
@@ -482,8 +489,8 @@ class _PostCardState extends State<PostCard>
         ),
         const SizedBox(width: 5),
         Text(
-          item.createdAt != null
-              ? timeago.format(DateTime.parse(item.createdAt.toString()),
+          item?.createdAt != null
+              ? timeago.format(DateTime.parse(item!.createdAt.toString()),
                   locale: 'pl')
               : 'null',
           style: const TextStyle(fontSize: 12),

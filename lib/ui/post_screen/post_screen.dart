@@ -302,7 +302,27 @@ class _PostScreenState extends State<PostScreen> {
     });
   }
 
-  _setMoreOptionsButtons() {
+  _removePost() async {
+    if (post.slug == null) return;
+
+    final result = await hejtoApi.removePost(
+      postSlug: post.slug!,
+      context: context,
+    );
+
+    if (result && mounted) {
+      widget.refreshCallback();
+
+      Navigator.of(context).pop();
+    }
+  }
+
+  _setMoreOptionsButtons(bool isCurrentUsersPost) {
+    if (isCurrentUsersPost) {
+      moreButtonOptionsFavorited.add('Usuń');
+      moreButtonOptionsNotFavorited.add('Usuń');
+    }
+
     if (post.isFavorited == true) {
       moreButtonOptions = moreButtonOptionsFavorited;
     } else {
@@ -331,41 +351,45 @@ class _PostScreenState extends State<PostScreen> {
   @override
   Widget build(BuildContext context) {
     _setTimeAgoLocale();
-    _setMoreOptionsButtons();
 
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: AppBar(
-        backgroundColor: backgroundColor,
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (_) {},
-            itemBuilder: (BuildContext context) {
-              return moreButtonOptions.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                  onTap: () {
-                    if (choice == 'Dodaj do ulubionych') {
-                      _addPostToFavorites();
-                    } else if (choice == 'Usuń z ulubionych') {
-                      _removePostFromFavorites();
-                    } else if (choice == 'Udostępnij') {
-                      _sharePost();
-                    } else if (choice == 'Zgłoś') {
-                      _reportPost();
-                    }
+    return BlocBuilder<ProfileBloc, ProfileState>(
+      builder: (context, state) {
+        if (state is ProfilePresentState) {
+          _setMoreOptionsButtons(
+              widget.post.author?.username == state.username);
+
+          return Scaffold(
+            backgroundColor: backgroundColor,
+            appBar: AppBar(
+              backgroundColor: backgroundColor,
+              actions: [
+                PopupMenuButton<String>(
+                  onSelected: (_) {},
+                  itemBuilder: (BuildContext context) {
+                    return moreButtonOptions.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                        onTap: () {
+                          if (choice == 'Dodaj do ulubionych') {
+                            _addPostToFavorites();
+                          } else if (choice == 'Usuń z ulubionych') {
+                            _removePostFromFavorites();
+                          } else if (choice == 'Udostępnij') {
+                            _sharePost();
+                          } else if (choice == 'Zgłoś') {
+                            _reportPost();
+                          } else if (choice == 'Usuń') {
+                            _removePost();
+                          }
+                        },
+                      );
+                    }).toList();
                   },
-                );
-              }).toList();
-            },
-          ),
-        ],
-      ),
-      body: BlocBuilder<ProfileBloc, ProfileState>(
-        builder: (context, state) {
-          if (state is ProfilePresentState) {
-            return CommentBox(
+                ),
+              ],
+            ),
+            body: CommentBox(
               focusNode: focusNode,
               userImage: CommentBox.commentImageParser(
                 imageURLorPath: state.avatar ?? defaultAvatar,
@@ -382,12 +406,44 @@ class _PostScreenState extends State<PostScreen> {
                 color: Color(0xff2295F3),
               ),
               child: _buildPost(),
-            );
-          } else {
-            return _buildPost();
-          }
-        },
-      ),
+            ),
+          );
+        } else {
+          _setMoreOptionsButtons(false);
+
+          return Scaffold(
+            backgroundColor: backgroundColor,
+            appBar: AppBar(
+              backgroundColor: backgroundColor,
+              actions: [
+                PopupMenuButton<String>(
+                  onSelected: (_) {},
+                  itemBuilder: (BuildContext context) {
+                    return moreButtonOptions.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                        onTap: () {
+                          if (choice == 'Dodaj do ulubionych') {
+                            _addPostToFavorites();
+                          } else if (choice == 'Usuń z ulubionych') {
+                            _removePostFromFavorites();
+                          } else if (choice == 'Udostępnij') {
+                            _sharePost();
+                          } else if (choice == 'Zgłoś') {
+                            _reportPost();
+                          }
+                        },
+                      );
+                    }).toList();
+                  },
+                ),
+              ],
+            ),
+            body: _buildPost(),
+          );
+        }
+      },
     );
   }
 
