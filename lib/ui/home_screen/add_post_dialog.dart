@@ -4,6 +4,7 @@ import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/home_screen/communities_dialog.dart';
+import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,7 +15,7 @@ class AddPostDialog extends StatefulWidget {
     required this.addPost,
   }) : super(key: key);
 
-  final Future<bool> Function(
+  final Future<String?> Function(
     String,
     bool,
     String,
@@ -39,7 +40,7 @@ class _AddPostDialogState extends State<AddPostDialog> {
       _isPostAdding = true;
     });
 
-    await widget.addPost(
+    final location = await widget.addPost(
       _textController.text,
       _isNsfw,
       _chosenCommunity?.slug ?? 'Dyskusje',
@@ -49,6 +50,14 @@ class _AddPostDialogState extends State<AddPostDialog> {
     setState(() {
       _isPostAdding = false;
     });
+
+    if (location != null && mounted) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) {
+        return PostScreen(
+          slug: location,
+        );
+      }));
+    }
   }
 
   void _loadPhotoFromStorage() async {

@@ -30,13 +30,15 @@ import 'package:url_launcher/url_launcher.dart';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({
-    required this.post,
-    required this.refreshCallback,
+    this.post,
+    this.slug,
+    this.refreshCallback,
     Key? key,
   }) : super(key: key);
 
-  final Post post;
-  final Function() refreshCallback;
+  final Post? post;
+  final String? slug;
+  final Function()? refreshCallback;
 
   @override
   State<PostScreen> createState() => _PostScreenState();
@@ -151,7 +153,9 @@ class _PostScreenState extends State<PostScreen> {
         });
       }
 
-      widget.refreshCallback();
+      if (widget.refreshCallback != null) {
+        widget.refreshCallback!();
+      }
     }
   }
 
@@ -175,7 +179,9 @@ class _PostScreenState extends State<PostScreen> {
         });
       }
 
-      widget.refreshCallback();
+      if (widget.refreshCallback != null) {
+        widget.refreshCallback!();
+      }
     }
   }
 
@@ -315,7 +321,9 @@ class _PostScreenState extends State<PostScreen> {
         const SnackBar(content: Text('Wpis usunięty')),
       );
 
-      widget.refreshCallback();
+      if (widget.refreshCallback != null) {
+        widget.refreshCallback!();
+      }
 
       Navigator.of(context).pop();
     }
@@ -340,7 +348,12 @@ class _PostScreenState extends State<PostScreen> {
       _fetchPage(pageKey);
     });
 
-    post = widget.post;
+    if (widget.post != null) {
+      post = widget.post!;
+    } else {
+      post = Post(slug: widget.slug);
+      _refreshPostAndComments();
+    }
 
     _refreshPost();
     super.initState();
@@ -360,7 +373,8 @@ class _PostScreenState extends State<PostScreen> {
       builder: (context, state) {
         if (state is ProfilePresentState) {
           _setMoreOptionsButtons(
-              widget.post.author?.username == state.username);
+            post.author?.username == state.username,
+          );
 
           return Scaffold(
             backgroundColor: backgroundColor,
@@ -551,8 +565,8 @@ class _PostScreenState extends State<PostScreen> {
   Widget _buildHotIcon() {
     return Column(
       children: [
-        SizedBox(width: widget.post.hot == true ? 5 : 0),
-        widget.post.hot == true
+        SizedBox(width: widget.post?.hot == true ? 5 : 0),
+        widget.post?.hot == true
             ? const Icon(
                 Icons.local_fire_department_outlined,
                 color: Color(0xff2295F3),
@@ -718,8 +732,8 @@ class _PostScreenState extends State<PostScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: widget.post.author?.sponsor == true ? 5 : 0),
-                widget.post.author?.sponsor == true
+                SizedBox(width: widget.post?.author?.sponsor == true ? 5 : 0),
+                widget.post?.author?.sponsor == true
                     ? Transform.rotate(
                         angle: 180,
                         child: const Icon(

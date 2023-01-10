@@ -976,7 +976,7 @@ class HejtoApi {
     }
   }
 
-  Future<bool> createPost({
+  Future<String?> createPost({
     required String content,
     required String communitySlug,
     required BuildContext context,
@@ -984,7 +984,7 @@ class HejtoApi {
     List<PhotoToUpload>? images,
   }) async {
     final accessToken = await _getAccessToken(context);
-    if (accessToken == null) return false;
+    if (accessToken == null) return null;
 
     final body = {
       'type': 'discussion',
@@ -1015,13 +1015,14 @@ class HejtoApi {
     _saveCookiesFromResponse(response);
 
     if (response.statusCode == 201) {
-      return true;
+      final location = response.headers['location'];
+      return location?[0].replaceAll('/posts/', '');
     } else if (response.statusCode == 429) {
       _showFlushBar(context, 'Przekroczono limit');
-      return false;
+      return null;
     } else {
       _showFlushBar(context, 'Błąd dodawania posta: ${response.statusCode}');
-      return false;
+      return null;
     }
   }
 

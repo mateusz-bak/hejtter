@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   FocusNode focusNode = FocusNode();
   var _showSearchBar = false;
 
-  Future<bool> _addPost(
+  Future<String?> _addPost(
     String content,
     bool isNsfw,
     String communitySlug,
@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
       images: images,
     );
 
-    if (result && mounted) {
+    if (result != null && mounted) {
       Navigator.pop(context);
     }
 
