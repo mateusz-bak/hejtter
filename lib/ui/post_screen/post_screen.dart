@@ -311,6 +311,10 @@ class _PostScreenState extends State<PostScreen> {
     );
 
     if (result && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Wpis usunięty')),
+      );
+
       widget.refreshCallback();
 
       Navigator.of(context).pop();

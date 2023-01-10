@@ -35,7 +35,6 @@ class HejtoApi {
 
   _showFlushBar(BuildContext context, String msg) {
     Flushbar(
-      // title: "Hey Ninja",
       message: msg,
       duration: const Duration(seconds: 3),
     ).show(context);
