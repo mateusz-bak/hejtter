@@ -37,6 +37,9 @@ dependencies:
   comment_box: ^0.0.18
   flutter_email_sender: ^5.2.0
   share_plus: ^6.3.0
+  image_picker: ^0.8.6
+  image_cropper: ^3.0.1
+  another_flushbar: ^1.12.29
 
 
 dev_dependencies:

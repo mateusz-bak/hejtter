@@ -1,7 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:another_flushbar/flushbar.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:hejtter/models/photo_to_upload.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,6 +31,14 @@ class HejtoApi {
   _showSnackBar(String msg) {
     SnackBar snackBar = SnackBar(content: Text(msg));
     snackbarKey.currentState?.showSnackBar(snackBar);
+  }
+
+  _showFlushBar(BuildContext context, String msg) {
+    Flushbar(
+      // title: "Hey Ninja",
+      message: msg,
+      duration: const Duration(seconds: 3),
+    ).show(context);
   }
 
   Future<HttpClientRequest> _addCookiesToRequest(
@@ -969,6 +982,7 @@ class HejtoApi {
     required String communitySlug,
     required BuildContext context,
     required bool isNsfw,
+    List<PhotoToUpload>? images,
   }) async {
     final accessToken = await _getAccessToken(context);
     if (accessToken == null) return false;
@@ -978,6 +992,7 @@ class HejtoApi {
       'community': communitySlug,
       'content': content,
       'tags': [],
+      'images': images,
       'nsfw': isNsfw,
     };
 
@@ -1002,11 +1017,56 @@ class HejtoApi {
 
     if (response.statusCode == 201) {
       return true;
-    } else {
-      _showSnackBar(
-        'Dodawanie posta nie powiodło się: (${response.statusCode})',
-      );
+    } else if (response.statusCode == 429) {
+      _showFlushBar(context, 'Przekroczono limit');
       return false;
+    } else {
+      _showFlushBar(context, 'Błąd dodawania posta: ${response.statusCode}');
+      return false;
+    }
+  }
+
+  // Below method needs a multipart request
+  // which is missing in HttpClient library
+  Future<String?> createUpload({
+    required BuildContext context,
+    required Uint8List picture,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return null;
+
+    final queryParameters = {
+      'target': 'post',
+      'source': 'file',
+    };
+
+    final uri = Uri.https(hejtoApiUrl, '/uploads', queryParameters);
+    var request = http.MultipartRequest('POST', uri);
+
+    final httpImage = http.MultipartFile.fromBytes(
+      'image',
+      picture,
+      filename: 'image',
+    );
+
+    request.files.add(httpImage);
+
+    request.headers.addAll({
+      "content-type": "application/json; charset=utf-8",
+      "Authorization": 'Bearer $accessToken',
+    });
+
+    final response = await request.send();
+    final responseString = await response.stream.bytesToString();
+
+    if (response.statusCode == 201) {
+      return jsonDecode(responseString)['uuid'];
+    } else if (response.statusCode == 429) {
+      _showFlushBar(context, 'Przekroczono limit');
+      return null;
+    } else {
+      _showFlushBar(context, 'Błąd dodawania posta: ${response.statusCode}');
+      return null;
     }
   }
 }

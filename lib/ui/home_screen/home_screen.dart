@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 
 import 'package:hejtter/logic/cubit/search_cubit.dart';
+import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/home_screen/add_post_dialog.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
@@ -25,12 +26,16 @@ class _HomeScreenState extends State<HomeScreen> {
     String content,
     bool isNsfw,
     String communitySlug,
+    List<PhotoToUpload>? images,
   ) async {
+    final List<dynamic> imagesJsons = List.empty(growable: true);
+
     final result = await hejtoApi.createPost(
       context: context,
       content: content,
       isNsfw: isNsfw,
       communitySlug: communitySlug,
+      images: images,
     );
 
     if (result && mounted) {
@@ -78,14 +83,16 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.black,
       builder: (BuildContext context) {
-        return SingleChildScrollView(
-            child: Container(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            top: MediaQuery.of(context).viewInsets.top,
-          ),
-          child: AddPostDialog(addPost: _addPost),
-        ));
+        return SizedBox(
+          child: SingleChildScrollView(
+              child: Container(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              top: MediaQuery.of(context).viewInsets.top,
+            ),
+            child: AddPostDialog(addPost: _addPost),
+          )),
+        );
       },
     );
   }

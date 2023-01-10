@@ -1,7 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hejtter/models/communities_response.dart';
+import 'package:hejtter/models/photo_to_upload.dart';
+import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/home_screen/communities_dialog.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddPostDialog extends StatefulWidget {
   const AddPostDialog({
@@ -9,34 +14,112 @@ class AddPostDialog extends StatefulWidget {
     required this.addPost,
   }) : super(key: key);
 
-  final Future<bool> Function(String, bool, String) addPost;
+  final Future<bool> Function(
+    String,
+    bool,
+    String,
+    List<PhotoToUpload>?,
+  ) addPost;
 
   @override
   State<AddPostDialog> createState() => _AddPostDialogState();
 }
 
 class _AddPostDialogState extends State<AddPostDialog> {
-  bool isPostAdding = false;
+  bool _isPostAdding = false;
   bool _isNsfw = false;
   final _textController = TextEditingController();
   final _communitiesController = TextEditingController();
+  List<PhotoToUpload> _postPhotos = List.empty(growable: true);
 
   Community? _chosenCommunity;
 
   _startAddingPost() async {
     setState(() {
-      isPostAdding = true;
+      _isPostAdding = true;
     });
 
     await widget.addPost(
       _textController.text,
       _isNsfw,
       _chosenCommunity?.slug ?? 'Dyskusje',
+      _postPhotos,
     );
 
     setState(() {
-      isPostAdding = false;
+      _isPostAdding = false;
     });
+  }
+
+  void _loadPhotoFromStorage() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    final photoXFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (photoXFile == null) return;
+
+    final tmpCroppedPhoto = await ImageCropper().cropImage(
+      maxWidth: 1024,
+      maxHeight: 1024,
+      sourcePath: photoXFile.path,
+      compressQuality: 90,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Edit cover',
+          toolbarColor: Colors.black,
+          statusBarColor: Colors.black,
+          toolbarWidgetColor: Colors.white,
+          backgroundColor: Colors.black87,
+          cropGridColor: Colors.black87,
+          activeControlsWidgetColor:
+              (mounted) ? Theme.of(context).primaryColor : Colors.teal,
+          cropFrameColor: Colors.black87,
+          lockAspectRatio: false,
+          hideBottomControls: false,
+        ),
+      ],
+    );
+
+    if (tmpCroppedPhoto == null) return;
+
+    final potoBytes = await tmpCroppedPhoto.readAsBytes();
+    final updatedPostphotos = await _updatePhotoList(potoBytes);
+
+    setState(() {
+      _postPhotos = updatedPostphotos;
+    });
+  }
+
+  Future<List<PhotoToUpload>> _updatePhotoList(Uint8List potoBytes) async {
+    final position = _postPhotos.length + 1;
+
+    var updatedPostphotos = _postPhotos;
+    updatedPostphotos.add(PhotoToUpload(
+      bytes: potoBytes,
+      position: position,
+    ));
+
+    setState(() {
+      _postPhotos = updatedPostphotos;
+    });
+
+    final uuid = await hejtoApi.createUpload(
+      context: context,
+      picture: potoBytes,
+    );
+
+    updatedPostphotos = _postPhotos;
+    updatedPostphotos[updatedPostphotos.indexWhere(
+      (element) => element.position == position,
+    )] = PhotoToUpload(
+      bytes: potoBytes,
+      position: position,
+      uuid: uuid,
+    );
+
+    return updatedPostphotos;
   }
 
   @override
@@ -81,8 +164,11 @@ class _AddPostDialogState extends State<AddPostDialog> {
               ),
               const SizedBox(width: 20),
               _buildSearchCommunities(),
+              _buildPictureAdding(),
             ],
           ),
+          _buildPicturePreviews(),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -91,10 +177,10 @@ class _AddPostDialogState extends State<AddPostDialog> {
                     foregroundColor: Colors.white,
                     backgroundColor: primaryColor,
                   ),
-                  onPressed: isPostAdding || _chosenCommunity == null
+                  onPressed: _isPostAdding || _chosenCommunity == null
                       ? null
                       : _startAddingPost,
-                  child: isPostAdding
+                  child: _isPostAdding
                       ? const CircularProgressIndicator()
                       : const Text('Dodaj'),
                 ),
@@ -104,6 +190,87 @@ class _AddPostDialogState extends State<AddPostDialog> {
           const SizedBox(height: 10),
         ],
       ),
+    );
+  }
+
+  Widget _buildPicturePreviews() {
+    final widgets = List<Widget>.empty(growable: true);
+
+    for (var photo in _postPhotos) {
+      if (photo.uuid != null) {
+        widgets.add(
+          _buildUploadedPicturePreview(photo),
+        );
+      } else {
+        widgets.add(
+          _buildUploadingPicturePreview(),
+        );
+      }
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(children: widgets),
+    );
+  }
+
+  Container _buildUploadingPicturePreview() {
+    return Container(
+      padding: const EdgeInsets.only(right: 20),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        width: 32,
+        height: 32,
+        child: const CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Padding _buildUploadedPicturePreview(PhotoToUpload photo) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: GestureDetector(
+        onTap: () {
+          final updatedPostPhotos = _postPhotos;
+
+          updatedPostPhotos.removeWhere(
+            (element) => element.uuid == photo.uuid,
+          );
+
+          final reorganizedPostPhotos = List<PhotoToUpload>.empty(
+            growable: true,
+          );
+
+          var index = 1;
+          for (var photo in updatedPostPhotos) {
+            reorganizedPostPhotos.add(
+              PhotoToUpload(
+                bytes: photo.bytes,
+                position: index,
+                uuid: photo.uuid,
+              ),
+            );
+
+            index++;
+          }
+
+          setState(() {
+            _postPhotos = reorganizedPostPhotos;
+          });
+        },
+        child: Image.memory(
+          photo.bytes,
+          width: 100,
+          height: 100,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPictureAdding() {
+    return IconButton(
+      onPressed: _loadPhotoFromStorage,
+      icon: const Icon(Icons.image),
     );
   }
 
