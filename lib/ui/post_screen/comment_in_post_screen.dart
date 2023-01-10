@@ -161,7 +161,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
         const SizedBox(width: 35),
         Expanded(
           child: MarkdownBody(
-            data: _addEmojis('${comment?.content}'),
+            data: _addEmojis(comment?.content ?? ''),
             styleSheet:
                 MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
               blockquoteDecoration: BoxDecoration(

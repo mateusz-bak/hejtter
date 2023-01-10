@@ -596,14 +596,10 @@ class _PostScreenState extends State<PostScreen> {
         builderDelegate: PagedChildBuilderDelegate<CommentItem>(
           noItemsFoundIndicatorBuilder: (context) => const SizedBox(),
           itemBuilder: (context, item, index) {
-            if (item.content != null) {
-              return CommentInPostScreen(
-                comment: item,
-                respondToUser: _respondToUser,
-              );
-            } else {
-              return const SizedBox();
-            }
+            return CommentInPostScreen(
+              comment: item,
+              respondToUser: _respondToUser,
+            );
           },
         ),
       ),
