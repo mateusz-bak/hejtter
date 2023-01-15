@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
+import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
@@ -318,6 +319,30 @@ class HejtoApi {
     final stringData = await response.transform(utf8.decoder).join();
 
     _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 401) {
+      _showFlushBar(
+        context,
+        'Sesja wygasła :( przekierowanie na stronę logowania',
+      );
+
+      await Future.delayed(const Duration(seconds: 3));
+
+      BlocProvider.of<AuthBloc>(context).add(
+        const LogOutAuthEvent(),
+      );
+
+      BlocProvider.of<ProfileBloc>(context).add(
+        const ClearProfileEvent(),
+      );
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => const LoginScreen(),
+        ),
+        (Route<dynamic> route) => false,
+      );
+    }
 
     return postFromJson(stringData).embedded?.items;
   }
