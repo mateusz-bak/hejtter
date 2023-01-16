@@ -805,6 +805,15 @@ class _PostScreenState extends State<PostScreen> {
             return CommentInPostScreen(
               comment: item,
               respondToUser: _respondToUser,
+              refreshPost: () async {
+                await _refreshPostAndComments();
+                await Future.delayed(const Duration(milliseconds: 500));
+                _scrollController.animateTo(
+                  _scrollController.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.ease,
+                );
+              },
             );
           },
         ),

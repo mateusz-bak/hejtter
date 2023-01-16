@@ -21,12 +21,12 @@ class AnswerButton extends StatelessWidget {
         children: [
           Icon(
             Icons.comment,
-            size: isSmaller ? 16 : 20,
+            size: isSmaller ? 16 : 18,
           ),
           const SizedBox(width: 10),
           Text(
             'Odpowiedz',
-            style: TextStyle(fontSize: isSmaller ? 12 : null),
+            style: TextStyle(fontSize: isSmaller ? 11 : 13),
           ),
         ],
       ),

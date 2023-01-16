@@ -3,7 +3,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
@@ -20,11 +22,13 @@ class CommentInPostScreen extends StatefulWidget {
   const CommentInPostScreen({
     required this.comment,
     required this.respondToUser,
+    required this.refreshPost,
     super.key,
   });
 
   final CommentItem comment;
   final Function(String?) respondToUser;
+  final Function() refreshPost;
 
   @override
   State<CommentInPostScreen> createState() => _CommentInPostScreenState();
@@ -32,6 +36,29 @@ class CommentInPostScreen extends StatefulWidget {
 
 class _CommentInPostScreenState extends State<CommentInPostScreen> {
   CommentItem? comment;
+
+  final moreButtonOptions = {
+    // 'Edytuj',
+    'Usuń',
+  };
+
+  _removeComment() async {
+    if (comment?.postSlug == null || comment?.uuid == null) return;
+
+    final result = await hejtoApi.removeComment(
+      postSlug: comment!.postSlug!,
+      uuid: comment!.uuid!,
+      context: context,
+    );
+
+    if (result && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Komenatrz usunięty')),
+      );
+
+      widget.refreshPost();
+    }
+  }
 
   _setTimeAgoLocale() {
     timeago.setLocaleMessages('pl', timeago.PlMessages());
@@ -119,6 +146,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
                 ],
               ),
             ),
+            _buildMoreButton(comment?.author?.username),
             _buildLikes(comment?.numLikes, context),
           ],
         ),
@@ -134,6 +162,35 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
         ),
         const SizedBox(height: 0),
       ],
+    );
+  }
+
+  Widget _buildMoreButton(String? author) {
+    return BlocBuilder<ProfileBloc, ProfileState>(
+      builder: (context, state) {
+        if (state is ProfilePresentState && state.username == author) {
+          return PopupMenuButton<String>(
+            onSelected: (_) {},
+            itemBuilder: (BuildContext context) {
+              return moreButtonOptions.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                  onTap: () {
+                    if (choice == 'Edytuj') {
+                      // _editComment();
+                    } else if (choice == 'Usuń') {
+                      _removeComment();
+                    }
+                  },
+                );
+              }).toList();
+            },
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
     );
   }
 
@@ -241,7 +298,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 13,
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -262,7 +319,10 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
                   ? timeago.format(DateTime.parse('${comment?.createdAt}'),
                       locale: 'pl')
                   : 'null',
-              style: const TextStyle(fontSize: 11),
+              style: const TextStyle(
+                fontSize: 11,
+                letterSpacing: 0.05,
+              ),
             ),
           ],
         ),

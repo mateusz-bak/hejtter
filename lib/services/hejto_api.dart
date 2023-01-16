@@ -1128,4 +1128,37 @@ class HejtoApi {
       return false;
     }
   }
+
+  Future<bool> removeComment({
+    required String postSlug,
+    required String uuid,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.deleteUrl(Uri.https(
+      hejtoApiUrl,
+      '/posts/$postSlug/comments/$uuid',
+    ));
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      _showFlushBar(context, 'Błąd usuwania posta: ${response.statusCode}');
+
+      return false;
+    }
+  }
 }
