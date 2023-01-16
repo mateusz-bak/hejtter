@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -17,6 +18,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
 
 class PictureFullScreen extends StatefulWidget {
   const PictureFullScreen({
@@ -80,6 +84,22 @@ class _PictureFullScreenState extends State<PictureFullScreen>
     );
   }
 
+  _sharePicture() async {
+    final imageUrl = widget.imagesUrls?[currentIndex].urls?.the1200X900;
+    if (imageUrl == null) return;
+
+    final downloadPath = await getApplicationDocumentsDirectory();
+
+    final imageName = imageUrl.split('/').last;
+
+    http.get(Uri.parse(imageUrl)).then((response) {
+      Uint8List bodyBytes = response.bodyBytes;
+      File(path.join(downloadPath.path, imageName)).writeAsBytesSync(bodyBytes);
+
+      Share.shareXFiles([XFile(path.join(downloadPath.path, imageName))]);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,9 +117,13 @@ class _PictureFullScreenState extends State<PictureFullScreen>
               : const SizedBox(),
           actions: [
             IconButton(
+              onPressed: _sharePicture,
+              icon: const Icon(Icons.share),
+            ),
+            IconButton(
               onPressed: _downloadPicture,
               icon: const Icon(Icons.download),
-            )
+            ),
           ],
         ),
       ),
