@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hejtter/models/communities_response.dart';
-import 'package:hejtter/ui/posts_screen/posts_screen.dart';
+import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 
 class CommunityCard extends StatelessWidget {
@@ -20,13 +20,11 @@ class CommunityCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 0, top: 10),
       child: GestureDetector(
         onTap: (() {
-          if (item.name == null || item.slug == null) return;
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PostsScreen(
-                communityName: item.name!,
-                communitySlug: item.slug!,
+              builder: (context) => CommunityScreen(
+                community: item,
               ),
             ),
           );

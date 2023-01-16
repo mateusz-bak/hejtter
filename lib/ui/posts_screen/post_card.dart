@@ -4,9 +4,11 @@ import 'package:dart_emoji/dart_emoji.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:hejtter/models/communities_response.dart';
 
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/posts_screen/comment_in_post_card.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
@@ -468,9 +470,13 @@ class _PostCardState extends State<PostCard>
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PostsScreen(
-                    communityName: item!.community!.name,
-                    communitySlug: item!.community!.slug,
+                  builder: (context) => CommunityScreen(
+                    community: Community(
+                      slug: item!.community?.slug,
+                      name: item!.community?.name,
+                      background: item!.community?.background,
+                      avatar: item!.community?.avatar,
+                    ),
                   ),
                 ),
               );
