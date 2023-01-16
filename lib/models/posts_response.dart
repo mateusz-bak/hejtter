@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:hejtter/models/avatar.dart';
+import 'package:hejtter/models/background.dart';
 import 'package:hejtter/models/post.dart';
 
 PostsResponse postFromJson(String str) =>
@@ -65,8 +67,8 @@ class ItemAuthor {
   });
 
   final String? username;
-  final CommunityAvatar? avatar;
-  final CommunityBackground? background;
+  final Avatar? avatar;
+  final Background? background;
   final String? status;
   final String? currentRank;
   final String? currentColor;
@@ -77,12 +79,10 @@ class ItemAuthor {
 
   factory ItemAuthor.fromJson(Map<String, dynamic> json) => ItemAuthor(
         username: json["username"],
-        avatar: json["avatar"] == null
-            ? null
-            : CommunityAvatar.fromJson(json["avatar"]),
+        avatar: json["avatar"] == null ? null : Avatar.fromJson(json["avatar"]),
         background: json["background"] == null
             ? null
-            : CommunityBackground.fromJson(json["background"]),
+            : Background.fromJson(json["background"]),
         status: json["status"],
         currentRank: json["current_rank"],
         currentColor: json["current_color"],
@@ -94,74 +94,6 @@ class ItemAuthor {
         links: json["_links"] == null
             ? null
             : AuthorLinks.fromJson(json["_links"]),
-      );
-}
-
-class CommunityAvatar {
-  CommunityAvatar({
-    this.urls,
-    this.uuid,
-    this.alt,
-  });
-
-  final AvatarUrls? urls;
-  final String? uuid;
-  final String? alt;
-
-  factory CommunityAvatar.fromJson(Map<String, dynamic> json) =>
-      CommunityAvatar(
-        urls: AvatarUrls.fromJson(json["urls"]),
-        uuid: json["uuid"],
-        alt: json["alt"],
-      );
-}
-
-class AvatarUrls {
-  AvatarUrls({
-    this.the100X100,
-    this.the250X250,
-  });
-
-  final String? the100X100;
-  final String? the250X250;
-
-  factory AvatarUrls.fromJson(Map<String, dynamic> json) => AvatarUrls(
-        the100X100: json["100x100"],
-        the250X250: json["250x250"],
-      );
-}
-
-class CommunityBackground {
-  CommunityBackground({
-    this.urls,
-    this.uuid,
-    this.alt,
-  });
-
-  final BackgroundUrls? urls;
-  final String? uuid;
-  final String? alt;
-
-  factory CommunityBackground.fromJson(Map<String, dynamic> json) =>
-      CommunityBackground(
-        urls: BackgroundUrls.fromJson(json["urls"]),
-        uuid: json["uuid"],
-        alt: json["alt"],
-      );
-}
-
-class BackgroundUrls {
-  BackgroundUrls({
-    this.the400X300,
-    this.the1200X900,
-  });
-
-  final String? the400X300;
-  final String? the1200X900;
-
-  factory BackgroundUrls.fromJson(Map<String, dynamic> json) => BackgroundUrls(
-        the400X300: json["400x300"],
-        the1200X900: json["1200x900"],
       );
 }
 
@@ -326,18 +258,16 @@ class CommunityShort {
 
   final String? name;
   final String? slug;
-  final CommunityAvatar? avatar;
-  final CommunityBackground? background;
+  final Avatar? avatar;
+  final Background? background;
 
   factory CommunityShort.fromJson(Map<String, dynamic> json) => CommunityShort(
         name: json["name"],
         slug: json["slug"],
-        avatar: json["avatar"] == null
-            ? null
-            : CommunityAvatar.fromJson(json["avatar"]),
+        avatar: json["avatar"] == null ? null : Avatar.fromJson(json["avatar"]),
         background: json["background"] == null
             ? null
-            : CommunityBackground.fromJson(json["background"]),
+            : Background.fromJson(json["background"]),
       );
 }
 
