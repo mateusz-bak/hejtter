@@ -67,6 +67,11 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+            resValue "string", "app_name", "Hejtter"
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            resValue "string", "app_name", "Hejtter debug"
         }
     }
 }
