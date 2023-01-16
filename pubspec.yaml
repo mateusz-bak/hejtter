@@ -34,7 +34,6 @@ dependencies:
   equatable: ^2.0.5
   hydrated_bloc: ^9.0.0
   flutter_secure_storage: ^7.0.1
-  comment_box: ^0.0.18
   flutter_email_sender: ^5.2.0
   share_plus: ^6.3.0
   image_picker: ^0.8.6

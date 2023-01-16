@@ -273,7 +273,7 @@ class ContentLink {
   final String? type;
   final String? title;
   final List<dynamic>? audios;
-  final List<Image>? images;
+  final List<CommentImage>? images;
   final List<Video>? videos;
   // final Favicon? favicon;
   final String? description;
@@ -288,7 +288,7 @@ class ContentLink {
             : List<dynamic>.from(json["audios"].map((x) => x)),
         images: json["images"] == null
             ? null
-            : List<Image>.from(json["images"].map((x) => Image.fromJson(x))),
+            : List<CommentImage>.from(json["images"].map((x) => CommentImage.fromJson(x))),
         videos: json["videos"] == null
             ? null
             : List<Video>.from(json["videos"].map((x) => Video.fromJson(x))),
@@ -313,8 +313,8 @@ class Favicon {
       );
 }
 
-class Image {
-  Image({
+class CommentImage {
+  CommentImage({
     this.url,
     this.safe,
     this.width,
@@ -326,7 +326,7 @@ class Image {
   final int? width;
   final int? height;
 
-  factory Image.fromJson(Map<String, dynamic> json) => Image(
+  factory CommentImage.fromJson(Map<String, dynamic> json) => CommentImage(
         url: json["url"],
         safe: json["safe"],
         width: json["width"],

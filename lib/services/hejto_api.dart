@@ -661,6 +661,7 @@ class HejtoApi {
     required String? slug,
     required String content,
     required BuildContext context,
+    List<PhotoToUpload>? images,
   }) async {
     if (slug == null) return false;
 
@@ -669,6 +670,7 @@ class HejtoApi {
 
     final body = {
       'content': content,
+      'images': images,
     };
 
     HttpClientRequest request = await client.postUrl(

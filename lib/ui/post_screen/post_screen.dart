@@ -1,8 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 
-import 'package:comment_box/comment/comment.dart';
-
 import 'package:dart_emoji/dart_emoji.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +9,7 @@ import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
+import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/post_screen/answer_button.dart';
@@ -19,6 +19,8 @@ import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/posts_screen/posts_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -69,6 +71,8 @@ class _PostScreenState extends State<PostScreen> {
     'Udostępnij',
     'Zgłoś',
   };
+
+  List<PhotoToUpload> _postPhotos = List.empty(growable: true);
 
   _goToUserScreen() {
     Navigator.push(
@@ -188,6 +192,11 @@ class _PostScreenState extends State<PostScreen> {
   _sendComment() async {
     final message = _commentController.text;
 
+    if (message.isEmpty && !focusNode.hasFocus) {
+      focusNode.requestFocus();
+      return;
+    }
+
     if (message.isNotEmpty) {
       FocusScope.of(context).unfocus();
 
@@ -195,9 +204,16 @@ class _PostScreenState extends State<PostScreen> {
         slug: post.slug,
         content: _commentController.text,
         context: context,
+        images: _postPhotos,
       );
 
       if (commentCreated) {
+        setState(() {
+          _postPhotos = List.empty(growable: true);
+        });
+
+        focusNode.unfocus();
+
         await _refreshPostAndComments();
         await Future.delayed(const Duration(milliseconds: 500));
         _scrollController.animateTo(
@@ -342,6 +358,77 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
+  void _loadPhotoFromStorage() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    final photoXFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (photoXFile == null) return;
+
+    final tmpCroppedPhoto = await ImageCropper().cropImage(
+      maxWidth: 1024,
+      maxHeight: 1024,
+      sourcePath: photoXFile.path,
+      compressQuality: 90,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Edit cover',
+          toolbarColor: Colors.black,
+          statusBarColor: Colors.black,
+          toolbarWidgetColor: Colors.white,
+          backgroundColor: Colors.black87,
+          cropGridColor: Colors.black87,
+          activeControlsWidgetColor:
+              (mounted) ? Theme.of(context).primaryColor : Colors.teal,
+          cropFrameColor: Colors.black87,
+          lockAspectRatio: false,
+          hideBottomControls: false,
+        ),
+      ],
+    );
+
+    if (tmpCroppedPhoto == null) return;
+
+    final potoBytes = await tmpCroppedPhoto.readAsBytes();
+    final updatedPostphotos = await _updatePhotoList(potoBytes);
+
+    setState(() {
+      _postPhotos = updatedPostphotos;
+    });
+  }
+
+  Future<List<PhotoToUpload>> _updatePhotoList(Uint8List potoBytes) async {
+    final position = _postPhotos.length + 1;
+
+    var updatedPostphotos = _postPhotos;
+    updatedPostphotos.add(PhotoToUpload(
+      bytes: potoBytes,
+      position: position,
+    ));
+
+    setState(() {
+      _postPhotos = updatedPostphotos;
+    });
+
+    final uuid = await hejtoApi.createUpload(
+      context: context,
+      picture: potoBytes,
+    );
+
+    updatedPostphotos = _postPhotos;
+    updatedPostphotos[updatedPostphotos.indexWhere(
+      (element) => element.position == position,
+    )] = PhotoToUpload(
+      bytes: potoBytes,
+      position: position,
+      uuid: uuid,
+    );
+
+    return updatedPostphotos;
+  }
+
   @override
   void initState() {
     _pagingController.addPageRequestListener((pageKey) {
@@ -407,23 +494,61 @@ class _PostScreenState extends State<PostScreen> {
                 ),
               ],
             ),
-            body: CommentBox(
-              focusNode: focusNode,
-              userImage: CommentBox.commentImageParser(
-                imageURLorPath: state.avatar ?? defaultAvatar,
+            body: _buildPost(),
+            bottomSheet: Container(
+              color: backgroundColor,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.white.withAlpha(10),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Scrollbar(
+                              child: TextField(
+                                focusNode: focusNode,
+                                controller: _commentController,
+                                keyboardType: TextInputType.multiline,
+                                maxLines: 3,
+                                minLines: 1,
+                                expands: false,
+                                decoration: const InputDecoration.collapsed(
+                                  hintText: null,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      GestureDetector(
+                        onTap: _loadPhotoFromStorage,
+                        child: const Icon(
+                          Icons.image,
+                          color: primaryColor,
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      GestureDetector(
+                        onTap: _sendComment,
+                        child: const Icon(
+                          Icons.send_sharp,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  _buildPicturePreviews(),
+                ],
               ),
-              labelText: 'Skomentuj',
-              withBorder: false,
-              sendButtonMethod: _sendComment,
-              commentController: _commentController,
-              backgroundColor: backgroundColor,
-              textColor: Colors.white,
-              sendWidget: const Icon(
-                Icons.send_sharp,
-                size: 24,
-                color: Color(0xff2295F3),
-              ),
-              child: _buildPost(),
             ),
           );
         } else {
@@ -465,6 +590,87 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
+  Widget _buildPicturePreviews() {
+    final widgets = List<Widget>.empty(growable: true);
+
+    for (var photo in _postPhotos) {
+      if (photo.uuid != null) {
+        widgets.add(
+          _buildUploadedPicturePreview(photo),
+        );
+      } else {
+        widgets.add(
+          _buildUploadingPicturePreview(),
+        );
+      }
+    }
+
+    if (widgets.isEmpty) {
+      return const SizedBox();
+    } else {
+      return Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: widgets),
+        ),
+      );
+    }
+  }
+
+  Container _buildUploadingPicturePreview() {
+    return Container(
+      padding: const EdgeInsets.only(right: 20),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        width: 32,
+        height: 32,
+        child: const CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Padding _buildUploadedPicturePreview(PhotoToUpload photo) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: GestureDetector(
+        onTap: () {
+          final updatedPostPhotos = _postPhotos;
+
+          updatedPostPhotos.removeWhere(
+            (element) => element.uuid == photo.uuid,
+          );
+
+          final reorganizedPostPhotos = List<PhotoToUpload>.empty(
+            growable: true,
+          );
+
+          var index = 1;
+          for (var photo in updatedPostPhotos) {
+            reorganizedPostPhotos.add(
+              PhotoToUpload(
+                bytes: photo.bytes,
+                position: index,
+                uuid: photo.uuid,
+              ),
+            );
+
+            index++;
+          }
+
+          setState(() {
+            _postPhotos = reorganizedPostPhotos;
+          });
+        },
+        child: Image.memory(
+          photo.bytes,
+          width: 100,
+          height: 100,
+        ),
+      ),
+    );
+  }
+
   Widget _buildPost() {
     return Container(
       color: backgroundColor,
@@ -476,7 +682,7 @@ class _PostScreenState extends State<PostScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           controller: _scrollController,
           child: Padding(
-            padding: const EdgeInsets.all(5),
+            padding: const EdgeInsets.fromLTRB(5, 5, 5, 200),
             child: Material(
               color: backgroundColor,
               child: Card(
