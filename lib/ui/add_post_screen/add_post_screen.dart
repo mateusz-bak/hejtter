@@ -9,8 +9,8 @@ import 'package:hejtter/utils/constants.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-class AddPostDialog extends StatefulWidget {
-  const AddPostDialog({
+class AddPostScreen extends StatefulWidget {
+  const AddPostScreen({
     Key? key,
     required this.addPost,
   }) : super(key: key);
@@ -23,12 +23,13 @@ class AddPostDialog extends StatefulWidget {
   ) addPost;
 
   @override
-  State<AddPostDialog> createState() => _AddPostDialogState();
+  State<AddPostScreen> createState() => _AddPostScreenState();
 }
 
-class _AddPostDialogState extends State<AddPostDialog> {
+class _AddPostScreenState extends State<AddPostScreen> {
   bool _isPostAdding = false;
   bool _isNsfw = false;
+  bool _isMinLength = false;
   final _textController = TextEditingController();
   final _communitiesController = TextEditingController();
   List<PhotoToUpload> _postPhotos = List.empty(growable: true);
@@ -132,72 +133,100 @@ class _AddPostDialogState extends State<AddPostDialog> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _textController.addListener(() {
+      if (_textController.text.length > 2) {
+        setState(() {
+          _isMinLength = true;
+        });
+      } else {
+        setState(() {
+          _isMinLength = false;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      color: backgroundColor,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'Nowy wpis',
-            style: TextStyle(fontSize: 20),
-          ),
-          const SizedBox(height: 20),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: Colors.white.withAlpha(10),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(5),
-              child: TextField(
-                autofocus: true,
-                controller: _textController,
-                keyboardType: TextInputType.multiline,
-                maxLines: 8,
-                decoration: const InputDecoration.collapsed(hintText: null),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  _buildNsfwBox(),
-                ],
-              ),
-              const SizedBox(width: 20),
-              _buildSearchCommunities(),
-              _buildPictureAdding(),
-            ],
-          ),
-          _buildPicturePreviews(),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: primaryColor,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dodaj wpis'),
+        backgroundColor: backgroundColor,
+        scrolledUnderElevation: 0,
+      ),
+      backgroundColor: backgroundColor,
+      body: Container(
+        padding: const EdgeInsets.all(10),
+        color: backgroundColor,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: Colors.white.withAlpha(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Scrollbar(
+                    child: TextField(
+                      autofocus: true,
+                      controller: _textController,
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      minLines: null,
+                      expands: true,
+                      decoration:
+                          const InputDecoration.collapsed(hintText: null),
+                    ),
                   ),
-                  onPressed: _isPostAdding || _chosenCommunity == null
-                      ? null
-                      : _startAddingPost,
-                  child: _isPostAdding
-                      ? const CircularProgressIndicator()
-                      : const Text('Dodaj'),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 10),
-        ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    _buildNsfwBox(),
+                  ],
+                ),
+                const SizedBox(width: 20),
+                _buildSearchCommunities(),
+                _buildPictureAdding(),
+              ],
+            ),
+            _buildPicturePreviews(),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: primaryColor,
+                    ),
+                    onPressed: _isPostAdding ||
+                            _chosenCommunity == null ||
+                            !_isMinLength
+                        ? null
+                        : _startAddingPost,
+                    child: _isPostAdding
+                        ? const CircularProgressIndicator()
+                        : const Text('Dodaj'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
       ),
     );
   }
