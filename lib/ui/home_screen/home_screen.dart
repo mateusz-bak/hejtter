@@ -3,16 +3,29 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 
 import 'package:hejtter/logic/cubit/search_cubit.dart';
+import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/add_post_screen/add_post_screen.dart';
+import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
+import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
+import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  HomeScreen({
+    super.key,
+    this.navigateToPost,
+    this.navigateToUser,
+    this.navigateToCommunity,
+  });
+
+  String? navigateToPost;
+  String? navigateToUser;
+  String? navigateToCommunity;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -28,8 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
     String communitySlug,
     List<PhotoToUpload>? images,
   ) async {
-    final List<dynamic> imagesJsons = List.empty(growable: true);
-
     final result = await hejtoApi.createPost(
       context: context,
       content: content,
@@ -43,6 +54,48 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return result;
+  }
+
+  _openPostFromDeepLink() async {
+    await Future.delayed(const Duration(milliseconds: 0));
+
+    if (widget.navigateToPost != null) {
+      // ignore: use_build_context_synchronously
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PostScreen(
+            slug: widget.navigateToPost,
+          ),
+        ),
+      );
+    } else if (widget.navigateToUser != null) {
+      // ignore: use_build_context_synchronously
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UserScreen(
+            userName: widget.navigateToUser,
+          ),
+        ),
+      );
+    } else if (widget.navigateToCommunity != null) {
+      // ignore: use_build_context_synchronously
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CommunityScreen(
+            community: Community(name: widget.navigateToCommunity),
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _openPostFromDeepLink();
   }
 
   @override
@@ -81,24 +134,6 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (_) {
       return AddPostScreen(addPost: _addPost);
     }));
-
-    // showModalBottomSheet(
-    //   context: context,
-    //   isScrollControlled: true,
-    //   backgroundColor: Colors.black,
-    //   builder: (BuildContext context) {
-    //     return SizedBox(
-    //       child: SingleChildScrollView(
-    //           child: Container(
-    //         padding: EdgeInsets.only(
-    //           bottom: MediaQuery.of(context).viewInsets.bottom,
-    //           top: MediaQuery.of(context).viewInsets.top,
-    //         ),
-    //         child: AddPostDialog(addPost: _addPost),
-    //       )),
-    //     );
-    //   },
-    // );
   }
 
   IconButton _buildSearchButton(BuildContext context) {

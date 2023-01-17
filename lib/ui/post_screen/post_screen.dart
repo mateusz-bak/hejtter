@@ -456,6 +456,18 @@ class _PostScreenState extends State<PostScreen> {
   Widget build(BuildContext context) {
     _setTimeAgoLocale();
 
+    if (post.title == null) {
+      return Scaffold(
+        backgroundColor: backgroundColor,
+        appBar: AppBar(
+          backgroundColor: backgroundColor,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return BlocBuilder<ProfileBloc, ProfileState>(
       builder: (context, state) {
         if (state is ProfilePresentState) {

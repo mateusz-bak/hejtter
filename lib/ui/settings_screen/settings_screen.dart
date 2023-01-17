@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/settings_screen/deep_links_dialog.dart';
 import 'package:hejtter/ui/settings_screen/settings_section.dart';
 import 'package:hejtter/ui/settings_screen/switch_setting.dart';
 import 'package:hejtter/ui/settings_screen/text_setting.dart';
@@ -151,6 +153,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(children: [
                 _buildAccountPreferences(),
                 _buildUnloggedBlacklist(),
+                const SettingsSection(
+                  title: 'Aplikacja',
+                  leading: Icons.tune,
+                ),
+                TextSetting(
+                  title: 'Otwieraj linki w aplikacji',
+                  onPressed: () {
+                    final state = context.read<PreferencesBloc>().state;
+
+                    if (state is PreferencesSet) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return DeepLinksDialog(state: state);
+                        },
+                      );
+                    }
+                  },
+                ),
                 const SettingsSection(
                   title: 'O aplikacji',
                   leading: Icons.smartphone,

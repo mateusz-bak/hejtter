@@ -56,7 +56,7 @@ class HejtoDrawer extends StatelessWidget {
             title: const Text('Strona główna'),
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
+                MaterialPageRoute(builder: (context) => HomeScreen()),
                 (Route<dynamic> route) => false,
               );
             },
@@ -167,7 +167,7 @@ class HejtoDrawer extends StatelessWidget {
           );
         } else {
           return ListTile(
-            title: const Text('Zaloguj się w aplikacji'),
+            title: const Text('Zaloguj się'),
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(

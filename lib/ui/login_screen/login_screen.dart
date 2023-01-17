@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
+import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
+import 'package:hejtter/ui/settings_screen/deep_links_dialog.dart';
 import 'package:hejtter/utils/constants.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -44,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
             );
 
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              MaterialPageRoute(builder: (context) => HomeScreen()),
               (Route<dynamic> route) => false,
             );
           },
@@ -65,12 +67,36 @@ class _LoginScreenState extends State<LoginScreen> {
       SkipLoginAuthEvent(
         onSuccess: () {
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => HomeScreen()),
             (Route<dynamic> route) => false,
           );
         },
       ),
     );
+  }
+
+  _showDialog() async {
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    // ignore: use_build_context_synchronously
+    final state = context.read<PreferencesBloc>().state;
+
+    if (state is PreferencesSet) {
+      if (!state.deepLinkDialogDisplayed) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return DeepLinksDialog(state: state);
+          },
+        );
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _showDialog();
   }
 
   @override
