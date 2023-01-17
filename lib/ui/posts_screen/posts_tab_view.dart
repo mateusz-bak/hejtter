@@ -52,6 +52,8 @@ class _PostsTabViewState extends State<PostsTabView> {
       PagingController(firstPageKey: 1);
   final PagingController<int, Post> _newPagingController =
       PagingController(firstPageKey: 1);
+  final PagingController<int, Post> _followedPagingController =
+      PagingController(firstPageKey: 1);
 
   List<Post> _filterLocallyBlockedUsers(List<Post> list) {
     final state = BlocProvider.of<ProfileBloc>(context).state;
@@ -175,15 +177,42 @@ class _PostsTabViewState extends State<PostsTabView> {
     }
   }
 
+  Future<void> _fetchFollowedPage(int pageKey) async {
+    try {
+      final newItems = await hejtoApi.getPosts(
+        pageKey: pageKey,
+        pageSize: _pageSize,
+        context: context,
+        orderBy: 'p.createdAt',
+        followed: true,
+      );
+
+      final isLastPage = newItems!.length < _pageSize;
+      if (isLastPage) {
+        if (!mounted) return;
+        _followedPagingController.appendLastPage(newItems);
+      } else {
+        if (!mounted) return;
+        final nextPageKey = pageKey + 1;
+        _followedPagingController.appendPage(newItems, nextPageKey);
+      }
+    } catch (error) {
+      _followedPagingController.error = error;
+    }
+  }
+
   List<Post> _removeDoubledPosts(
-    PagingController<int, dynamic> controller,
+    PagingController<int, Post> controller,
     List<Post> items,
   ) {
     final checkedItems = List<Post>.empty(growable: true);
     final currentList = controller.itemList;
+    if (currentList == null) {
+      return items;
+    }
 
     for (var item in items) {
-      if (currentList?.contains(item) != true) {
+      if (!currentList.any((element) => element.slug == item.slug)) {
         checkedItems.add(item);
       }
     }
@@ -198,6 +227,7 @@ class _PostsTabViewState extends State<PostsTabView> {
           _hotPagingController.refresh();
           _topPagingController.refresh();
           _newPagingController.refresh();
+          _followedPagingController.refresh();
         },
       );
     });
@@ -216,6 +246,9 @@ class _PostsTabViewState extends State<PostsTabView> {
     _newPagingController.addPageRequestListener((pageKey) {
       _fetchNewPage(pageKey);
     });
+    _followedPagingController.addPageRequestListener((pageKey) {
+      _fetchFollowedPage(pageKey);
+    });
 
     super.initState();
   }
@@ -225,6 +258,7 @@ class _PostsTabViewState extends State<PostsTabView> {
     _hotPagingController.dispose();
     _topPagingController.dispose();
     _newPagingController.dispose();
+    _followedPagingController.dispose();
 
     super.dispose();
   }
@@ -241,7 +275,7 @@ class _PostsTabViewState extends State<PostsTabView> {
           child: Container(
             color: backgroundColor,
             child: DefaultTabController(
-              length: 3,
+              length: 4,
               child: Column(
                 children: [
                   _buildTabBar(),
@@ -265,6 +299,9 @@ class _PostsTabViewState extends State<PostsTabView> {
                               topDropdown: _buildTopDropdown(),
                             ),
                             PostsTabBarView(controller: _newPagingController),
+                            PostsTabBarView(
+                              controller: _followedPagingController,
+                            ),
                           ],
                         ),
                       );
@@ -288,6 +325,7 @@ class _PostsTabViewState extends State<PostsTabView> {
           _buildTab(context, 0, 'Gorące'),
           _buildTab(context, 1, 'Top'),
           _buildTab(context, 2, 'Nowe'),
+          _buildTab(context, 3, 'Obserwowane'),
         ],
       );
     });
@@ -308,12 +346,20 @@ class _PostsTabViewState extends State<PostsTabView> {
               case 2:
                 _newPagingController.refresh();
                 break;
+              case 3:
+                _followedPagingController.refresh();
+                break;
             }
           } else {
             DefaultTabController.of(context)?.animateTo(index);
           }
         }),
-        child: Text(text),
+        child: FittedBox(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 13),
+          ),
+        ),
       ),
     );
   }
