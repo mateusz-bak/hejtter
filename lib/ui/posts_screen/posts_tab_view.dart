@@ -22,9 +22,11 @@ class PostsTabView extends StatefulWidget {
     this.focusNode,
     this.communitySlug,
     this.tagName,
+    this.showFollowedTab = false,
   });
 
   final bool showSearchBar;
+  final bool showFollowedTab;
   final String? communitySlug;
   final String? tagName;
   final FocusNode? focusNode;
@@ -246,9 +248,12 @@ class _PostsTabViewState extends State<PostsTabView> {
     _newPagingController.addPageRequestListener((pageKey) {
       _fetchNewPage(pageKey);
     });
-    _followedPagingController.addPageRequestListener((pageKey) {
-      _fetchFollowedPage(pageKey);
-    });
+
+    if (widget.showFollowedTab) {
+      _followedPagingController.addPageRequestListener((pageKey) {
+        _fetchFollowedPage(pageKey);
+      });
+    }
 
     super.initState();
   }
@@ -275,7 +280,7 @@ class _PostsTabViewState extends State<PostsTabView> {
           child: Container(
             color: backgroundColor,
             child: DefaultTabController(
-              length: 4,
+              length: widget.showFollowedTab ? 4 : 3,
               child: Column(
                 children: [
                   _buildTabBar(),
@@ -299,9 +304,11 @@ class _PostsTabViewState extends State<PostsTabView> {
                               topDropdown: _buildTopDropdown(),
                             ),
                             PostsTabBarView(controller: _newPagingController),
-                            PostsTabBarView(
-                              controller: _followedPagingController,
-                            ),
+                            widget.showFollowedTab
+                                ? PostsTabBarView(
+                                    controller: _followedPagingController,
+                                  )
+                                : const SizedBox(),
                           ],
                         ),
                       );
@@ -321,12 +328,18 @@ class _PostsTabViewState extends State<PostsTabView> {
       return TabBar(
         indicatorColor: const Color(0xff2295F3),
         indicatorPadding: const EdgeInsets.symmetric(horizontal: 12),
-        tabs: [
-          _buildTab(context, 0, 'Gorące'),
-          _buildTab(context, 1, 'Top'),
-          _buildTab(context, 2, 'Nowe'),
-          _buildTab(context, 3, 'Obserwowane'),
-        ],
+        tabs: widget.showFollowedTab
+            ? [
+                _buildTab(context, 0, 'Gorące'),
+                _buildTab(context, 1, 'Top'),
+                _buildTab(context, 2, 'Nowe'),
+                _buildTab(context, 3, 'Obserwowane')
+              ]
+            : [
+                _buildTab(context, 0, 'Gorące'),
+                _buildTab(context, 1, 'Top'),
+                _buildTab(context, 2, 'Nowe'),
+              ],
       );
     });
   }

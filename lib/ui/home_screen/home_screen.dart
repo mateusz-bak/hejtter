@@ -111,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: PostsTabView(
         showSearchBar: _showSearchBar,
         focusNode: focusNode,
+        showFollowedTab: true,
       ),
     );
   }
