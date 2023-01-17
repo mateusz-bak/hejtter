@@ -152,7 +152,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dodaj wpis'),
+        title: const Text(
+          'Dodaj wpis',
+          style: TextStyle(fontSize: 20),
+        ),
         backgroundColor: backgroundColor,
         scrolledUnderElevation: 0,
       ),

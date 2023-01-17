@@ -174,10 +174,9 @@ class _PostCardState extends State<PostCard>
                       _buildHotIcon(),
                       const SizedBox(width: 20),
                       Text(
-                        item?.numLikes != null
-                            ? item!.numLikes.toString()
-                            : 'null',
+                        item?.numLikes != null ? item!.numLikes.toString() : '',
                         style: TextStyle(
+                          fontWeight: FontWeight.bold,
                           color: item?.isLiked == true
                               ? const Color(0xffFFC009)
                               : null,
@@ -377,14 +376,21 @@ class _PostCardState extends State<PostCard>
 
     return GestureDetector(
       onTap: _goToUserScreen,
-      child: SizedBox(
-        height: 36,
-        width: 36,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: CachedNetworkImage(
-            imageUrl: avatarUrl ?? defaultAvatar,
-            errorWidget: (context, url, error) => const Icon(Icons.error),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: Container(
+          padding: const EdgeInsets.all(1),
+          color: Colors.white,
+          child: SizedBox(
+            height: 36,
+            width: 36,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: CachedNetworkImage(
+                imageUrl: avatarUrl ?? defaultAvatar,
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
           ),
         ),
       ),
@@ -438,20 +444,20 @@ class _PostCardState extends State<PostCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: item?.author?.currentColor != null
+            ? Color(
+                int.parse(
+                  item!.author!.currentColor!.replaceAll('#', '0xff'),
+                ),
+              )
+            : Colors.black,
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
         item?.author != null ? item!.author!.currentRank.toString() : 'null',
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 11,
-          color: item?.author?.currentColor != null
-              ? Color(
-                  int.parse(
-                    item!.author!.currentColor!.replaceAll('#', '0xff'),
-                  ),
-                )
-              : null,
+          color: Colors.white,
         ),
       ),
     );
@@ -484,10 +490,10 @@ class _PostCardState extends State<PostCard>
             child: Text(
               item?.community?.name != null
                   ? item!.community!.name.toString()
-                  : 'null',
+                  : '',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 15,
+                fontSize: 14,
               ),
               overflow: TextOverflow.ellipsis,
             ),

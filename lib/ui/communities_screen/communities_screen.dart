@@ -62,7 +62,10 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
       backgroundColor: backgroundColor,
       appBar: AppBar(
         backgroundColor: backgroundColor,
-        title: const Text('Społeczności'),
+        title: const Text(
+          'Społeczności',
+          style: TextStyle(fontSize: 20),
+        ),
       ),
       drawer: const HejtoDrawer(currentScreen: CurrentScreen.communities),
       body: Column(

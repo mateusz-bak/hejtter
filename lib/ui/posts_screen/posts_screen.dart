@@ -27,7 +27,10 @@ class _PostsScreenState extends State<PostsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.communityName ?? '#${widget.tagName}'),
+        title: Text(
+          widget.communityName ?? '#${widget.tagName}',
+          style: const TextStyle(fontSize: 20),
+        ),
         backgroundColor: backgroundColor,
         actions: [
           _buildSearchButton(context),

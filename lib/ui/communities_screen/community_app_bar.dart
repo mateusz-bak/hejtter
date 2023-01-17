@@ -34,10 +34,10 @@ class CommunityAppBar extends StatelessWidget {
               padding: const EdgeInsets.all(1),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(100),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(3),
+                borderRadius: BorderRadius.circular(100),
                 child: CachedNetworkImage(
                     height: 32,
                     width: 32,
@@ -51,7 +51,7 @@ class CommunityAppBar extends StatelessWidget {
             Expanded(
               child: Text(
                 '${community.name}',
-                style: const TextStyle(fontSize: 28, color: Colors.white),
+                style: const TextStyle(fontSize: 24, color: Colors.white),
                 textScaleFactor: 0.7,
               ),
             ),

@@ -159,13 +159,20 @@ class HejtoDrawer extends StatelessWidget {
               leading: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: CachedNetworkImage(
-                    height: 50,
-                    width: 50,
-                    imageUrl: avatar ?? defaultAvatar,
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
+                  borderRadius: BorderRadius.circular(100),
+                  child: Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.all(1),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: CachedNetworkImage(
+                        height: 42,
+                        width: 42,
+                        imageUrl: avatar ?? defaultAvatar,
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      ),
+                    ),
                   ),
                 ),
               ),

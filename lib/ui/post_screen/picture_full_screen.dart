@@ -113,6 +113,7 @@ class _PictureFullScreenState extends State<PictureFullScreen>
           title: (widget.imagesUrls != null && widget.imagesUrls!.length > 1)
               ? Text(
                   'Obraz ${currentIndex + 1}/${widget.imagesUrls?.length}',
+                  style: const TextStyle(fontSize: 20),
                 )
               : const SizedBox(),
           actions: [

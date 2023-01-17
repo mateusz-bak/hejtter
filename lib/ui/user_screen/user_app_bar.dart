@@ -31,7 +31,7 @@ class UserAppBar extends StatelessWidget {
           children: [
             Text(
               '${user.username}',
-              style: const TextStyle(fontSize: 28, color: Colors.white),
+              style: const TextStyle(fontSize: 24, color: Colors.white),
               overflow: TextOverflow.ellipsis,
               textScaleFactor: 0.7,
             ),
@@ -77,11 +77,11 @@ class UserAppBar extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  color: Colors.white38,
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(100),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(100),
                   child: CachedNetworkImage(
                       height: 136,
                       width: 136,

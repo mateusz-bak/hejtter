@@ -269,14 +269,21 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
 
     return GestureDetector(
       onTap: () => _goToUserScreen(context),
-      child: SizedBox(
-        height: 28,
-        width: 28,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(7),
-          child: CachedNetworkImage(
-            imageUrl: avatarUrl ?? defaultAvatar,
-            errorWidget: (context, url, error) => const Icon(Icons.error),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(1),
+          child: SizedBox(
+            height: 28,
+            width: 28,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: CachedNetworkImage(
+                imageUrl: avatarUrl ?? defaultAvatar,
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
           ),
         ),
       ),

@@ -513,20 +513,20 @@ class _UserScreenState extends State<UserScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: data.currentColor != null
+            ? Color(
+                int.parse(
+                  data.currentColor!.replaceAll('#', '0xff'),
+                ),
+              )
+            : Colors.black,
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
         data.currentRank!,
-        style: TextStyle(
+        style: const TextStyle(
           fontWeight: FontWeight.bold,
-          color: data.currentColor != null
-              ? Color(
-                  int.parse(
-                    data.currentColor!.replaceAll('#', '0xff'),
-                  ),
-                )
-              : null,
+          color: Colors.white,
         ),
       ),
     );

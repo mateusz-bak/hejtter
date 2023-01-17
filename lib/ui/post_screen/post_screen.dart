@@ -737,8 +737,9 @@ class _PostScreenState extends State<PostScreen> {
                           Text(
                             post.numLikes != null
                                 ? post.numLikes.toString()
-                                : 'null',
+                                : '',
                             style: TextStyle(
+                              fontWeight: FontWeight.bold,
                               color: post.isLiked == true
                                   ? const Color(0xffFFC009)
                                   : null,
@@ -922,14 +923,21 @@ class _PostScreenState extends State<PostScreen> {
 
     return GestureDetector(
       onTap: _goToUserScreen,
-      child: SizedBox(
-        height: 36,
-        width: 36,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(7),
-          child: CachedNetworkImage(
-            imageUrl: avatarUrl ?? defaultAvatar,
-            errorWidget: (context, url, error) => const Icon(Icons.error),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        child: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(1),
+          child: SizedBox(
+            height: 36,
+            width: 36,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: CachedNetworkImage(
+                imageUrl: avatarUrl ?? defaultAvatar,
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
           ),
         ),
       ),
@@ -982,20 +990,20 @@ class _PostScreenState extends State<PostScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: post.author?.currentColor != null
+            ? Color(
+                int.parse(
+                  post.author!.currentColor!.replaceAll('#', '0xff'),
+                ),
+              )
+            : Colors.black,
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
         post.author != null ? post.author!.currentRank.toString() : 'null',
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 12,
-          color: post.author?.currentColor != null
-              ? Color(
-                  int.parse(
-                    post.author!.currentColor!.replaceAll('#', '0xff'),
-                  ),
-                )
-              : null,
+          color: Colors.white,
         ),
       ),
     );
@@ -1026,10 +1034,10 @@ class _PostScreenState extends State<PostScreen> {
             child: Text(
               post.community?.name != null
                   ? post.community!.name.toString()
-                  : 'null',
+                  : '',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 15,
+                fontSize: 14,
               ),
               overflow: TextOverflow.ellipsis,
             ),

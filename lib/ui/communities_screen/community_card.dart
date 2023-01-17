@@ -41,7 +41,7 @@ class CommunityCard extends StatelessWidget {
                   height: 80,
                   width: 80,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(100),
                     child: CachedNetworkImage(
                       imageUrl: '${item.avatar?.urls?.the100X100}',
                       errorWidget: (context, url, error) =>

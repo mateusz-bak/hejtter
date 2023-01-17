@@ -102,7 +102,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hejtter'),
+        title: const Text(
+          'Hejtter',
+          style: TextStyle(fontSize: 20),
+        ),
         backgroundColor: backgroundColor,
         actions: [_buildSearchButton(context)],
       ),
