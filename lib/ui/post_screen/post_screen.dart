@@ -9,9 +9,11 @@ import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
+import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/ui/post_screen/answer_button.dart';
 import 'package:hejtter/ui/post_screen/comment_in_post_screen.dart';
 import 'package:hejtter/models/comments_response.dart';
@@ -1010,9 +1012,13 @@ class _PostScreenState extends State<PostScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PostsScreen(
-                    communityName: post.community!.name,
-                    communitySlug: post.community!.slug,
+                  builder: (context) => CommunityScreen(
+                    community: Community(
+                      slug: post.community?.slug,
+                      name: post.community?.name,
+                      background: post.community?.background,
+                      avatar: post.community?.avatar,
+                    ),
                   ),
                 ),
               );
