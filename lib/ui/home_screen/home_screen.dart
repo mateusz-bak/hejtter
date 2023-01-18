@@ -122,8 +122,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 bottomNavBarIndex == 0 ? [_buildSearchButton(context)] : null,
           ),
           drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
-          floatingActionButton:
-              bottomNavBarIndex == 0 ? _buildNewPostFAB() : null,
+          floatingActionButton: bottomNavBarIndex == 0
+              ? _buildNewPostFAB()
+              : _buildReadNotificationsFAB(),
           body: bottomNavBarIndex == 0
               ? PostsTabView(
                   showSearchBar: _showSearchBar,
@@ -218,6 +219,17 @@ class _HomeScreenState extends State<HomeScreen> {
           return const SizedBox();
         }
       },
+    );
+  }
+
+  Widget _buildReadNotificationsFAB() {
+    return FloatingActionButton.extended(
+      onPressed: () async {
+        await hejtoApi.markAllNotificationsAsRead(context: context);
+      },
+      isExtended: true,
+      icon: const Icon(Icons.task_alt),
+      label: const Text('Odczytaj wszystkie'),
     );
   }
 
