@@ -45,7 +45,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           ),
         );
 
-        _updateUnreadCounter(_myNotificationsPagingController);
+        _updateUnreadCounter();
       } else {
         final nextPageKey = pageKey + 1;
         if (!mounted) return;
@@ -57,7 +57,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           nextPageKey,
         );
 
-        _updateUnreadCounter(_myNotificationsPagingController);
+        _updateUnreadCounter();
       }
     } catch (error) {
       _myNotificationsPagingController.error = error;
@@ -83,7 +83,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           ),
         );
 
-        _updateUnreadCounter(_myNotificationsPagingController);
+        _updateUnreadCounter();
       } else {
         final nextPageKey = pageKey + 1;
         if (!mounted) return;
@@ -95,23 +95,33 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           nextPageKey,
         );
 
-        _updateUnreadCounter(_myNotificationsPagingController);
+        _updateUnreadCounter();
       }
     } catch (error) {
       _followedNotificationsPagingController.error = error;
     }
   }
 
-  _updateUnreadCounter(PagingController<int, NotificationItem> controller) {
+  _updateUnreadCounter() {
     int counter = 0;
 
-    final notifications = controller.itemList;
+    final myNotifications = _myNotificationsPagingController.itemList;
+    final followedNotifications =
+        _followedNotificationsPagingController.itemList;
 
-    if (notifications == null) return;
+    if (myNotifications != null) {
+      for (var notif in myNotifications) {
+        if (notif.status == ItemStatus.NEW) {
+          counter++;
+        }
+      }
+    }
 
-    for (var notif in notifications) {
-      if (notif.status == ItemStatus.NEW) {
-        counter++;
+    if (followedNotifications != null) {
+      for (var notif in followedNotifications) {
+        if (notif.status == ItemStatus.NEW) {
+          counter++;
+        }
       }
     }
 

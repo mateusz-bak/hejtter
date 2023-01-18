@@ -1225,4 +1225,35 @@ class HejtoApi {
 
     return userNotificationFromJson(stringData).embedded?.items;
   }
+
+  Future<bool> getNotificationDetails({
+    required String uuid,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/account/notifications/$uuid',
+      ),
+    );
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

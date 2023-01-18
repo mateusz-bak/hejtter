@@ -62,7 +62,7 @@ class NotificationItem {
   });
 
   final String? excerpt;
-  final ItemStatus? status;
+  ItemStatus? status;
   final Sender? sender;
   final Type? type;
   final ResourceName? resourceName;
@@ -81,7 +81,9 @@ class NotificationItem {
         type: typeValues!.map[json["type"]],
         resourceName: resourceNameValues!.map[json["resource_name"]],
         resourceAction: resourceActionValues!.map[json["resource_action"]],
-        resourceParams: ResourceParams.fromJson(json["resource_params"]),
+        resourceParams: json["resource_params"] != null
+            ? ResourceParams.fromJson(json["resource_params"])
+            : null,
         content: json["content"],
         uuid: json["uuid"],
         createdAt: DateTime.parse(json["created_at"]),
