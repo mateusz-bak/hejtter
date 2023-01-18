@@ -23,12 +23,14 @@ class CommentInPostScreen extends StatefulWidget {
     required this.comment,
     required this.respondToUser,
     required this.refreshPost,
+    required this.isOP,
     super.key,
   });
 
   final CommentItem comment;
   final Function(String?) respondToUser;
   final Function() refreshPost;
+  final bool isOP;
 
   @override
   State<CommentInPostScreen> createState() => _CommentInPostScreenState();
@@ -133,27 +135,35 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  _buildAvatar(context),
-                  const SizedBox(width: 8),
-                  _buildUsernameAndDate(context),
-                  const SizedBox(width: 15),
-                ],
+        Container(
+          decoration: BoxDecoration(
+              color: widget.isOP
+                  ? Colors.black.withOpacity(0.2)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(5)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const SizedBox(width: 10),
+              Expanded(
+                child: Row(
+                  children: [
+                    _buildAvatar(context),
+                    const SizedBox(width: 8),
+                    _buildUsernameAndDate(context),
+                    const SizedBox(width: 15),
+                  ],
+                ),
               ),
-            ),
-            _buildMoreButton(comment?.author?.username),
-            _buildLikes(comment?.numLikes, context),
-          ],
+              _buildMoreButton(comment?.author?.username),
+              _buildLikes(comment?.numLikes, context),
+            ],
+          ),
         ),
         _buildContent(),
         _buildPictures(),
         Padding(
-          padding: const EdgeInsets.only(left: 26),
+          padding: const EdgeInsets.only(left: 36),
           child: AnswerButton(
             isSmaller: true,
             username: widget.comment.author?.username,
@@ -215,7 +225,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
   Row _buildContent() {
     return Row(
       children: [
-        const SizedBox(width: 35),
+        const SizedBox(width: 46),
         Expanded(
           child: MarkdownBody(
             data: _addEmojis(comment?.content ?? ''),

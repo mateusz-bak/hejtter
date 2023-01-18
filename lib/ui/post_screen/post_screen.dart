@@ -799,7 +799,7 @@ class _PostScreenState extends State<PostScreen> {
 
   Widget _buildComments() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
       decoration: BoxDecoration(
         color: Colors.black.withAlpha(50),
         borderRadius: const BorderRadius.only(
@@ -820,6 +820,7 @@ class _PostScreenState extends State<PostScreen> {
             return CommentInPostScreen(
               comment: item,
               respondToUser: _respondToUser,
+              isOP: item.author?.username == post.author?.username,
               refreshPost: () async {
                 await _refreshPostAndComments();
                 await Future.delayed(const Duration(milliseconds: 500));
