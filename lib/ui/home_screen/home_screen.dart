@@ -105,37 +105,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          bottomNavBarIndex == 0
-              ? 'Hejtter'
+    return BlocBuilder<ProfileBloc, ProfileState>(
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              bottomNavBarIndex == 0
+                  ? 'Hejtter'
+                  : bottomNavBarIndex == 1
+                      ? 'Powiadomienia'
+                      : '',
+              style: const TextStyle(fontSize: 20),
+            ),
+            backgroundColor: backgroundColor,
+            actions:
+                bottomNavBarIndex == 0 ? [_buildSearchButton(context)] : null,
+          ),
+          drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
+          floatingActionButton:
+              bottomNavBarIndex == 0 ? _buildNewPostFAB() : null,
+          body: bottomNavBarIndex == 0
+              ? PostsTabView(
+                  showSearchBar: _showSearchBar,
+                  focusNode: focusNode,
+                  showFollowedTab: state is ProfilePresentState,
+                )
               : bottomNavBarIndex == 1
-                  ? 'Powiadomienia'
-                  : '',
-          style: const TextStyle(fontSize: 20),
-        ),
-        backgroundColor: backgroundColor,
-        actions: bottomNavBarIndex == 0 ? [_buildSearchButton(context)] : null,
-      ),
-      drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
-      floatingActionButton: bottomNavBarIndex == 0 ? _buildNewPostFAB() : null,
-      body: bottomNavBarIndex == 0
-          ? PostsTabView(
-              showSearchBar: _showSearchBar,
-              focusNode: focusNode,
-              showFollowedTab: true,
-            )
-          : bottomNavBarIndex == 1
-              ? NotificationsScreen(updateCounter: (newValue) {
-                  setState(() {
-                    _notificationsCounter = newValue;
-                  });
-                })
-              : const SizedBox(),
-      bottomNavigationBar: BlocBuilder<ProfileBloc, ProfileState>(
-        builder: (context, state) {
-          return BottomNavigationBar(
+                  ? NotificationsScreen(updateCounter: (newValue) {
+                      setState(() {
+                        _notificationsCounter = newValue;
+                      });
+                    })
+                  : const SizedBox(),
+          bottomNavigationBar: BottomNavigationBar(
             showSelectedLabels: false,
             showUnselectedLabels: false,
             backgroundColor: backgroundColor,
@@ -198,9 +200,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 label: 'Powiadomienia',
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
