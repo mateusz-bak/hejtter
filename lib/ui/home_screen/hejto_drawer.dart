@@ -5,7 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
+import 'package:hejtter/models/avatar.dart';
+import 'package:hejtter/models/background.dart';
+import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/ui/communities_screen/communities_screen.dart';
+import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:hejtter/ui/settings_screen/settings_screen.dart';
@@ -89,9 +93,59 @@ class HejtoDrawer extends StatelessWidget {
           const Expanded(
             child: SizedBox(),
           ),
+          ListTile(
+            title: const Text('Społeczność Hejtter'),
+            leading: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.all(1),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: CachedNetworkImage(
+                      height: 22,
+                      width: 22,
+                      imageUrl:
+                          'https://hejto-media.s3.eu-central-1.amazonaws.com/uploads/communities/images/avatars/250x250/c9dc19226b6dd04bd625960dedbb41d0.png',
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CommunityScreen(
+                    community: Community(
+                      slug: 'Hejtter',
+                      name: 'Hejtter',
+                      avatar: Avatar(
+                        urls: AvatarUrls(
+                          the250X250:
+                              'https://hejto-media.s3.eu-central-1.amazonaws.com/uploads/communities/images/avatars/250x250/c9dc19226b6dd04bd625960dedbb41d0.png',
+                        ),
+                      ),
+                      background: Background(
+                        urls: BackgroundUrls(
+                          the1200X900:
+                              'https://hejto-media.s3.eu-central-1.amazonaws.com/uploads/communities/images/backgrounds/1200x900/d07ab812a674241079adeb90b06b4879.jpg',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
           _buildLoginLogoutTile(),
           ListTile(
             title: const Text('Ustawienia'),
+            leading: const Icon(Icons.settings),
             onTap: () {
               Navigator.push(
                 context,
@@ -112,6 +166,7 @@ class HejtoDrawer extends StatelessWidget {
       builder: (context, state) {
         if (state is AuthorizedAuthState) {
           return ListTile(
+            leading: const Icon(Icons.logout),
             title: const Text('Wyloguj się'),
             onTap: () {
               BlocProvider.of<AuthBloc>(context).add(
