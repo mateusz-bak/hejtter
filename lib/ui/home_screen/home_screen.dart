@@ -38,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   FocusNode focusNode = FocusNode();
   var _showSearchBar = false;
   int bottomNavBarIndex = 0;
+  int _notificationsCounter = 0;
 
   Future<String?> _addPost(
     String content,
@@ -126,7 +127,11 @@ class _HomeScreenState extends State<HomeScreen> {
               showFollowedTab: true,
             )
           : bottomNavBarIndex == 1
-              ? const NotificationsScreen()
+              ? NotificationsScreen(updateCounter: (newValue) {
+                  setState(() {
+                    _notificationsCounter = newValue;
+                  });
+                })
               : const SizedBox(),
       bottomNavigationBar: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
@@ -155,13 +160,41 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
               }
             },
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
+            items: <BottomNavigationBarItem>[
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.reorder),
                 label: 'Wpisy',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.notifications),
+                icon: Stack(
+                  children: [
+                    const Icon(Icons.notifications),
+                    _notificationsCounter != 0
+                        ? Positioned(
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(1),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 12,
+                                minHeight: 12,
+                              ),
+                              child: Text(
+                                _notificationsCounter.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          )
+                        : const SizedBox(),
+                  ],
+                ),
                 label: 'Powiadomienia',
               ),
             ],

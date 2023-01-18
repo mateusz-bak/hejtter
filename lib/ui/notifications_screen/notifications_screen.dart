@@ -6,7 +6,9 @@ import 'package:hejtter/utils/constants.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class NotificationsScreen extends StatefulWidget {
-  const NotificationsScreen({super.key});
+  const NotificationsScreen({super.key, required this.updateCounter});
+
+  final Function(int) updateCounter;
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
@@ -42,6 +44,8 @@ class _NotificationsScreenState extends State<NotificationsScreen>
             newItems,
           ),
         );
+
+        _updateUnreadCounter(_myNotificationsPagingController);
       } else {
         final nextPageKey = pageKey + 1;
         if (!mounted) return;
@@ -52,6 +56,8 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           ),
           nextPageKey,
         );
+
+        _updateUnreadCounter(_myNotificationsPagingController);
       }
     } catch (error) {
       _myNotificationsPagingController.error = error;
@@ -76,6 +82,8 @@ class _NotificationsScreenState extends State<NotificationsScreen>
             newItems,
           ),
         );
+
+        _updateUnreadCounter(_myNotificationsPagingController);
       } else {
         final nextPageKey = pageKey + 1;
         if (!mounted) return;
@@ -86,10 +94,28 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           ),
           nextPageKey,
         );
+
+        _updateUnreadCounter(_myNotificationsPagingController);
       }
     } catch (error) {
       _followedNotificationsPagingController.error = error;
     }
+  }
+
+  _updateUnreadCounter(PagingController<int, NotificationItem> controller) {
+    int counter = 0;
+
+    final notifications = controller.itemList;
+
+    if (notifications == null) return;
+
+    for (var notif in notifications) {
+      if (notif.status == ItemStatus.NEW) {
+        counter++;
+      }
+    }
+
+    widget.updateCounter(counter);
   }
 
   List<NotificationItem> _removeDoubledNotifications(
