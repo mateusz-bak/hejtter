@@ -138,7 +138,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
         Container(
           decoration: BoxDecoration(
               color: widget.isOP
-                  ? Colors.black.withOpacity(0.2)
+                  ? Colors.black.withOpacity(0.5)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(5)),
           child: Row(
@@ -160,6 +160,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
             ],
           ),
         ),
+        SizedBox(height: widget.isOP ? 12 : 0),
         _buildContent(),
         _buildPictures(),
         Padding(
@@ -331,6 +332,14 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
                   )
                 : const SizedBox(),
             const SizedBox(width: 5),
+            Text(
+              widget.isOP ? 'OP' : '',
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  color: Colors.blue),
+            ),
+            SizedBox(width: widget.isOP ? 5 : 0),
             Text(
               comment?.createdAt != null
                   ? timeago.format(DateTime.parse('${comment?.createdAt}'),
