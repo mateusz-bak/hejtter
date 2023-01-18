@@ -37,6 +37,8 @@ class PostsTabView extends StatefulWidget {
 
 class _PostsTabViewState extends State<PostsTabView>
     with AutomaticKeepAliveClientMixin {
+  int _currentTab = 0;
+
   static const _pageSize = 20;
   String query = '';
 
@@ -299,19 +301,30 @@ class _PostsTabViewState extends State<PostsTabView>
 
                       return Expanded(
                         child: TabBarView(
-                          children: [
-                            PostsTabBarView(controller: _hotPagingController),
-                            PostsTabBarView(
-                              controller: _topPagingController,
-                              topDropdown: _buildTopDropdown(),
-                            ),
-                            PostsTabBarView(controller: _newPagingController),
-                            widget.showFollowedTab
-                                ? PostsTabBarView(
+                          children: widget.showFollowedTab
+                              ? [
+                                  PostsTabBarView(
+                                      controller: _hotPagingController),
+                                  PostsTabBarView(
+                                    controller: _topPagingController,
+                                    topDropdown: _buildTopDropdown(),
+                                  ),
+                                  PostsTabBarView(
+                                      controller: _newPagingController),
+                                  PostsTabBarView(
                                     controller: _followedPagingController,
-                                  )
-                                : const SizedBox(),
-                          ],
+                                  ),
+                                ]
+                              : [
+                                  PostsTabBarView(
+                                      controller: _hotPagingController),
+                                  PostsTabBarView(
+                                    controller: _topPagingController,
+                                    topDropdown: _buildTopDropdown(),
+                                  ),
+                                  PostsTabBarView(
+                                      controller: _newPagingController),
+                                ],
                         ),
                       );
                     },
@@ -328,6 +341,28 @@ class _PostsTabViewState extends State<PostsTabView>
   Widget _buildTabBar() {
     return Builder(builder: (context) {
       return TabBar(
+        onTap: (value) {
+          if (value == _currentTab) {
+            switch (value) {
+              case 0:
+                _hotPagingController.refresh();
+                break;
+              case 1:
+                _topPagingController.refresh();
+                break;
+              case 2:
+                _newPagingController.refresh();
+                break;
+              case 3:
+                _followedPagingController.refresh();
+                break;
+            }
+          } else {
+            setState(() {
+              _currentTab = value;
+            });
+          }
+        },
         indicatorColor: const Color(0xff2295F3),
         indicatorPadding: const EdgeInsets.symmetric(horizontal: 12),
         tabs: widget.showFollowedTab
@@ -348,32 +383,10 @@ class _PostsTabViewState extends State<PostsTabView>
 
   Tab _buildTab(BuildContext context, int index, String text) {
     return Tab(
-      child: GestureDetector(
-        onTap: (() {
-          if (DefaultTabController.of(context)?.index == index) {
-            switch (index) {
-              case 0:
-                _hotPagingController.refresh();
-                break;
-              case 1:
-                _topPagingController.refresh();
-                break;
-              case 2:
-                _newPagingController.refresh();
-                break;
-              case 3:
-                _followedPagingController.refresh();
-                break;
-            }
-          } else {
-            DefaultTabController.of(context)?.animateTo(index);
-          }
-        }),
-        child: FittedBox(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 13),
-          ),
+      child: FittedBox(
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 13),
         ),
       ),
     );
