@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
+import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
@@ -1160,5 +1161,68 @@ class HejtoApi {
 
       return false;
     }
+  }
+
+  Future<List<NotificationItem>?> getNotifications({
+    required int pageKey,
+    required int pageSize,
+    required BuildContext context,
+    required String type,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return null;
+
+    var queryParameters = {
+      'limit': '$pageSize',
+      'page': '$pageKey',
+      'type': type,
+      'offset': '0',
+      'orderDir': 'desc',
+    };
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/account/notifications',
+        queryParameters,
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 401) {
+      _showFlushBar(
+        context,
+        'Sesja wygasła :( przekierowanie na stronę logowania',
+      );
+
+      await Future.delayed(const Duration(seconds: 3));
+
+      BlocProvider.of<AuthBloc>(context).add(
+        const LogOutAuthEvent(),
+      );
+
+      BlocProvider.of<ProfileBloc>(context).add(
+        const ClearProfileEvent(),
+      );
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => const LoginScreen(),
+        ),
+        (Route<dynamic> route) => false,
+      );
+    }
+
+    return userNotificationFromJson(stringData).embedded?.items;
   }
 }

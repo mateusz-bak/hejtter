@@ -35,7 +35,8 @@ class PostsTabView extends StatefulWidget {
   State<PostsTabView> createState() => _PostsTabViewState();
 }
 
-class _PostsTabViewState extends State<PostsTabView> {
+class _PostsTabViewState extends State<PostsTabView>
+    with AutomaticKeepAliveClientMixin {
   static const _pageSize = 20;
   String query = '';
 
@@ -270,6 +271,7 @@ class _PostsTabViewState extends State<PostsTabView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(
       children: [
         PostsSearchBar(
@@ -427,4 +429,7 @@ class _PostsTabViewState extends State<PostsTabView> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 
 import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/models/communities_response.dart';
@@ -9,6 +10,8 @@ import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/add_post_screen/add_post_screen.dart';
 import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
+import 'package:hejtter/ui/login_screen/login_screen.dart';
+import 'package:hejtter/ui/notifications_screen/notifications_screen.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
@@ -34,6 +37,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   FocusNode focusNode = FocusNode();
   var _showSearchBar = false;
+  int bottomNavBarIndex = 0;
 
   Future<String?> _addPost(
     String content,
@@ -102,19 +106,67 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Hejtter',
-          style: TextStyle(fontSize: 20),
+        title: Text(
+          bottomNavBarIndex == 0
+              ? 'Hejtter'
+              : bottomNavBarIndex == 1
+                  ? 'Powiadomienia'
+                  : '',
+          style: const TextStyle(fontSize: 20),
         ),
         backgroundColor: backgroundColor,
-        actions: [_buildSearchButton(context)],
+        actions: bottomNavBarIndex == 0 ? [_buildSearchButton(context)] : null,
       ),
       drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
-      floatingActionButton: _buildNewPostFAB(),
-      body: PostsTabView(
-        showSearchBar: _showSearchBar,
-        focusNode: focusNode,
-        showFollowedTab: true,
+      floatingActionButton: bottomNavBarIndex == 0 ? _buildNewPostFAB() : null,
+      body: bottomNavBarIndex == 0
+          ? PostsTabView(
+              showSearchBar: _showSearchBar,
+              focusNode: focusNode,
+              showFollowedTab: true,
+            )
+          : bottomNavBarIndex == 1
+              ? const NotificationsScreen()
+              : const SizedBox(),
+      bottomNavigationBar: BlocBuilder<ProfileBloc, ProfileState>(
+        builder: (context, state) {
+          return BottomNavigationBar(
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            backgroundColor: backgroundColor,
+            selectedItemColor: primaryColor,
+            currentIndex: bottomNavBarIndex,
+            onTap: (value) {
+              switch (value) {
+                case 0:
+                  setState(() {
+                    bottomNavBarIndex = value;
+                  });
+                  break;
+                case 1:
+                  if (state is ProfilePresentState) {
+                    setState(() {
+                      bottomNavBarIndex = value;
+                    });
+                  } else {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) {
+                      return const LoginScreen();
+                    }));
+                  }
+              }
+            },
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.reorder),
+                label: 'Wpisy',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.notifications),
+                label: 'Powiadomienia',
+              ),
+            ],
+          );
+        },
       ),
     );
   }
