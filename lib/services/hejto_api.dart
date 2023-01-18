@@ -279,7 +279,7 @@ class HejtoApi {
     String query = '',
     required String orderBy,
     String? orderDir,
-    String? postsPeriod,
+    int? postsPeriod,
   }) async {
     final accessToken = await _getAccessToken(context);
 
@@ -454,27 +454,37 @@ class HejtoApi {
 
   Map<String, String> _addPostsPeriod(
     Map<String, String> queryParameters,
-    String? postsPeriod,
+    int? postsPeriod,
   ) {
     switch (postsPeriod) {
-      case '6h':
+      case 0:
         queryParameters.addEntries(<String, String>{
           'period': '6h',
         }.entries);
         break;
-      case '12h':
+      case 1:
         queryParameters.addEntries(<String, String>{
           'period': '12h',
         }.entries);
         break;
-      case '24h':
+      case 2:
         queryParameters.addEntries(<String, String>{
           'period': '24h',
         }.entries);
         break;
-      case 'Tydzień':
+      case 3:
         queryParameters.addEntries(<String, String>{
           'period': 'week',
+        }.entries);
+        break;
+      case 4:
+        queryParameters.addEntries(<String, String>{
+          'period': 'month',
+        }.entries);
+        break;
+      case 5:
+        queryParameters.addEntries(<String, String>{
+          'period': 'all',
         }.entries);
         break;
       default:

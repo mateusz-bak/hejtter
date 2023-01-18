@@ -7,13 +7,12 @@ import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/posts_screen/period_button.dart';
 import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:hejtter/utils/constants.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-
-import 'package:dropdown_button2/dropdown_button2.dart';
 
 class PostsTabView extends StatefulWidget {
   const PostsTabView({
@@ -36,20 +35,26 @@ class PostsTabView extends StatefulWidget {
 }
 
 class _PostsTabViewState extends State<PostsTabView>
-    with AutomaticKeepAliveClientMixin {
+    with TickerProviderStateMixin {
   int _currentTab = 0;
+  int _selectedPeriod = 0;
 
   static const _pageSize = 20;
   String query = '';
 
-  final List<String> items = [
+  late AnimationController _periodButtonsAnimationController;
+  late Animation<double> _periodButtonsAnimation;
+
+  late TabController _tabController;
+
+  final List<String> periodItems = [
     '6h',
     '12h',
     '24h',
-    'Tydzień',
+    '7d',
+    '30d',
     'Od początku',
   ];
-  String _postsPeriod = '6h';
 
   final PagingController<int, Post> _hotPagingController =
       PagingController(firstPageKey: 1);
@@ -59,6 +64,17 @@ class _PostsTabViewState extends State<PostsTabView>
       PagingController(firstPageKey: 1);
   final PagingController<int, Post> _followedPagingController =
       PagingController(firstPageKey: 1);
+
+  _animatePeriodButtons(bool show) {
+    if (show) {
+      _periodButtonsAnimationController.forward();
+    } else {
+      _periodButtonsAnimationController.animateBack(
+        0,
+        duration: const Duration(milliseconds: 250),
+      );
+    }
+  }
 
   List<Post> _filterLocallyBlockedUsers(List<Post> list) {
     final state = BlocProvider.of<ProfileBloc>(context).state;
@@ -84,7 +100,8 @@ class _PostsTabViewState extends State<PostsTabView>
         communitySlug: widget.communitySlug,
         tagName: widget.tagName,
         query: query,
-        orderBy: 'p.hot',
+        orderBy: 'p.hotness',
+        postsPeriod: _selectedPeriod,
       );
 
       final isLastPage = newItems!.length < _pageSize;
@@ -120,7 +137,7 @@ class _PostsTabViewState extends State<PostsTabView>
         tagName: widget.tagName,
         query: query,
         orderBy: 'p.numLikes',
-        postsPeriod: _postsPeriod,
+        postsPeriod: _selectedPeriod,
       );
 
       if (newItems == null) return;
@@ -259,6 +276,32 @@ class _PostsTabViewState extends State<PostsTabView>
     }
 
     super.initState();
+
+    _periodButtonsAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 250),
+      vsync: this,
+      value: 1,
+    );
+
+    _periodButtonsAnimation = CurvedAnimation(
+      parent: _periodButtonsAnimationController,
+      curve: Curves.easeIn,
+    );
+
+    _tabController = TabController(
+      length: widget.showFollowedTab ? 4 : 3,
+      vsync: this,
+    );
+
+    _tabController.addListener(() {
+      final index = _tabController.index;
+
+      if (index == 0 || index == 1) {
+        _animatePeriodButtons(true);
+      } else {
+        _animatePeriodButtons(false);
+      }
+    });
   }
 
   @override
@@ -273,7 +316,6 @@ class _PostsTabViewState extends State<PostsTabView>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Column(
       children: [
         PostsSearchBar(
@@ -288,6 +330,7 @@ class _PostsTabViewState extends State<PostsTabView>
               child: Column(
                 children: [
                   _buildTabBar(),
+                  _buildPerdionButtons(),
                   StreamBuilder<String>(
                     stream: searchCubit.searchString,
                     builder: (context, AsyncSnapshot<String> snapshot) {
@@ -298,32 +341,34 @@ class _PostsTabViewState extends State<PostsTabView>
                           _refreshAllControllers();
                         }
                       }
-
                       return Expanded(
                         child: TabBarView(
+                          controller: _tabController,
                           children: widget.showFollowedTab
                               ? [
                                   PostsTabBarView(
-                                      controller: _hotPagingController),
-                                  PostsTabBarView(
-                                    controller: _topPagingController,
-                                    topDropdown: _buildTopDropdown(),
+                                    controller: _hotPagingController,
                                   ),
                                   PostsTabBarView(
-                                      controller: _newPagingController),
+                                    controller: _topPagingController,
+                                  ),
+                                  PostsTabBarView(
+                                    controller: _newPagingController,
+                                  ),
                                   PostsTabBarView(
                                     controller: _followedPagingController,
                                   ),
                                 ]
                               : [
                                   PostsTabBarView(
-                                      controller: _hotPagingController),
-                                  PostsTabBarView(
-                                    controller: _topPagingController,
-                                    topDropdown: _buildTopDropdown(),
+                                    controller: _hotPagingController,
                                   ),
                                   PostsTabBarView(
-                                      controller: _newPagingController),
+                                    controller: _topPagingController,
+                                  ),
+                                  PostsTabBarView(
+                                    controller: _newPagingController,
+                                  ),
                                 ],
                         ),
                       );
@@ -341,6 +386,7 @@ class _PostsTabViewState extends State<PostsTabView>
   Widget _buildTabBar() {
     return Builder(builder: (context) {
       return TabBar(
+        controller: _tabController,
         onTap: (value) {
           if (value == _currentTab) {
             switch (value) {
@@ -392,57 +438,48 @@ class _PostsTabViewState extends State<PostsTabView>
     );
   }
 
-  Widget _buildTopDropdown() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 5),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-        decoration: BoxDecoration(
-          color: Colors.black.withAlpha(50),
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
-            bottomLeft: Radius.circular(10),
-            bottomRight: Radius.circular(10),
-          ),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton2(
-            buttonWidth: MediaQuery.of(context).size.width,
-            hint: Text(
-              'Wybierz pozycję',
-              style: TextStyle(
-                fontSize: 14,
-                color: Theme.of(context).hintColor,
+  Widget _buildPerdionButtons() {
+    return SizeTransition(
+      sizeFactor: _periodButtonsAnimation,
+      axis: Axis.vertical,
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 5, 12, 5),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    _buildPeriodButton(0),
+                    _buildPeriodButton(1),
+                    _buildPeriodButton(2),
+                    _buildPeriodButton(3),
+                    _buildPeriodButton(4),
+                    _buildPeriodButton(5),
+                  ],
+                ),
               ),
             ),
-            items: items
-                .map((item) => DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(
-                        item,
-                        style: const TextStyle(
-                          fontSize: 13,
-                        ),
-                      ),
-                    ))
-                .toList(),
-            value: _postsPeriod,
-            onChanged: (value) {
-              setState(() {
-                _postsPeriod = value as String;
-              });
-
-              Future.sync(
-                () => _topPagingController.refresh(),
-              );
-            },
           ),
-        ),
+        ],
       ),
     );
   }
 
-  @override
-  bool get wantKeepAlive => true;
+  Widget _buildPeriodButton(int index) {
+    return PeriodButton(
+      period: periodItems[index],
+      selected: _selectedPeriod == index,
+      onPressed: () {
+        setState(() {
+          _selectedPeriod = index;
+        });
+
+        _hotPagingController.refresh();
+        _topPagingController.refresh();
+      },
+    );
+  }
 }
