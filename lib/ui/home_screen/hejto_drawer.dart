@@ -187,6 +187,7 @@ class HejtoDrawer extends StatelessWidget {
           );
         } else {
           return ListTile(
+            leading: const Icon(Icons.login),
             title: const Text('Zaloguj się'),
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
