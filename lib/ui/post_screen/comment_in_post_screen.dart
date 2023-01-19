@@ -10,6 +10,7 @@ import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/post_screen/answer_button.dart';
+import 'package:hejtter/ui/post_screen/hejtter_like_button.dart';
 import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -82,7 +83,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
     );
   }
 
-  _likeComment(BuildContext context) async {
+  Future<void> _likeComment(BuildContext context) async {
     final result = await hejtoApi.likeComment(
       postSlug: comment?.postSlug,
       commentUUID: comment?.uuid,
@@ -97,7 +98,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
     }
   }
 
-  _unlikeComment(BuildContext context) async {
+  Future<void> _unlikeComment(BuildContext context) async {
     final result = await hejtoApi.unlikeComment(
       postSlug: comment?.postSlug,
       commentUUID: comment?.uuid,
@@ -149,14 +150,19 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
                 child: Row(
                   children: [
                     _buildAvatar(context),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 10),
                     _buildUsernameAndDate(context),
                     const SizedBox(width: 15),
                   ],
                 ),
               ),
               _buildMoreButton(comment?.author?.username),
-              _buildLikes(comment?.numLikes, context),
+              HejtterLikeButton(
+                likeStatus: comment?.isLiked,
+                numLikes: comment?.numLikes,
+                unlikeComment: _unlikeComment,
+                likeComment: _likeComment,
+              ),
             ],
           ),
         ),
@@ -164,7 +170,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
         _buildContent(),
         _buildPictures(),
         Padding(
-          padding: const EdgeInsets.only(left: 36),
+          padding: const EdgeInsets.only(left: 42),
           child: AnswerButton(
             isSmaller: true,
             username: widget.comment.author?.username,
@@ -210,7 +216,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
 
     if (images != null && images.isNotEmpty) {
       return Padding(
-        padding: const EdgeInsets.only(left: 22),
+        padding: const EdgeInsets.only(left: 40),
         child: PicturePreview(
           imageUrl: '${images[0].urls?.the1200X900}',
           imagesUrls: images,
@@ -226,7 +232,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
   Row _buildContent() {
     return Row(
       children: [
-        const SizedBox(width: 46),
+        const SizedBox(width: 52),
         Expanded(
           child: MarkdownBody(
             data: _addEmojis(comment?.content ?? ''),
@@ -251,30 +257,6 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
     );
   }
 
-  Widget _buildLikes(int? numLikes, BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          numLikes != null ? numLikes.toString() : '0',
-          style: TextStyle(
-            fontSize: 12,
-            color: comment?.isLiked == true ? const Color(0xffFFC009) : null,
-          ),
-        ),
-        IconButton(
-          onPressed: () => comment?.isLiked == true
-              ? _unlikeComment(context)
-              : _likeComment(context),
-          icon: Icon(
-            Icons.bolt,
-            size: 20,
-            color: comment?.isLiked == true ? const Color(0xffFFC009) : null,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildAvatar(BuildContext context) {
     final avatarUrl = comment?.author?.avatar?.urls?.the100X100;
 
@@ -286,8 +268,8 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
           color: Colors.white,
           padding: const EdgeInsets.all(1),
           child: SizedBox(
-            height: 28,
-            width: 28,
+            height: 32,
+            width: 32,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(100),
               child: CachedNetworkImage(
@@ -316,7 +298,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontSize: 14,
                 ),
               ),
             ),

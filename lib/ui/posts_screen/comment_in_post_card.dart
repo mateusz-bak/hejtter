@@ -7,6 +7,9 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/models/post.dart';
+import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/post_screen/hejtter_like_button.dart';
+import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -38,6 +41,22 @@ class CommentInPostCard extends StatelessWidget {
     );
   }
 
+  Future<void> _likeComment(BuildContext context) async {
+    await hejtoApi.likeComment(
+      postSlug: comment.postSlug,
+      commentUUID: comment.uuid,
+      context: context,
+    );
+  }
+
+  Future<void> _unlikeComment(BuildContext context) async {
+    await hejtoApi.unlikeComment(
+      postSlug: comment.postSlug,
+      commentUUID: comment.uuid,
+      context: context,
+    );
+  }
+
   _setTimeAgoLocale() {
     timeago.setLocaleMessages('pl', timeago.PlMessages());
   }
@@ -56,70 +75,80 @@ class CommentInPostCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            const SizedBox(width: 10),
             Expanded(
               child: Row(
                 children: [
                   _buildAvatar(context),
-                  const SizedBox(width: 5),
+                  const SizedBox(width: 10),
                   _buildUsernameAndDate(context),
                   const SizedBox(width: 15),
                 ],
               ),
             ),
-            _buildLikes(comment.numLikes),
+            HejtterLikeButton(
+              likeStatus: comment.isLiked,
+              numLikes: comment.numLikes,
+              unlikeComment: _unlikeComment,
+              likeComment: _likeComment,
+            ),
           ],
         ),
+        const SizedBox(height: 0),
+        _buildContent(context),
+        _buildPictures(),
         const SizedBox(height: 5),
-        Row(
-          children: [
-            const SizedBox(width: 33),
-            Expanded(
-                child: MarkdownBody(
-              data: _addEmojis(comment.content.toString()),
-              styleSheet:
-                  MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-                blockquoteDecoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-              ),
-              selectable: true,
-              onTapText: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) {
-                  return PostScreen(
-                    post: postItem,
-                    refreshCallback: refreshCallback,
-                  );
-                }));
-              },
-              onTapLink: (text, href, title) {
-                launchUrl(
-                  Uri.parse(href.toString()),
-                  mode: LaunchMode.externalApplication,
-                );
-              },
-            )),
-          ],
-        ),
       ],
     );
   }
 
-  Widget _buildLikes(int? numLikes) {
+  Widget _buildPictures() {
+    final images = comment.images;
+
+    if (images != null && images.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 40),
+        child: PicturePreview(
+          imageUrl: '${images[0].urls?.the1200X900}',
+          imagesUrls: images,
+          multiplePics: images.length > 1,
+          nsfw: false,
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
+  }
+
+  Row _buildContent(BuildContext context) {
     return Row(
       children: [
-        Text(
-          numLikes != null ? numLikes.toString() : '0',
-          style: TextStyle(
-            fontSize: 12,
-            color: comment.isLiked == true ? const Color(0xffFFC009) : null,
+        const SizedBox(width: 52),
+        Expanded(
+            child: MarkdownBody(
+          data: _addEmojis(comment.content ?? ''),
+          styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+            blockquoteDecoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(5),
+            ),
           ),
-        ),
-        Icon(
-          Icons.bolt,
-          size: 20,
-          color: comment.isLiked == true ? const Color(0xffFFC009) : null,
-        ),
+          selectable: true,
+          onTapText: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) {
+              return PostScreen(
+                post: postItem,
+                refreshCallback: refreshCallback,
+              );
+            }));
+          },
+          onTapLink: (text, href, title) {
+            launchUrl(
+              Uri.parse(href.toString()),
+              mode: LaunchMode.externalApplication,
+            );
+          },
+        )),
       ],
     );
   }
@@ -135,8 +164,8 @@ class CommentInPostCard extends StatelessWidget {
           padding: const EdgeInsets.all(1),
           color: Colors.white,
           child: SizedBox(
-            height: 28,
-            width: 28,
+            height: 32,
+            width: 32,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(100),
               child: CachedNetworkImage(
@@ -161,11 +190,11 @@ class CommentInPostCard extends StatelessWidget {
               child: Text(
                 comment.author != null
                     ? comment.author!.username.toString()
-                    : 'null',
+                    : '',
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 13,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -185,7 +214,7 @@ class CommentInPostCard extends StatelessWidget {
               comment.createdAt != null
                   ? timeago.format(DateTime.parse(comment.createdAt.toString()),
                       locale: 'pl')
-                  : 'null',
+                  : '',
               style: const TextStyle(fontSize: 11),
             ),
           ],

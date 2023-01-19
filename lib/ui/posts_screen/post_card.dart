@@ -9,6 +9,7 @@ import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/community_screen/community_screen.dart';
+import 'package:hejtter/ui/post_screen/hejtter_like_button.dart';
 import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/posts_screen/comment_in_post_card.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
@@ -67,7 +68,7 @@ class _PostCardState extends State<PostCard>
     });
   }
 
-  _likePost() async {
+  Future<void> _likePost(BuildContext context) async {
     if (item?.slug == null) return;
 
     final postLiked = await hejtoApi.likePost(
@@ -89,7 +90,7 @@ class _PostCardState extends State<PostCard>
     }
   }
 
-  _unlikePost() async {
+  Future<void> _unlikePost(BuildContext context) async {
     if (item?.slug == null) return;
 
     final postUnliked = await hejtoApi.unlikePost(
@@ -172,29 +173,13 @@ class _PostCardState extends State<PostCard>
                         ),
                       ),
                       _buildHotIcon(),
-                      const SizedBox(width: 20),
-                      Text(
-                        item?.numLikes != null ? item!.numLikes.toString() : '',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: item?.isLiked == true
-                              ? const Color(0xffFFC009)
-                              : null,
-                        ),
+                      const SizedBox(width: 5),
+                      HejtterLikeButton(
+                        likeStatus: item?.isLiked,
+                        numLikes: item?.numLikes,
+                        unlikeComment: _unlikePost,
+                        likeComment: _likePost,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(5),
-                        child: IconButton(
-                          onPressed:
-                              item?.isLiked == true ? _unlikePost : _likePost,
-                          icon: Icon(
-                            Icons.bolt,
-                            color: item?.isLiked == true
-                                ? const Color(0xffFFC009)
-                                : null,
-                          ),
-                        ),
-                      )
                     ],
                   ),
                 ),
@@ -253,7 +238,6 @@ class _PostCardState extends State<PostCard>
   Widget _buildComments() {
     if (widget.item.comments != null && widget.item.comments!.isNotEmpty) {
       return Container(
-        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.black.withAlpha(50),
           borderRadius: const BorderRadius.only(
@@ -287,6 +271,7 @@ class _PostCardState extends State<PostCard>
                     refreshCallback: _refreshPost,
                   )
                 : const SizedBox(),
+            const SizedBox(height: 10),
           ],
         ),
       );

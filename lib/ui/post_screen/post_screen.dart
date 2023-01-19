@@ -17,6 +17,7 @@ import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/ui/post_screen/answer_button.dart';
 import 'package:hejtter/ui/post_screen/comment_in_post_screen.dart';
 import 'package:hejtter/models/comments_response.dart';
+import 'package:hejtter/ui/post_screen/hejtter_like_button.dart';
 import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/posts_screen/posts_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
@@ -139,7 +140,7 @@ class _PostScreenState extends State<PostScreen> {
     _pagingController.refresh();
   }
 
-  _likePost() async {
+  Future<void> _likePost(BuildContext context) async {
     if (post.slug == null) return;
 
     final postLiked = await hejtoApi.likePost(
@@ -165,7 +166,7 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
-  _unlikePost() async {
+  Future<void> _unlikePost(BuildContext context) async {
     if (post.slug == null) return;
 
     final postUnliked = await hejtoApi.unlikePost(
@@ -734,25 +735,12 @@ class _PostScreenState extends State<PostScreen> {
                           ),
                           _buildHotIcon(),
                           const SizedBox(width: 15),
-                          Text(
-                            post.numLikes != null
-                                ? post.numLikes.toString()
-                                : '',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: post.isLiked == true
-                                  ? const Color(0xffFFC009)
-                                  : null,
-                            ),
+                          HejtterLikeButton(
+                            likeStatus: post.isLiked,
+                            numLikes: post.numLikes,
+                            unlikeComment: _unlikePost,
+                            likeComment: _likePost,
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.bolt),
-                            color: post.isLiked == true
-                                ? const Color(0xffFFC009)
-                                : null,
-                            onPressed:
-                                post.isLiked == true ? _unlikePost : _likePost,
-                          )
                         ],
                       ),
                     ),
