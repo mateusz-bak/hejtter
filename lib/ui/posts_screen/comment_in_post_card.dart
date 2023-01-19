@@ -183,33 +183,39 @@ class CommentInPostCard extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         onTap: () => _goToUserScreen(context),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Flexible(
-              child: Text(
-                comment.author != null
-                    ? comment.author!.username.toString()
-                    : '',
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            SizedBox(width: comment.author?.sponsor == true ? 5 : 0),
-            comment.author?.sponsor == true
-                ? Transform.rotate(
-                    angle: 180,
-                    child: const Icon(
-                      Icons.mode_night_rounded,
-                      color: Colors.brown,
-                      size: 16,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(
+                    comment.author != null
+                        ? comment.author!.username.toString()
+                        : '',
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
                     ),
-                  )
-                : const SizedBox(),
-            const SizedBox(width: 5),
+                  ),
+                ),
+                SizedBox(width: comment.author?.sponsor == true ? 10 : 0),
+                comment.author?.sponsor == true
+                    ? Transform.rotate(
+                        angle: 180,
+                        child: const Icon(
+                          Icons.mode_night_rounded,
+                          color: Colors.brown,
+                          size: 16,
+                        ),
+                      )
+                    : const SizedBox(),
+                const SizedBox(width: 10),
+                _buildRankPlate(),
+              ],
+            ),
             Text(
               comment.createdAt != null
                   ? timeago.format(DateTime.parse(comment.createdAt.toString()),
@@ -218,6 +224,29 @@ class CommentInPostCard extends StatelessWidget {
               style: const TextStyle(fontSize: 11),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Container _buildRankPlate() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(
+        color: comment.author?.currentColor != null
+            ? Color(
+                int.parse(
+                  comment.author!.currentColor!.replaceAll('#', '0xff'),
+                ),
+              )
+            : Colors.black,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        comment.author != null ? comment.author!.currentRank.toString() : '',
+        style: const TextStyle(
+          fontSize: 11,
+          color: Colors.white,
         ),
       ),
     );

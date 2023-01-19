@@ -989,7 +989,7 @@ class _PostScreenState extends State<PostScreen> {
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
-        post.author != null ? post.author!.currentRank.toString() : 'null',
+        post.author != null ? post.author!.currentRank.toString() : '',
         style: const TextStyle(
           fontSize: 12,
           color: Colors.white,
