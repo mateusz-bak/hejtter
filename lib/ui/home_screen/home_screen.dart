@@ -107,100 +107,112 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<ProfileBloc, ProfileState>(
       builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              bottomNavBarIndex == 0
-                  ? 'Hejtter'
-                  : bottomNavBarIndex == 1
-                      ? 'Powiadomienia'
-                      : '',
-              style: const TextStyle(fontSize: 20),
+        return WillPopScope(
+          onWillPop: () async {
+            if (bottomNavBarIndex == 1) {
+              setState(() {
+                bottomNavBarIndex = 0;
+              });
+              return false;
+            }
+
+            return true;
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(
+                bottomNavBarIndex == 0
+                    ? 'Hejtter'
+                    : bottomNavBarIndex == 1
+                        ? 'Powiadomienia'
+                        : '',
+                style: const TextStyle(fontSize: 20),
+              ),
+              backgroundColor: backgroundColor,
+              actions:
+                  bottomNavBarIndex == 0 ? [_buildSearchButton(context)] : null,
             ),
-            backgroundColor: backgroundColor,
-            actions:
-                bottomNavBarIndex == 0 ? [_buildSearchButton(context)] : null,
-          ),
-          drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
-          floatingActionButton: bottomNavBarIndex == 0
-              ? _buildNewPostFAB()
-              : _buildReadNotificationsFAB(),
-          body: bottomNavBarIndex == 0
-              ? PostsTabView(
-                  showSearchBar: _showSearchBar,
-                  focusNode: focusNode,
-                  showFollowedTab: state is ProfilePresentState,
-                )
-              : bottomNavBarIndex == 1
-                  ? NotificationsScreen(updateCounter: (newValue) {
-                      setState(() {
-                        _notificationsCounter = newValue;
-                      });
-                    })
-                  : const SizedBox(),
-          bottomNavigationBar: BottomNavigationBar(
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            backgroundColor: backgroundColor,
-            selectedItemColor: primaryColor,
-            currentIndex: bottomNavBarIndex,
-            onTap: (value) {
-              switch (value) {
-                case 0:
-                  setState(() {
-                    bottomNavBarIndex = value;
-                  });
-                  break;
-                case 1:
-                  if (state is ProfilePresentState) {
+            drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
+            floatingActionButton: bottomNavBarIndex == 0
+                ? _buildNewPostFAB()
+                : _buildReadNotificationsFAB(),
+            body: bottomNavBarIndex == 0
+                ? PostsTabView(
+                    showSearchBar: _showSearchBar,
+                    focusNode: focusNode,
+                    showFollowedTab: state is ProfilePresentState,
+                  )
+                : bottomNavBarIndex == 1
+                    ? NotificationsScreen(updateCounter: (newValue) {
+                        setState(() {
+                          _notificationsCounter = newValue;
+                        });
+                      })
+                    : const SizedBox(),
+            bottomNavigationBar: BottomNavigationBar(
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+              backgroundColor: backgroundColor,
+              selectedItemColor: primaryColor,
+              currentIndex: bottomNavBarIndex,
+              onTap: (value) {
+                switch (value) {
+                  case 0:
                     setState(() {
                       bottomNavBarIndex = value;
                     });
-                  } else {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) {
-                      return const LoginScreen();
-                    }));
-                  }
-              }
-            },
-            items: <BottomNavigationBarItem>[
-              const BottomNavigationBarItem(
-                icon: Icon(Icons.reorder),
-                label: 'Wpisy',
-              ),
-              BottomNavigationBarItem(
-                icon: Stack(
-                  children: [
-                    const Icon(Icons.notifications),
-                    _notificationsCounter != 0
-                        ? Positioned(
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(1),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(100),
-                              ),
-                              constraints: const BoxConstraints(
-                                minWidth: 12,
-                                minHeight: 12,
-                              ),
-                              child: Text(
-                                _notificationsCounter.toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          )
-                        : const SizedBox(),
-                  ],
+                    break;
+                  case 1:
+                    if (state is ProfilePresentState) {
+                      setState(() {
+                        bottomNavBarIndex = value;
+                      });
+                    } else {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        return const LoginScreen();
+                      }));
+                    }
+                }
+              },
+              items: <BottomNavigationBarItem>[
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.reorder),
+                  label: 'Wpisy',
                 ),
-                label: 'Powiadomienia',
-              ),
-            ],
+                BottomNavigationBarItem(
+                  icon: Stack(
+                    children: [
+                      const Icon(Icons.notifications),
+                      _notificationsCounter != 0
+                          ? Positioned(
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(1),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 12,
+                                  minHeight: 12,
+                                ),
+                                child: Text(
+                                  _notificationsCounter.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 8,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            )
+                          : const SizedBox(),
+                    ],
+                  ),
+                  label: 'Powiadomienia',
+                ),
+              ],
+            ),
           ),
         );
       },
