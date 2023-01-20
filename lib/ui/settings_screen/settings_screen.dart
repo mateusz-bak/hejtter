@@ -5,10 +5,13 @@ import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/settings_screen/deep_links_dialog.dart';
+import 'package:hejtter/ui/settings_screen/default_period_dialog.dart';
+import 'package:hejtter/ui/settings_screen/default_tab_dialog.dart';
 import 'package:hejtter/ui/settings_screen/settings_section.dart';
 import 'package:hejtter/ui/settings_screen/switch_setting.dart';
 import 'package:hejtter/ui/settings_screen/text_setting.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/utils/enums.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -120,6 +123,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  String _decideDefaultTabSubtitle(DefaultTab defaultTab) {
+    switch (defaultTab) {
+      case DefaultTab.hot:
+        return 'Gorące';
+      case DefaultTab.top:
+        return 'Top';
+      case DefaultTab.newTab:
+        return 'Nowe';
+      case DefaultTab.followed:
+        return 'Obserwowane';
+      default:
+        return 'Gorące';
+    }
+  }
+
+  String _decideDefaultPeriodSubtitle(DefaultPeriod defaultPeriod) {
+    switch (defaultPeriod) {
+      case DefaultPeriod.sixHours:
+        return '6h';
+      case DefaultPeriod.twelveHours:
+        return '12h';
+      case DefaultPeriod.twentyFourHours:
+        return '24h';
+      case DefaultPeriod.sevenDays:
+        return '7d';
+      case DefaultPeriod.thirtyDays:
+        return '30d';
+      case DefaultPeriod.all:
+        return 'Od początku';
+      default:
+        return 'Gorące';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -160,8 +197,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: 'Aplikacja',
                   leading: Icons.tune,
                 ),
+                BlocBuilder<PreferencesBloc, PreferencesState>(
+                  builder: (context, state) {
+                    if (state is PreferencesSet) {
+                      return TextSetting(
+                        title: 'Domyślna karta',
+                        subtitle: _decideDefaultTabSubtitle(state.defaultTab),
+                        onPressed: (() {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return DefaultTabDialog(state: state);
+                            },
+                          );
+                        }),
+                      );
+                    } else {
+                      return const SizedBox();
+                    }
+                  },
+                ),
+                BlocBuilder<PreferencesBloc, PreferencesState>(
+                  builder: (context, state) {
+                    if (state is PreferencesSet) {
+                      return TextSetting(
+                        title: 'Domyślny okres',
+                        subtitle: _decideDefaultPeriodSubtitle(
+                          state.defaultPeriod,
+                        ),
+                        onPressed: (() {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return DefaultPeriodDialog(state: state);
+                            },
+                          );
+                        }),
+                      );
+                    } else {
+                      return const SizedBox();
+                    }
+                  },
+                ),
                 TextSetting(
                   title: 'Otwieraj linki w aplikacji',
+                  subtitle: 'Kliknij, żeby wyświetlić poradę',
                   onPressed: () {
                     final state = context.read<PreferencesBloc>().state;
 

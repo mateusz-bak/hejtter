@@ -20,8 +20,9 @@ class PeriodButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: selected ? primaryColor : null,
-          foregroundColor: selected ? Colors.white : null,
+          backgroundColor:
+              selected ? primaryColor : Colors.black.withOpacity(0.8),
+          foregroundColor: Colors.white,
           minimumSize: Size.zero,
           padding: const EdgeInsets.fromLTRB(18, 5, 18, 5),
           shape: RoundedRectangleBorder(

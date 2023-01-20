@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 
 import 'package:hejtter/logic/cubit/search_cubit.dart';
@@ -11,6 +12,7 @@ import 'package:hejtter/ui/posts_screen/period_button.dart';
 import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/utils/enums.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -37,7 +39,11 @@ class PostsTabView extends StatefulWidget {
 class _PostsTabViewState extends State<PostsTabView>
     with TickerProviderStateMixin {
   int _currentTab = 0;
-  int _selectedPeriod = 0;
+  // late int _initSelectedTab;
+  // late int _initSelectedPeriod;
+
+  int? _mySelectedTab;
+  int? _mySelectedPeriod;
 
   static const _pageSize = 20;
   String query = '';
@@ -101,7 +107,7 @@ class _PostsTabViewState extends State<PostsTabView>
         tagName: widget.tagName,
         query: query,
         orderBy: 'p.hotness',
-        postsPeriod: _selectedPeriod,
+        postsPeriod: _mySelectedPeriod,
       );
 
       final isLastPage = newItems!.length < _pageSize;
@@ -137,7 +143,7 @@ class _PostsTabViewState extends State<PostsTabView>
         tagName: widget.tagName,
         query: query,
         orderBy: 'p.numLikes',
-        postsPeriod: _selectedPeriod,
+        postsPeriod: _mySelectedPeriod,
       );
 
       if (newItems == null) return;
@@ -255,6 +261,61 @@ class _PostsTabViewState extends State<PostsTabView>
     });
   }
 
+  _setDefaultTab(DefaultTab defaultTab) {
+    if (_mySelectedTab != null) return;
+
+    switch (defaultTab) {
+      case DefaultTab.hot:
+        _mySelectedTab = 0;
+        _tabController.index = 0;
+        break;
+      case DefaultTab.top:
+        _mySelectedTab = 1;
+        _tabController.index = 1;
+        break;
+      case DefaultTab.newTab:
+        _mySelectedTab = 2;
+        _tabController.index = 2;
+        break;
+      case DefaultTab.followed:
+        _mySelectedTab = 3;
+        _tabController.index = 3;
+        break;
+      default:
+        _mySelectedTab = 0;
+        _tabController.index = 0;
+        break;
+    }
+  }
+
+  _setDefaultPeriod(DefaultPeriod defaultPeriod) {
+    if (_mySelectedPeriod != null) return;
+
+    switch (defaultPeriod) {
+      case DefaultPeriod.sixHours:
+        _mySelectedPeriod = 0;
+        break;
+      case DefaultPeriod.twelveHours:
+        _mySelectedPeriod = 1;
+        break;
+      case DefaultPeriod.twentyFourHours:
+        _mySelectedPeriod = 2;
+        break;
+      case DefaultPeriod.sevenDays:
+        _mySelectedPeriod = 3;
+        break;
+      case DefaultPeriod.thirtyDays:
+        _mySelectedPeriod = 4;
+        break;
+      case DefaultPeriod.all:
+        _mySelectedPeriod = 5;
+        break;
+      default:
+        _mySelectedPeriod = 0;
+        break;
+    }
+  }
+
   @override
   void initState() {
     _hotPagingController.addPageRequestListener((pageKey) {
@@ -316,70 +377,81 @@ class _PostsTabViewState extends State<PostsTabView>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        PostsSearchBar(
-          show: widget.showSearchBar,
-          focusNode: widget.focusNode,
-        ),
-        Expanded(
-          child: Container(
-            color: backgroundColor,
-            child: DefaultTabController(
-              length: widget.showFollowedTab ? 4 : 3,
-              child: Column(
-                children: [
-                  _buildTabBar(),
-                  _buildPerdionButtons(),
-                  StreamBuilder<String>(
-                    stream: searchCubit.searchString,
-                    builder: (context, AsyncSnapshot<String> snapshot) {
-                      if (snapshot.hasData) {
-                        if (snapshot.data != query) {
-                          query = snapshot.data!;
+    return BlocBuilder<PreferencesBloc, PreferencesState>(
+      builder: (context, state) {
+        if (state is PreferencesSet) {
+          _setDefaultTab(state.defaultTab);
+          _setDefaultPeriod(state.defaultPeriod);
 
-                          _refreshAllControllers();
-                        }
-                      }
-                      return Expanded(
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: widget.showFollowedTab
-                              ? [
-                                  PostsTabBarView(
-                                    controller: _hotPagingController,
-                                  ),
-                                  PostsTabBarView(
-                                    controller: _topPagingController,
-                                  ),
-                                  PostsTabBarView(
-                                    controller: _newPagingController,
-                                  ),
-                                  PostsTabBarView(
-                                    controller: _followedPagingController,
-                                  ),
-                                ]
-                              : [
-                                  PostsTabBarView(
-                                    controller: _hotPagingController,
-                                  ),
-                                  PostsTabBarView(
-                                    controller: _topPagingController,
-                                  ),
-                                  PostsTabBarView(
-                                    controller: _newPagingController,
-                                  ),
-                                ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
+          return Column(
+            children: [
+              PostsSearchBar(
+                show: widget.showSearchBar,
+                focusNode: widget.focusNode,
               ),
-            ),
-          ),
-        ),
-      ],
+              Expanded(
+                child: Container(
+                  color: backgroundColor,
+                  child: DefaultTabController(
+                    length: widget.showFollowedTab ? 4 : 3,
+                    child: Column(
+                      children: [
+                        _buildTabBar(),
+                        _buildPeriodButtons(),
+                        StreamBuilder<String>(
+                          stream: searchCubit.searchString,
+                          builder: (context, AsyncSnapshot<String> snapshot) {
+                            if (snapshot.hasData) {
+                              if (snapshot.data != query) {
+                                query = snapshot.data!;
+
+                                _refreshAllControllers();
+                              }
+                            }
+                            return Expanded(
+                              child: TabBarView(
+                                controller: _tabController,
+                                children: widget.showFollowedTab
+                                    ? [
+                                        PostsTabBarView(
+                                          controller: _hotPagingController,
+                                        ),
+                                        PostsTabBarView(
+                                          controller: _topPagingController,
+                                        ),
+                                        PostsTabBarView(
+                                          controller: _newPagingController,
+                                        ),
+                                        PostsTabBarView(
+                                          controller: _followedPagingController,
+                                        ),
+                                      ]
+                                    : [
+                                        PostsTabBarView(
+                                          controller: _hotPagingController,
+                                        ),
+                                        PostsTabBarView(
+                                          controller: _topPagingController,
+                                        ),
+                                        PostsTabBarView(
+                                          controller: _newPagingController,
+                                        ),
+                                      ],
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
     );
   }
 
@@ -438,7 +510,7 @@ class _PostsTabViewState extends State<PostsTabView>
     );
   }
 
-  Widget _buildPerdionButtons() {
+  Widget _buildPeriodButtons() {
     return SizeTransition(
       sizeFactor: _periodButtonsAnimation,
       axis: Axis.vertical,
@@ -471,10 +543,10 @@ class _PostsTabViewState extends State<PostsTabView>
   Widget _buildPeriodButton(int index) {
     return PeriodButton(
       period: periodItems[index],
-      selected: _selectedPeriod == index,
+      selected: _mySelectedPeriod == index,
       onPressed: () {
         setState(() {
-          _selectedPeriod = index;
+          _mySelectedPeriod = index;
         });
 
         _hotPagingController.refresh();

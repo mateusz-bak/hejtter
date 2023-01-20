@@ -16,12 +16,15 @@ class SwitchSetting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(title),
-      trailing: Switch(
-        value: value,
-        onChanged: onChanged,
-        activeColor: primaryColor,
+    return Padding(
+      padding: const EdgeInsets.only(left: 32),
+      child: ListTile(
+        title: Text(title),
+        trailing: Switch(
+          value: value,
+          onChanged: onChanged,
+          activeColor: primaryColor,
+        ),
       ),
     );
   }
