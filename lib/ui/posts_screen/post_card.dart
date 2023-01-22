@@ -11,6 +11,7 @@ import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/ui/post_screen/hejtter_like_button.dart';
 import 'package:hejtter/ui/post_screen/picture_preview.dart';
+import 'package:hejtter/ui/post_screen/poll_widget.dart';
 import 'package:hejtter/ui/posts_screen/comment_in_post_card.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/ui/posts_screen/posts_screen.dart';
@@ -36,6 +37,8 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard>
     with AutomaticKeepAliveClientMixin {
   late Post? item;
+
+  int? _votingOnOption;
 
   _goToUserScreen() {
     Navigator.push(
@@ -109,6 +112,26 @@ class _PostCardState extends State<PostCard>
           item = refreshedPost;
         });
       }
+    }
+  }
+
+  Future<void> _voteOnPoll(uuid, option) async {
+    setState(() {
+      _votingOnOption = option;
+    });
+
+    final result = await hejtoApi.createPollVote(
+      uuid: uuid,
+      option: option,
+      context: context,
+    );
+
+    setState(() {
+      _votingOnOption = null;
+    });
+
+    if (result) {
+      _refreshPost();
     }
   }
 
@@ -189,6 +212,7 @@ class _PostCardState extends State<PostCard>
                     const SizedBox(height: 10),
                     _buildContent(),
                     _buildTags(),
+                    _buildPoll(),
                     _buildPicture(),
                     const SizedBox(height: 20),
                     _buildComments(),
@@ -278,6 +302,27 @@ class _PostCardState extends State<PostCard>
     } else {
       return const SizedBox();
     }
+  }
+
+  Widget _buildPoll() {
+    if (item == null ||
+        item!.poll?.options == null ||
+        item!.poll?.title == null ||
+        item!.poll?.uuid == null ||
+        item!.poll?.numVotes == null ||
+        item!.poll!.options!.length < 2) {
+      return const SizedBox();
+    }
+
+    return PollWidget(
+      title: item!.poll!.title!,
+      uuid: item!.poll!.uuid!,
+      options: item!.poll!.options!,
+      numVotes: item!.poll!.numVotes!,
+      userVote: item!.poll!.userVote,
+      votingOnOption: _votingOnOption,
+      onVoted: _voteOnPoll,
+    );
   }
 
   Widget _buildTags() {

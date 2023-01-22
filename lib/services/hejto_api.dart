@@ -1296,4 +1296,45 @@ class HejtoApi {
       return false;
     }
   }
+
+  Future<bool> createPollVote({
+    required String uuid,
+    required int option,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    final body = {
+      'option': '$option',
+    };
+
+    HttpClientRequest request = await client.postUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/polls/$uuid/votes',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+    request.add(utf8.encode(json.encode(body)));
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+    if (response.statusCode == 201) {
+      return true;
+    } else if (response.statusCode == 429) {
+      _showFlushBar(context, 'Przekroczono limit');
+      return false;
+    } else {
+      _showFlushBar(context, 'Błąd głosowania: ${response.statusCode}');
+      return false;
+    }
+  }
 }

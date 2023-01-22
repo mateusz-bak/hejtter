@@ -33,6 +33,7 @@ class Post {
     this.isLiked,
     this.isFavorited,
     this.isCommented,
+    this.poll,
   });
 
   final List<CommentItem>? comments;
@@ -65,6 +66,7 @@ class Post {
   final bool? isLiked;
   final bool? isFavorited;
   final bool? isCommented;
+  final Poll? poll;
 
   factory Post.fromJson(Map<String, dynamic> json) => Post(
         comments: json["comments"] == null
@@ -115,5 +117,52 @@ class Post {
         isLiked: json["is_liked"],
         isFavorited: json["is_favorited"],
         isCommented: json["is_commented"],
+        poll: json["poll"] == null ? null : Poll.fromJson(json["poll"]),
+      );
+}
+
+class Poll {
+  Poll({
+    this.title,
+    this.options,
+    this.numVotes,
+    this.userVote,
+    this.uuid,
+  });
+
+  final String? title;
+  final List<HejtoPollOption>? options;
+  final int? numVotes;
+  final int? userVote;
+  final String? uuid;
+
+  factory Poll.fromJson(Map<String, dynamic> json) => Poll(
+        title: json["title"],
+        options: json["options"] == null
+            ? null
+            : List<HejtoPollOption>.from(
+                json["options"].map((x) => HejtoPollOption.fromJson(x))),
+        numVotes: json["num_votes"],
+        userVote: json["user_vote"],
+        uuid: json["uuid"],
+      );
+}
+
+class HejtoPollOption {
+  HejtoPollOption({
+    this.title,
+    this.num,
+    this.numVotes,
+  });
+
+  final String? title;
+  final int? num;
+  final int? numVotes;
+
+  factory HejtoPollOption.fromJson(Map<String, dynamic> json) =>
+      HejtoPollOption(
+        title: json["title"],
+        num: json["num"],
+        numVotes: json["num_votes"],
       );
 }

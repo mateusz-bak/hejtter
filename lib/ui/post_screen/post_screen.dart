@@ -19,6 +19,7 @@ import 'package:hejtter/ui/post_screen/comment_in_post_screen.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/ui/post_screen/hejtter_like_button.dart';
 import 'package:hejtter/ui/post_screen/picture_preview.dart';
+import 'package:hejtter/ui/post_screen/poll_widget.dart';
 import 'package:hejtter/ui/posts_screen/posts_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -63,6 +64,8 @@ class _PostScreenState extends State<PostScreen> {
   );
 
   late Set<String> moreButtonOptions;
+
+  int? _votingOnOption;
 
   final moreButtonOptionsFavorited = {
     'Usuń z ulubionych',
@@ -432,6 +435,26 @@ class _PostScreenState extends State<PostScreen> {
     return updatedPostphotos;
   }
 
+  Future<void> _voteOnPoll(uuid, option) async {
+    setState(() {
+      _votingOnOption = option;
+    });
+
+    final result = await hejtoApi.createPollVote(
+      uuid: uuid,
+      option: option,
+      context: context,
+    );
+
+    setState(() {
+      _votingOnOption = null;
+    });
+
+    if (result) {
+      _refreshPost();
+    }
+  }
+
   @override
   void initState() {
     _pagingController.addPageRequestListener((pageKey) {
@@ -750,6 +773,7 @@ class _PostScreenState extends State<PostScreen> {
                         const SizedBox(height: 10),
                         _buildContent(),
                         _buildTags(),
+                        _buildPoll(),
                         _buildPicture(),
                         Padding(
                           padding: const EdgeInsets.only(left: 5),
@@ -866,6 +890,26 @@ class _PostScreenState extends State<PostScreen> {
     } else {
       return const SizedBox();
     }
+  }
+
+  Widget _buildPoll() {
+    if (post.poll?.options == null ||
+        post.poll?.title == null ||
+        post.poll?.uuid == null ||
+        post.poll?.numVotes == null ||
+        post.poll!.options!.length < 2) {
+      return const SizedBox();
+    }
+
+    return PollWidget(
+      title: post.poll!.title!,
+      uuid: post.poll!.uuid!,
+      options: post.poll!.options!,
+      numVotes: post.poll!.numVotes!,
+      userVote: post.poll!.userVote,
+      votingOnOption: _votingOnOption,
+      onVoted: _voteOnPoll,
+    );
   }
 
   Widget _buildPicture() {
