@@ -271,6 +271,7 @@ class HejtoApi {
     required int pageKey,
     required int pageSize,
     required BuildContext context,
+    String? type,
     String? communitySlug,
     String? tagName,
     String? author,
@@ -294,6 +295,7 @@ class HejtoApi {
     queryParameters = _addTagFilter(queryParameters, tagName);
     queryParameters = _addSearchQuery(queryParameters, query);
     queryParameters = _addPostsPeriod(queryParameters, postsPeriod);
+    queryParameters = _addPostsType(queryParameters, type);
     queryParameters = _addPostsAuthor(queryParameters, author);
     queryParameters = _addPostsCommenter(queryParameters, commentedBy);
     queryParameters = _addPostsFavorited(queryParameters, favorited);
@@ -447,6 +449,19 @@ class HejtoApi {
     if (followed == true) {
       queryParameters.addEntries(
         <String, String>{'followed': '1'}.entries,
+      );
+    }
+
+    return queryParameters;
+  }
+
+  Map<String, String> _addPostsType(
+    Map<String, String> queryParameters,
+    String? type,
+  ) {
+    if (type != null) {
+      queryParameters.addEntries(
+        <String, String>{'type[]': type}.entries,
       );
     }
 

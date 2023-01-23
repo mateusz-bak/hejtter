@@ -122,10 +122,12 @@ class _HomeScreenState extends State<HomeScreen> {
             appBar: AppBar(
               title: Text(
                 bottomNavBarIndex == 0
-                    ? 'Dyskusje'
+                    ? 'Artykuły'
                     : bottomNavBarIndex == 1
-                        ? 'Powiadomienia'
-                        : '',
+                        ? 'Dyskusje'
+                        : bottomNavBarIndex == 2
+                            ? 'Powiadomienia'
+                            : '',
                 style: const TextStyle(fontSize: 18),
               ),
               backgroundColor: backgroundColor,
@@ -135,92 +137,70 @@ class _HomeScreenState extends State<HomeScreen> {
             drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
             floatingActionButton: bottomNavBarIndex == 0
                 ? _buildNewPostFAB()
-                : _buildReadNotificationsFAB(),
+                : bottomNavBarIndex == 2
+                    ? _buildReadNotificationsFAB()
+                    : null,
             body: bottomNavBarIndex == 0
                 ? PostsTabView(
                     showSearchBar: _showSearchBar,
                     focusNode: focusNode,
+                    fiterPosts: HejtoPage.articles,
                     showFollowedTab: state is ProfilePresentState,
                   )
                 : bottomNavBarIndex == 1
-                    ? NotificationsScreen(updateCounter: (newValue) {
-                        setState(() {
-                          _notificationsCounter = newValue;
-                        });
-                      })
-                    : const SizedBox(),
-            bottomNavigationBar: _buildBottomNavigationBar(state, context),
+                    ? PostsTabView(
+                        showSearchBar: _showSearchBar,
+                        focusNode: focusNode,
+                        fiterPosts: HejtoPage.discussions,
+                        showFollowedTab: state is ProfilePresentState,
+                      )
+                    : bottomNavBarIndex == 2
+                        ? NotificationsScreen(updateCounter: (newValue) {
+                            setState(() {
+                              _notificationsCounter = newValue;
+                            });
+                          })
+                        : const SizedBox(),
+            bottomNavigationBar: _buildBottomNavigationBar(),
           ),
         );
       },
     );
   }
 
-  BottomNavigationBar _buildBottomNavigationBar(
-      ProfileState state, BuildContext context) {
-    return BottomNavigationBar(
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
-      backgroundColor: backgroundColor,
-      selectedItemColor: primaryColor,
-      currentIndex: bottomNavBarIndex,
-      onTap: (value) {
-        switch (value) {
-          case 0:
-            setState(() {
-              bottomNavBarIndex = value;
-            });
-            break;
-          case 1:
-            if (state is ProfilePresentState) {
-              setState(() {
-                bottomNavBarIndex = value;
-              });
-            } else {
-              Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return const LoginScreen();
-              }));
-            }
-        }
-      },
-      items: <BottomNavigationBarItem>[
-        const BottomNavigationBarItem(
-          icon: Icon(Icons.reorder),
-          label: 'Wpisy',
-        ),
-        BottomNavigationBarItem(
-          icon: Stack(
-            children: [
-              const Icon(Icons.notifications),
-              _notificationsCounter != 0
-                  ? Positioned(
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(1),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 12,
-                          minHeight: 12,
-                        ),
-                        child: Text(
-                          _notificationsCounter.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 8,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    )
-                  : const SizedBox(),
-            ],
+  Widget _buildBottomNavigationBar() {
+    return NavigationBarTheme(
+      data: const NavigationBarThemeData(
+        indicatorColor: primaryColor,
+        backgroundColor: backgroundColor,
+        elevation: 0.9,
+      ),
+      child: NavigationBar(
+        selectedIndex: bottomNavBarIndex,
+        height: 70,
+        onDestinationSelected: (int index) {
+          setState(() {
+            bottomNavBarIndex = index;
+          });
+        },
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        destinations: const <Widget>[
+          NavigationDestination(
+            icon: Icon(Icons.newspaper),
+            label: 'Artykuły',
           ),
-          label: 'Powiadomienia',
-        ),
-      ],
+          NavigationDestination(
+            selectedIcon: Icon(Icons.forum),
+            icon: Icon(Icons.forum_outlined),
+            label: 'Dyskusje',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.notifications_rounded),
+            icon: Icon(Icons.notifications_none),
+            label: 'Powiadomienia',
+          ),
+        ],
+      ),
     );
   }
 

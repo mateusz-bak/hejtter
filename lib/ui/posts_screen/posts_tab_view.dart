@@ -21,6 +21,7 @@ class PostsTabView extends StatefulWidget {
     super.key,
     this.showSearchBar = false,
     this.focusNode,
+    this.fiterPosts,
     this.communitySlug,
     this.tagName,
     this.showFollowedTab = false,
@@ -28,6 +29,7 @@ class PostsTabView extends StatefulWidget {
 
   final bool showSearchBar;
   final bool showFollowedTab;
+  final HejtoPage? fiterPosts;
   final String? communitySlug;
   final String? tagName;
   final FocusNode? focusNode;
@@ -96,6 +98,11 @@ class _PostsTabViewState extends State<PostsTabView>
         query: query,
         orderBy: 'p.hotness',
         postsPeriod: _hotPostsPeriod,
+        type: widget.fiterPosts == HejtoPage.articles
+            ? 'article'
+            : widget.fiterPosts == HejtoPage.discussions
+                ? 'discussion'
+                : null,
       );
 
       final isLastPage = newItems!.length < _pageSize;
@@ -132,6 +139,11 @@ class _PostsTabViewState extends State<PostsTabView>
         query: query,
         orderBy: 'p.numLikes',
         postsPeriod: _topPostsPeriod,
+        type: widget.fiterPosts == HejtoPage.articles
+            ? 'article'
+            : widget.fiterPosts == HejtoPage.discussions
+                ? 'discussion'
+                : null,
       );
 
       if (newItems == null) return;
@@ -168,6 +180,11 @@ class _PostsTabViewState extends State<PostsTabView>
         tagName: widget.tagName,
         query: query,
         orderBy: 'p.createdAt',
+        type: widget.fiterPosts == HejtoPage.articles
+            ? 'article'
+            : widget.fiterPosts == HejtoPage.discussions
+                ? 'discussion'
+                : null,
       );
 
       if (newItems == null) return;
@@ -203,6 +220,11 @@ class _PostsTabViewState extends State<PostsTabView>
         context: context,
         orderBy: 'p.createdAt',
         followed: true,
+        type: widget.fiterPosts == HejtoPage.articles
+            ? 'article'
+            : widget.fiterPosts == HejtoPage.discussions
+                ? 'discussion'
+                : null,
       );
 
       if (newItems == null) return;
