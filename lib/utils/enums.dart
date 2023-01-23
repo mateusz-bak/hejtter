@@ -1,8 +1,11 @@
 enum CurrentScreen { home, communities, followed }
 
-enum DefaultTab { hot, top, newTab, followed }
+enum DiscussionsTab { hot, top, newTab, followed }
 
-enum DefaultPeriod {
+enum HejtoPage { articles, discussions }
+
+enum PostsPeriod {
+  threeHours,
   sixHours,
   twelveHours,
   twentyFourHours,

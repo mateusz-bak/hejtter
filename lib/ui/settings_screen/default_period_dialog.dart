@@ -17,12 +17,12 @@ class DefaultPeriodDialog extends StatefulWidget {
 }
 
 class _DefaultPeriodDialogState extends State<DefaultPeriodDialog> {
-  _updatePreferences(DefaultPeriod defaultPeriod) {
+  _updatePreferences(PostsPeriod defaultPeriod) {
     BlocProvider.of<PreferencesBloc>(context).add(
       SetPreferencesEvent(
         deepLinkDialogDisplayed: true,
-        defaultPeriod: defaultPeriod,
-        defaultTab: widget.state.defaultTab,
+        defaultHotPeriod: defaultPeriod,
+        defaultPage: widget.state.defaultPage,
       ),
     );
 
@@ -44,7 +44,7 @@ class _DefaultPeriodDialogState extends State<DefaultPeriodDialog> {
             const Padding(
               padding: EdgeInsets.only(left: 10),
               child: Text(
-                'Wybierz domyślny okres wpisów',
+                'Wybierz domyślny okres gorących',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -53,29 +53,20 @@ class _DefaultPeriodDialogState extends State<DefaultPeriodDialog> {
             ),
             const SizedBox(height: 15),
             SettingsDialogButton(
+              text: '3h',
+              onPressed: () => _updatePreferences(PostsPeriod.threeHours),
+            ),
+            SettingsDialogButton(
               text: '6h',
-              onPressed: () => _updatePreferences(DefaultPeriod.sixHours),
+              onPressed: () => _updatePreferences(PostsPeriod.sixHours),
             ),
             SettingsDialogButton(
               text: '12h',
-              onPressed: () => _updatePreferences(DefaultPeriod.twelveHours),
+              onPressed: () => _updatePreferences(PostsPeriod.twelveHours),
             ),
             SettingsDialogButton(
               text: '24h',
-              onPressed: () =>
-                  _updatePreferences(DefaultPeriod.twentyFourHours),
-            ),
-            SettingsDialogButton(
-              text: '7d',
-              onPressed: () => _updatePreferences(DefaultPeriod.sevenDays),
-            ),
-            SettingsDialogButton(
-              text: '30d',
-              onPressed: () => _updatePreferences(DefaultPeriod.thirtyDays),
-            ),
-            SettingsDialogButton(
-              text: 'Od początku',
-              onPressed: () => _updatePreferences(DefaultPeriod.all),
+              onPressed: () => _updatePreferences(PostsPeriod.twentyFourHours),
             ),
           ],
         ),

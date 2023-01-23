@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
+import 'package:hejtter/logic/cubit/discussions_nav_cubit.dart';
 
 import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
-import 'package:hejtter/ui/posts_screen/period_button.dart';
 import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -39,24 +39,23 @@ class PostsTabView extends StatefulWidget {
 class _PostsTabViewState extends State<PostsTabView>
     with TickerProviderStateMixin {
   int _currentTab = 0;
-  // late int _initSelectedTab;
-  // late int _initSelectedPeriod;
-
-  int? _mySelectedTab;
-  int? _mySelectedPeriod;
 
   static const _pageSize = 20;
   String query = '';
 
-  late AnimationController _periodButtonsAnimationController;
-  late Animation<double> _periodButtonsAnimation;
+  late PostsPeriod _hotPostsPeriod;
+  var _topPostsPeriod = PostsPeriod.sevenDays;
 
   late TabController _tabController;
 
-  final List<String> periodItems = [
+  final List<String> _hotPeriods = [
+    '3h',
     '6h',
     '12h',
     '24h',
+  ];
+
+  final List<String> _topPeriods = [
     '7d',
     '30d',
     'Od początku',
@@ -70,17 +69,6 @@ class _PostsTabViewState extends State<PostsTabView>
       PagingController(firstPageKey: 1);
   final PagingController<int, Post> _followedPagingController =
       PagingController(firstPageKey: 1);
-
-  _animatePeriodButtons(bool show) {
-    if (show) {
-      _periodButtonsAnimationController.forward();
-    } else {
-      _periodButtonsAnimationController.animateBack(
-        0,
-        duration: const Duration(milliseconds: 250),
-      );
-    }
-  }
 
   List<Post> _filterLocallyBlockedUsers(List<Post> list) {
     final state = BlocProvider.of<ProfileBloc>(context).state;
@@ -107,7 +95,7 @@ class _PostsTabViewState extends State<PostsTabView>
         tagName: widget.tagName,
         query: query,
         orderBy: 'p.hotness',
-        postsPeriod: _mySelectedPeriod,
+        postsPeriod: _hotPostsPeriod,
       );
 
       final isLastPage = newItems!.length < _pageSize;
@@ -143,7 +131,7 @@ class _PostsTabViewState extends State<PostsTabView>
         tagName: widget.tagName,
         query: query,
         orderBy: 'p.numLikes',
-        postsPeriod: _mySelectedPeriod,
+        postsPeriod: _topPostsPeriod,
       );
 
       if (newItems == null) return;
@@ -182,7 +170,9 @@ class _PostsTabViewState extends State<PostsTabView>
         orderBy: 'p.createdAt',
       );
 
-      final isLastPage = newItems!.length < _pageSize;
+      if (newItems == null) return;
+
+      final isLastPage = newItems.length < _pageSize;
       if (isLastPage) {
         if (!mounted) return;
         _newPagingController.appendLastPage(
@@ -215,7 +205,9 @@ class _PostsTabViewState extends State<PostsTabView>
         followed: true,
       );
 
-      final isLastPage = newItems!.length < _pageSize;
+      if (newItems == null) return;
+
+      final isLastPage = newItems.length < _pageSize;
       if (isLastPage) {
         if (!mounted) return;
         _followedPagingController.appendLastPage(newItems);
@@ -261,61 +253,6 @@ class _PostsTabViewState extends State<PostsTabView>
     });
   }
 
-  _setDefaultTab(DefaultTab defaultTab) {
-    if (_mySelectedTab != null) return;
-
-    switch (defaultTab) {
-      case DefaultTab.hot:
-        _mySelectedTab = 0;
-        _tabController.index = 0;
-        break;
-      case DefaultTab.top:
-        _mySelectedTab = 1;
-        _tabController.index = 1;
-        break;
-      case DefaultTab.newTab:
-        _mySelectedTab = 2;
-        _tabController.index = 2;
-        break;
-      case DefaultTab.followed:
-        _mySelectedTab = 3;
-        _tabController.index = 3;
-        break;
-      default:
-        _mySelectedTab = 0;
-        _tabController.index = 0;
-        break;
-    }
-  }
-
-  _setDefaultPeriod(DefaultPeriod defaultPeriod) {
-    if (_mySelectedPeriod != null) return;
-
-    switch (defaultPeriod) {
-      case DefaultPeriod.sixHours:
-        _mySelectedPeriod = 0;
-        break;
-      case DefaultPeriod.twelveHours:
-        _mySelectedPeriod = 1;
-        break;
-      case DefaultPeriod.twentyFourHours:
-        _mySelectedPeriod = 2;
-        break;
-      case DefaultPeriod.sevenDays:
-        _mySelectedPeriod = 3;
-        break;
-      case DefaultPeriod.thirtyDays:
-        _mySelectedPeriod = 4;
-        break;
-      case DefaultPeriod.all:
-        _mySelectedPeriod = 5;
-        break;
-      default:
-        _mySelectedPeriod = 0;
-        break;
-    }
-  }
-
   @override
   void initState() {
     _hotPagingController.addPageRequestListener((pageKey) {
@@ -338,31 +275,10 @@ class _PostsTabViewState extends State<PostsTabView>
 
     super.initState();
 
-    _periodButtonsAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 250),
-      vsync: this,
-      value: 1,
-    );
-
-    _periodButtonsAnimation = CurvedAnimation(
-      parent: _periodButtonsAnimationController,
-      curve: Curves.easeIn,
-    );
-
     _tabController = TabController(
       length: widget.showFollowedTab ? 4 : 3,
       vsync: this,
     );
-
-    _tabController.addListener(() {
-      final index = _tabController.index;
-
-      if (index == 0 || index == 1) {
-        _animatePeriodButtons(true);
-      } else {
-        _animatePeriodButtons(false);
-      }
-    });
   }
 
   @override
@@ -380,8 +296,8 @@ class _PostsTabViewState extends State<PostsTabView>
     return BlocBuilder<PreferencesBloc, PreferencesState>(
       builder: (context, state) {
         if (state is PreferencesSet) {
-          _setDefaultTab(state.defaultTab);
-          _setDefaultPeriod(state.defaultPeriod);
+          _hotPostsPeriod = state.defaultHotPeriod;
+          discussionsNavCubit.changeHotTabPeriod(state.defaultHotPeriod);
 
           return Column(
             children: [
@@ -397,7 +313,6 @@ class _PostsTabViewState extends State<PostsTabView>
                     child: Column(
                       children: [
                         _buildTabBar(),
-                        _buildPeriodButtons(),
                         StreamBuilder<String>(
                           stream: searchCubit.searchString,
                           builder: (context, AsyncSnapshot<String> snapshot) {
@@ -413,29 +328,15 @@ class _PostsTabViewState extends State<PostsTabView>
                                 controller: _tabController,
                                 children: widget.showFollowedTab
                                     ? [
-                                        PostsTabBarView(
-                                          controller: _hotPagingController,
-                                        ),
-                                        PostsTabBarView(
-                                          controller: _topPagingController,
-                                        ),
-                                        PostsTabBarView(
-                                          controller: _newPagingController,
-                                        ),
-                                        PostsTabBarView(
-                                          controller: _followedPagingController,
-                                        ),
+                                        _buildHotPostsTabBarView(),
+                                        _buildTopPostsTabBarView(),
+                                        _buildNewPostsTabBarView(),
+                                        _buildFollowedPostsTabBarView(),
                                       ]
                                     : [
-                                        PostsTabBarView(
-                                          controller: _hotPagingController,
-                                        ),
-                                        PostsTabBarView(
-                                          controller: _topPagingController,
-                                        ),
-                                        PostsTabBarView(
-                                          controller: _newPagingController,
-                                        ),
+                                        _buildHotPostsTabBarView(),
+                                        _buildTopPostsTabBarView(),
+                                        _buildNewPostsTabBarView(),
                                       ],
                               ),
                             );
@@ -453,6 +354,171 @@ class _PostsTabViewState extends State<PostsTabView>
         }
       },
     );
+  }
+
+  Widget _buildHotPostsTabBarView() {
+    return StreamBuilder<PostsPeriod>(
+        stream: discussionsNavCubit.hotTabPeriod,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            _hotPostsPeriod = snapshot.data!;
+            _refreshAllControllers();
+          }
+
+          return PostsTabBarView(
+            controller: _hotPagingController,
+            topDropdown: _buildHotDropdown(),
+          );
+        });
+  }
+
+  Widget _buildTopPostsTabBarView() {
+    return StreamBuilder<PostsPeriod>(
+        stream: discussionsNavCubit.topTabPeriod,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            _topPostsPeriod = snapshot.data!;
+            _refreshAllControllers();
+          }
+
+          return PostsTabBarView(
+            controller: _topPagingController,
+            topDropdown: _buildTopDropdown(),
+          );
+        });
+  }
+
+  Widget _buildNewPostsTabBarView() {
+    return PostsTabBarView(
+      controller: _newPagingController,
+    );
+  }
+
+  Widget _buildFollowedPostsTabBarView() {
+    return PostsTabBarView(
+      controller: _followedPagingController,
+    );
+  }
+
+  Widget _buildHotDropdown() {
+    final dropdownItems = _hotPeriods
+        .map(
+          (String value) => DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          ),
+        )
+        .toList();
+
+    return StreamBuilder<PostsPeriod>(
+      stream: discussionsNavCubit.hotTabPeriod,
+      builder: (BuildContext context, AsyncSnapshot<PostsPeriod> snapshot) {
+        if (snapshot.hasData) {
+          return SizedBox(
+            width: MediaQuery.of(context).size.width / 2,
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isExpanded: true,
+                alignment: Alignment.center,
+                items: dropdownItems,
+                value: _getPostsPeriodString(snapshot.data),
+                onChanged: (value) {
+                  switch (value) {
+                    case '3h':
+                      discussionsNavCubit
+                          .changeHotTabPeriod(PostsPeriod.threeHours);
+                      break;
+                    case '6h':
+                      discussionsNavCubit
+                          .changeHotTabPeriod(PostsPeriod.sixHours);
+                      break;
+                    case '12h':
+                      discussionsNavCubit
+                          .changeHotTabPeriod(PostsPeriod.twelveHours);
+                      break;
+                    case '24h':
+                      discussionsNavCubit
+                          .changeHotTabPeriod(PostsPeriod.twentyFourHours);
+                      break;
+                  }
+                },
+              ),
+            ),
+          );
+        }
+
+        return const SizedBox();
+      },
+    );
+  }
+
+  Widget _buildTopDropdown() {
+    final dropdownItems = _topPeriods
+        .map(
+          (String value) => DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          ),
+        )
+        .toList();
+
+    return StreamBuilder<PostsPeriod>(
+      stream: discussionsNavCubit.topTabPeriod,
+      builder: (BuildContext context, AsyncSnapshot<PostsPeriod> snapshot) {
+        if (snapshot.hasData) {
+          return SizedBox(
+            width: MediaQuery.of(context).size.width / 2,
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isExpanded: true,
+                alignment: Alignment.center,
+                items: dropdownItems,
+                value: _getPostsPeriodString(snapshot.data),
+                onChanged: (value) {
+                  switch (value) {
+                    case '7d':
+                      discussionsNavCubit
+                          .changeTopTabPeriod(PostsPeriod.sevenDays);
+                      break;
+                    case '30d':
+                      discussionsNavCubit
+                          .changeTopTabPeriod(PostsPeriod.thirtyDays);
+                      break;
+                    case 'Od początku':
+                      discussionsNavCubit.changeTopTabPeriod(PostsPeriod.all);
+                      break;
+                  }
+                },
+              ),
+            ),
+          );
+        }
+
+        return const SizedBox();
+      },
+    );
+  }
+
+  String _getPostsPeriodString(PostsPeriod? postsPeriod) {
+    switch (postsPeriod) {
+      case PostsPeriod.threeHours:
+        return '3h';
+      case PostsPeriod.sixHours:
+        return '6h';
+      case PostsPeriod.twelveHours:
+        return '12h';
+      case PostsPeriod.twentyFourHours:
+        return '24h';
+      case PostsPeriod.sevenDays:
+        return '7d';
+      case PostsPeriod.thirtyDays:
+        return '30d';
+      case PostsPeriod.all:
+        return 'Od początku';
+
+      default:
+        return '6h';
+    }
   }
 
   Widget _buildTabBar() {
@@ -476,9 +542,7 @@ class _PostsTabViewState extends State<PostsTabView>
                 break;
             }
           } else {
-            setState(() {
-              _currentTab = value;
-            });
+            _currentTab = value;
           }
         },
         indicatorColor: const Color(0xff2295F3),
@@ -488,7 +552,7 @@ class _PostsTabViewState extends State<PostsTabView>
                 _buildTab(context, 0, 'Gorące'),
                 _buildTab(context, 1, 'Top'),
                 _buildTab(context, 2, 'Nowe'),
-                _buildTab(context, 3, 'Obserwowane')
+                _buildTab(context, 3, 'Obserwowane'),
               ]
             : [
                 _buildTab(context, 0, 'Gorące'),
@@ -507,51 +571,6 @@ class _PostsTabViewState extends State<PostsTabView>
           style: const TextStyle(fontSize: 13),
         ),
       ),
-    );
-  }
-
-  Widget _buildPeriodButtons() {
-    return SizeTransition(
-      sizeFactor: _periodButtonsAnimation,
-      axis: Axis.vertical,
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 5, 12, 5),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    _buildPeriodButton(0),
-                    _buildPeriodButton(1),
-                    _buildPeriodButton(2),
-                    _buildPeriodButton(3),
-                    _buildPeriodButton(4),
-                    _buildPeriodButton(5),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPeriodButton(int index) {
-    return PeriodButton(
-      period: periodItems[index],
-      selected: _mySelectedPeriod == index,
-      onPressed: () {
-        setState(() {
-          _mySelectedPeriod = index;
-        });
-
-        _hotPagingController.refresh();
-        _topPagingController.refresh();
-      },
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
+import 'package:hejtter/utils/enums.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
@@ -279,7 +280,7 @@ class HejtoApi {
     String query = '',
     required String orderBy,
     String? orderDir,
-    int? postsPeriod,
+    PostsPeriod? postsPeriod,
   }) async {
     final accessToken = await _getAccessToken(context);
 
@@ -454,39 +455,45 @@ class HejtoApi {
 
   Map<String, String> _addPostsPeriod(
     Map<String, String> queryParameters,
-    int? postsPeriod,
+    PostsPeriod? postsPeriod,
   ) {
     switch (postsPeriod) {
-      case 0:
+      case PostsPeriod.threeHours:
+        queryParameters.addEntries(<String, String>{
+          'period': '3h',
+        }.entries);
+        break;
+      case PostsPeriod.sixHours:
         queryParameters.addEntries(<String, String>{
           'period': '6h',
         }.entries);
         break;
-      case 1:
+      case PostsPeriod.twelveHours:
         queryParameters.addEntries(<String, String>{
           'period': '12h',
         }.entries);
         break;
-      case 2:
+      case PostsPeriod.twentyFourHours:
         queryParameters.addEntries(<String, String>{
           'period': '24h',
         }.entries);
         break;
-      case 3:
+      case PostsPeriod.sevenDays:
         queryParameters.addEntries(<String, String>{
           'period': 'week',
         }.entries);
         break;
-      case 4:
+      case PostsPeriod.thirtyDays:
         queryParameters.addEntries(<String, String>{
           'period': 'month',
         }.entries);
         break;
-      case 5:
+      case PostsPeriod.all:
         queryParameters.addEntries(<String, String>{
           'period': 'all',
         }.entries);
         break;
+
       default:
         queryParameters.addEntries(<String, String>{
           'period': 'all',

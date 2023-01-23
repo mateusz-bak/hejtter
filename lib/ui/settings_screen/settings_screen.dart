@@ -123,37 +123,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  String _decideDefaultTabSubtitle(DefaultTab defaultTab) {
-    switch (defaultTab) {
-      case DefaultTab.hot:
-        return 'Gorące';
-      case DefaultTab.top:
-        return 'Top';
-      case DefaultTab.newTab:
-        return 'Nowe';
-      case DefaultTab.followed:
-        return 'Obserwowane';
+  String _decideDefaultPageSubtitle(HejtoPage hejtoPage) {
+    switch (hejtoPage) {
+      case HejtoPage.articles:
+        return 'Artykuły';
+      case HejtoPage.discussions:
+        return 'Dyskusje';
       default:
-        return 'Gorące';
+        return 'Artykuły';
     }
   }
 
-  String _decideDefaultPeriodSubtitle(DefaultPeriod defaultPeriod) {
+  String _decideDefaultHotPeriodSubtitle(PostsPeriod defaultPeriod) {
     switch (defaultPeriod) {
-      case DefaultPeriod.sixHours:
+      case PostsPeriod.threeHours:
+        return '3h';
+      case PostsPeriod.sixHours:
         return '6h';
-      case DefaultPeriod.twelveHours:
+      case PostsPeriod.twelveHours:
         return '12h';
-      case DefaultPeriod.twentyFourHours:
+      case PostsPeriod.twentyFourHours:
         return '24h';
-      case DefaultPeriod.sevenDays:
-        return '7d';
-      case DefaultPeriod.thirtyDays:
-        return '30d';
-      case DefaultPeriod.all:
-        return 'Od początku';
       default:
-        return 'Gorące';
+        return '6h';
     }
   }
 
@@ -201,8 +193,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   builder: (context, state) {
                     if (state is PreferencesSet) {
                       return TextSetting(
-                        title: 'Domyślna karta',
-                        subtitle: _decideDefaultTabSubtitle(state.defaultTab),
+                        title: 'Strona początkowa',
+                        subtitle: _decideDefaultPageSubtitle(state.defaultPage),
                         onPressed: (() {
                           showDialog(
                             context: context,
@@ -221,9 +213,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   builder: (context, state) {
                     if (state is PreferencesSet) {
                       return TextSetting(
-                        title: 'Domyślny okres',
-                        subtitle: _decideDefaultPeriodSubtitle(
-                          state.defaultPeriod,
+                        title: 'Domyślny okres gorących',
+                        subtitle: _decideDefaultHotPeriodSubtitle(
+                          state.defaultHotPeriod,
                         ),
                         onPressed: (() {
                           showDialog(

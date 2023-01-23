@@ -10,16 +10,16 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
       : super(
           const PreferencesSet(
             deepLinkDialogDisplayed: false,
-            defaultTab: DefaultTab.hot,
-            defaultPeriod: DefaultPeriod.sixHours,
+            defaultPage: HejtoPage.articles,
+            defaultHotPeriod: PostsPeriod.sixHours,
           ),
         ) {
     on<SetPreferencesEvent>((event, emit) {
       emit(
         PreferencesSet(
           deepLinkDialogDisplayed: event.deepLinkDialogDisplayed,
-          defaultTab: event.defaultTab,
-          defaultPeriod: event.defaultPeriod,
+          defaultPage: event.defaultPage,
+          defaultHotPeriod: event.defaultHotPeriod,
         ),
       );
     });
@@ -28,33 +28,21 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
   @override
   PreferencesState fromJson(Map<String, dynamic> json) {
     final deepLinkDialogDisplayed = json['deep_link_dialog_displayed'] as bool?;
-    final defaultTab = json['default_tab'] as String?;
-    final defaultPeriod = json['default_period'] as String?;
+    final defaultPage = json['default_page'] as String?;
+    final defaultHotPeriod = json['default_hot_period'] as String?;
 
     return PreferencesSet(
       deepLinkDialogDisplayed: deepLinkDialogDisplayed ?? false,
-      defaultTab: defaultTab == 'hot'
-          ? DefaultTab.hot
-          : defaultTab == 'top'
-              ? DefaultTab.top
-              : defaultTab == 'new_tab'
-                  ? DefaultTab.newTab
-                  : defaultTab == 'followed'
-                      ? DefaultTab.followed
-                      : DefaultTab.hot,
-      defaultPeriod: defaultPeriod == 'six_hours'
-          ? DefaultPeriod.sixHours
-          : defaultPeriod == 'twelve_hours'
-              ? DefaultPeriod.twelveHours
-              : defaultPeriod == 'twenty_four_hours'
-                  ? DefaultPeriod.twentyFourHours
-                  : defaultPeriod == 'seven_days'
-                      ? DefaultPeriod.sevenDays
-                      : defaultPeriod == 'thirty_days'
-                          ? DefaultPeriod.thirtyDays
-                          : defaultPeriod == 'all'
-                              ? DefaultPeriod.all
-                              : DefaultPeriod.sixHours,
+      defaultPage: defaultPage == 'discussions'
+          ? HejtoPage.discussions
+          : HejtoPage.articles,
+      defaultHotPeriod: defaultHotPeriod == 'three_hours'
+          ? PostsPeriod.threeHours
+          : defaultHotPeriod == 'twelve_hours'
+              ? PostsPeriod.twelveHours
+              : defaultHotPeriod == 'twenty_four_hours'
+                  ? PostsPeriod.twentyFourHours
+                  : PostsPeriod.sixHours,
     );
   }
 
@@ -63,28 +51,26 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
     if (state is PreferencesSet) {
       return {
         'deep_link_dialog_displayed': state.deepLinkDialogDisplayed,
-        'default_tab': state.defaultTab == DefaultTab.hot
-            ? 'hot'
-            : state.defaultTab == DefaultTab.top
-                ? 'top'
-                : state.defaultTab == DefaultTab.newTab
-                    ? 'new_tab'
-                    : state.defaultTab == DefaultTab.followed
-                        ? 'followed'
-                        : 'hot',
-        'default_period': state.defaultPeriod == DefaultPeriod.sixHours
-            ? 'six_hours'
-            : state.defaultPeriod == DefaultPeriod.twelveHours
-                ? 'twelve_hours'
-                : state.defaultPeriod == DefaultPeriod.twentyFourHours
-                    ? 'twenty_four_hours'
-                    : state.defaultPeriod == DefaultPeriod.sevenDays
-                        ? 'seven_days'
-                        : state.defaultPeriod == DefaultPeriod.thirtyDays
-                            ? 'thirty_days'
-                            : state.defaultPeriod == DefaultPeriod.all
-                                ? 'all'
-                                : 'six_hours',
+        'default_page': state.defaultPage == HejtoPage.discussions
+            ? 'discussions'
+            : state.defaultPage == HejtoPage.articles
+                ? 'articles'
+                : null,
+        'default_hot_period': state.defaultHotPeriod == PostsPeriod.threeHours
+            ? 'three_hours'
+            : state.defaultHotPeriod == PostsPeriod.sixHours
+                ? 'six_hours'
+                : state.defaultHotPeriod == PostsPeriod.twelveHours
+                    ? 'twelve_hours'
+                    : state.defaultHotPeriod == PostsPeriod.twentyFourHours
+                        ? 'twenty_four_hours'
+                        : state.defaultHotPeriod == PostsPeriod.sevenDays
+                            ? 'seven_days'
+                            : state.defaultHotPeriod == PostsPeriod.thirtyDays
+                                ? 'thirty_days'
+                                : state.defaultHotPeriod == PostsPeriod.all
+                                    ? 'all'
+                                    : 'null',
       };
     } else {
       return null;

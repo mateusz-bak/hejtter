@@ -17,12 +17,12 @@ class DefaultTabDialog extends StatefulWidget {
 }
 
 class _DefaultTabDialogState extends State<DefaultTabDialog> {
-  _updatePreferences(DefaultTab defaultTab) {
+  _updatePreferences(HejtoPage defaultPage) {
     BlocProvider.of<PreferencesBloc>(context).add(
       SetPreferencesEvent(
         deepLinkDialogDisplayed: true,
-        defaultPeriod: widget.state.defaultPeriod,
-        defaultTab: defaultTab,
+        defaultHotPeriod: widget.state.defaultHotPeriod,
+        defaultPage: defaultPage,
       ),
     );
 
@@ -44,7 +44,7 @@ class _DefaultTabDialogState extends State<DefaultTabDialog> {
             const Padding(
               padding: EdgeInsets.only(left: 10),
               child: Text(
-                'Wybierz domyślną kartę',
+                'Wybierz stronę początkową',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -53,20 +53,12 @@ class _DefaultTabDialogState extends State<DefaultTabDialog> {
             ),
             const SizedBox(height: 15),
             SettingsDialogButton(
-              text: 'Gorące',
-              onPressed: () => _updatePreferences(DefaultTab.hot),
+              text: 'Artykuły',
+              onPressed: () => _updatePreferences(HejtoPage.articles),
             ),
             SettingsDialogButton(
-              text: 'Top',
-              onPressed: () => _updatePreferences(DefaultTab.top),
-            ),
-            SettingsDialogButton(
-              text: 'Najnowsze',
-              onPressed: () => _updatePreferences(DefaultTab.newTab),
-            ),
-            SettingsDialogButton(
-              text: 'Obserwowane',
-              onPressed: () => _updatePreferences(DefaultTab.followed),
+              text: 'Dyskusje',
+              onPressed: () => _updatePreferences(HejtoPage.discussions),
             ),
           ],
         ),
