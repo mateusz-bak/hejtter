@@ -771,10 +771,19 @@ class _PostScreenState extends State<PostScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 10),
+                        _buildTitle(),
+                        SizedBox(height: post.type == 'article' ? 10 : 0),
+                        post.type == 'article'
+                            ? _buildPicture()
+                            : const SizedBox(),
+                        SizedBox(height: post.type == 'article' ? 10 : 0),
                         _buildContent(),
                         _buildTags(),
                         _buildPoll(),
-                        _buildPicture(),
+                        post.type != 'article'
+                            ? _buildPicture()
+                            : const SizedBox(),
+                        const SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.only(left: 5),
                           child: AnswerButton(
@@ -927,6 +936,23 @@ class _PostScreenState extends State<PostScreen> {
       nsfw: post.nsfw ?? false,
       imagesUrls: post.images,
     );
+  }
+
+  Widget _buildTitle() {
+    if (post.type == 'article') {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Text(
+          post.title ?? '',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+          ),
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
   }
 
   Widget _buildContent() {

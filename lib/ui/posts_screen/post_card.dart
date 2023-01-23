@@ -210,10 +210,18 @@ class _PostCardState extends State<PostCard>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 10),
+                    _buildTitle(),
+                    SizedBox(height: item?.type == 'article' ? 10 : 0),
+                    item?.type == 'article'
+                        ? _buildPicture()
+                        : const SizedBox(),
+                    SizedBox(height: item?.type == 'article' ? 10 : 0),
                     _buildContent(),
                     _buildTags(),
                     _buildPoll(),
-                    _buildPicture(),
+                    item?.type != 'article'
+                        ? _buildPicture()
+                        : const SizedBox(),
                     const SizedBox(height: 20),
                     _buildComments(),
                   ],
@@ -399,6 +407,23 @@ class _PostCardState extends State<PostCard>
         },
       ),
     );
+  }
+
+  Widget _buildTitle() {
+    if (item?.type == 'article') {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Text(
+          item?.title ?? '',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+          ),
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
   }
 
   Widget _buildAvatar() {
