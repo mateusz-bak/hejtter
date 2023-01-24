@@ -213,17 +213,21 @@ class _PostCardState extends State<PostCard>
                     _buildTitle(),
                     SizedBox(height: item?.type == 'article' ? 10 : 0),
                     item?.type == 'article'
-                        ? _buildPicture()
+                        ? _buildContentPreviewAndPicture()
                         : const SizedBox(),
                     SizedBox(height: item?.type == 'article' ? 10 : 0),
-                    _buildContent(),
+                    item?.type != 'article'
+                        ? _buildContent()
+                        : const SizedBox(),
                     _buildTags(),
                     _buildPoll(),
                     item?.type != 'article'
                         ? _buildPicture()
                         : const SizedBox(),
                     const SizedBox(height: 20),
-                    _buildComments(),
+                    item?.type != 'article'
+                        ? _buildComments()
+                        : const SizedBox(),
                   ],
                 ),
               ],
@@ -249,6 +253,46 @@ class _PostCardState extends State<PostCard>
       multiplePics: multiplePics,
       nsfw: item!.nsfw ?? false,
       imagesUrls: item!.images,
+    );
+  }
+
+  Widget _buildContentPreviewAndPicture() {
+    if (item == null ||
+        item!.images == null ||
+        item!.images!.isEmpty ||
+        item!.images![0].urls?.the1200X900 == null) {
+      return const SizedBox();
+    }
+
+    final bool multiplePics = item!.images!.length > 1;
+
+    return SizedBox(
+      height: 120,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
+              child: Text(
+                item?.content ?? '',
+                softWrap: true,
+                textAlign: TextAlign.justify,
+                maxLines: null,
+              ),
+            ),
+          ),
+          PicturePreview(
+            imageUrl: item!.images![0].urls!.the1200X900!,
+            multiplePics: multiplePics,
+            nsfw: item!.nsfw ?? false,
+            imagesUrls: item!.images,
+            height: 100,
+            width: 100,
+          ),
+        ],
+      ),
     );
   }
 
@@ -417,7 +461,7 @@ class _PostCardState extends State<PostCard>
           item?.title ?? '',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 22,
+            fontSize: 16,
           ),
         ),
       );

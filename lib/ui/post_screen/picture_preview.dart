@@ -17,12 +17,16 @@ class PicturePreview extends StatefulWidget {
     required this.imagesUrls,
     required this.multiplePics,
     required this.nsfw,
+    this.height,
+    this.width,
   }) : super(key: key);
 
   final String imageUrl;
   final List<PostImage>? imagesUrls;
   final bool multiplePics;
   final bool nsfw;
+  final double? height;
+  final double? width;
 
   @override
   State<PicturePreview> createState() => _PicturePreviewState();
@@ -49,7 +53,11 @@ class _PicturePreviewState extends State<PicturePreview> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(3),
                 child: CachedNetworkImage(
-                  fit: BoxFit.cover,
+                  height: widget.height,
+                  width: widget.width,
+                  fit: (widget.height == null && widget.width == null)
+                      ? BoxFit.cover
+                      : BoxFit.cover,
                   imageUrl: widget.imageUrl,
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
