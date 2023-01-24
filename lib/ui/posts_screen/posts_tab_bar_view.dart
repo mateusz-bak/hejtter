@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/ui/posts_screen/post_card.dart';
+import 'package:hejtter/utils/constants.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class PostsTabBarView extends StatefulWidget {
   const PostsTabBarView({
@@ -41,6 +43,16 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
               padding: const EdgeInsets.all(5),
               builderDelegate: PagedChildBuilderDelegate<Post>(
                 itemBuilder: (context, item, index) => PostCard(item: item),
+                firstPageProgressIndicatorBuilder: (context) =>
+                    LoadingAnimationWidget.fourRotatingDots(
+                  color: primaryColor,
+                  size: 32,
+                ),
+                newPageProgressIndicatorBuilder: (context) =>
+                    LoadingAnimationWidget.fourRotatingDots(
+                  color: primaryColor,
+                  size: 32,
+                ),
               ),
             ),
           ),

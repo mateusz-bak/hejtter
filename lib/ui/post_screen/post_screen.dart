@@ -27,6 +27,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import 'package:share_plus/share_plus.dart';
 
@@ -519,8 +520,11 @@ class _PostScreenState extends State<PostScreen> {
         appBar: AppBar(
           backgroundColor: backgroundColor,
         ),
-        body: const Center(
-          child: CircularProgressIndicator(),
+        body: Center(
+          child: LoadingAnimationWidget.fourRotatingDots(
+            color: primaryColor,
+            size: 24,
+          ),
         ),
       );
     }
@@ -617,7 +621,10 @@ class _PostScreenState extends State<PostScreen> {
                                 padding: const EdgeInsets.all(5),
                                 width: 24,
                                 height: 24,
-                                child: const CircularProgressIndicator(),
+                                child: LoadingAnimationWidget.fourRotatingDots(
+                                  color: primaryColor,
+                                  size: 24,
+                                ),
                               ),
                       ),
                     ],
@@ -701,7 +708,10 @@ class _PostScreenState extends State<PostScreen> {
         padding: const EdgeInsets.all(10),
         width: 32,
         height: 32,
-        child: const CircularProgressIndicator(),
+        child: LoadingAnimationWidget.fourRotatingDots(
+          color: primaryColor,
+          size: 24,
+        ),
       ),
     );
   }

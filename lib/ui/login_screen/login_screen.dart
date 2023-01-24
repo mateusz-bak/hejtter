@@ -7,6 +7,7 @@ import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
 import 'package:hejtter/ui/settings_screen/deep_links_dialog.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -207,11 +208,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     onPressed: _loading ? null : () => _login(context),
                     child: _loading
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 16,
                             height: 16,
                             child: Center(
-                              child: CircularProgressIndicator(),
+                              child: LoadingAnimationWidget.fourRotatingDots(
+                                color: primaryColor,
+                                size: 16,
+                              ),
                             ),
                           )
                         : const Text('Zaloguj się'),

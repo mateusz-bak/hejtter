@@ -13,6 +13,7 @@ import 'package:hejtter/utils/constants.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class UserScreen extends StatefulWidget {
   const UserScreen({
@@ -271,10 +272,13 @@ class _UserScreenState extends State<UserScreen> {
             );
           }
 
-          return const Padding(
-            padding: EdgeInsets.all(10),
+          return Padding(
+            padding: const EdgeInsets.all(10),
             child: Center(
-              child: CircularProgressIndicator(),
+              child: LoadingAnimationWidget.fourRotatingDots(
+                color: primaryColor,
+                size: 24,
+              ),
             ),
           );
         },

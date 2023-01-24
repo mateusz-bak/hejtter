@@ -8,6 +8,7 @@ import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({
@@ -221,7 +222,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         ? null
                         : _startAddingPost,
                     child: _isPostAdding
-                        ? const CircularProgressIndicator()
+                        ? LoadingAnimationWidget.fourRotatingDots(
+                            color: primaryColor,
+                            size: 20,
+                          )
                         : const Text('Dodaj'),
                   ),
                 ),
@@ -262,7 +266,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
         padding: const EdgeInsets.all(10),
         width: 32,
         height: 32,
-        child: const CircularProgressIndicator(),
+        child: LoadingAnimationWidget.fourRotatingDots(
+          color: primaryColor,
+          size: 20,
+        ),
       ),
     );
   }

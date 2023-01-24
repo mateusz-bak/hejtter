@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class PollWidget extends StatelessWidget {
   const PollWidget({
@@ -118,11 +119,14 @@ class PollWidget extends StatelessWidget {
           children: [
             Expanded(
               child: votingOnOption == option.num
-                  ? const Center(
+                  ? Center(
                       child: SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(),
+                        child: LoadingAnimationWidget.fourRotatingDots(
+                          color: primaryColor,
+                          size: 16,
+                        ),
                       ),
                     )
                   : Text(
