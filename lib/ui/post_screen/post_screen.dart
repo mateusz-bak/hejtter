@@ -67,6 +67,8 @@ class _PostScreenState extends State<PostScreen> {
 
   int? _votingOnOption;
 
+  bool _isCommentSending = false;
+
   final moreButtonOptionsFavorited = {
     'Usuń z ulubionych',
     'Udostępnij',
@@ -196,10 +198,18 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   _sendComment() async {
+    setState(() {
+      _isCommentSending = true;
+    });
+
     final message = _commentController.text;
 
     if (message.isEmpty && !focusNode.hasFocus) {
       focusNode.requestFocus();
+
+      setState(() {
+        _isCommentSending = false;
+      });
       return;
     }
 
@@ -243,6 +253,10 @@ class _PostScreenState extends State<PostScreen> {
         ),
       );
     }
+
+    setState(() {
+      _isCommentSending = false;
+    });
   }
 
   _respondToUser(String? username) {
@@ -576,11 +590,18 @@ class _PostScreenState extends State<PostScreen> {
                       ),
                       const SizedBox(width: 15),
                       GestureDetector(
-                        onTap: _sendComment,
-                        child: const Icon(
-                          Icons.send_sharp,
-                          color: primaryColor,
-                        ),
+                        onTap: !_isCommentSending ? _sendComment : null,
+                        child: !_isCommentSending
+                            ? const Icon(
+                                Icons.send_sharp,
+                                color: primaryColor,
+                              )
+                            : Container(
+                                padding: const EdgeInsets.all(5),
+                                width: 24,
+                                height: 24,
+                                child: const CircularProgressIndicator(),
+                              ),
                       ),
                     ],
                   ),
@@ -725,7 +746,7 @@ class _PostScreenState extends State<PostScreen> {
               color: backgroundColor,
               child: Card(
                 color: backgroundColor,
-                elevation: 5,
+                elevation: 10,
                 clipBehavior: Clip.antiAlias,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
