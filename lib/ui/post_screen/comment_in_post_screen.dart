@@ -133,52 +133,56 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
   Widget build(BuildContext context) {
     _setTimeAgoLocale();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-              color: widget.isOP
-                  ? Colors.black.withOpacity(0.5)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(5)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const SizedBox(width: 10),
-              Expanded(
-                child: Row(
-                  children: [
-                    _buildAvatar(context),
-                    const SizedBox(width: 10),
-                    _buildUsernameAndDate(context),
-                    const SizedBox(width: 15),
-                  ],
+    return Container(
+      decoration: BoxDecoration(
+        color: widget.isOP ? Colors.black.withOpacity(0.5) : Colors.transparent,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Row(
+                    children: [
+                      _buildAvatar(context),
+                      const SizedBox(width: 10),
+                      _buildUsernameAndDate(context),
+                      const SizedBox(width: 15),
+                    ],
+                  ),
                 ),
-              ),
-              _buildMoreButton(comment?.author?.username),
-              HejtterLikeButton(
-                likeStatus: comment?.isLiked,
-                numLikes: comment?.numLikes,
-                unlikeComment: _unlikeComment,
-                likeComment: _likeComment,
-              ),
-            ],
+                _buildMoreButton(comment?.author?.username),
+                HejtterLikeButton(
+                  likeStatus: comment?.isLiked,
+                  numLikes: comment?.numLikes,
+                  unlikeComment: _unlikeComment,
+                  likeComment: _likeComment,
+                ),
+              ],
+            ),
           ),
-        ),
-        SizedBox(height: widget.isOP ? 12 : 0),
-        _buildContent(),
-        _buildPictures(),
-        Padding(
-          padding: const EdgeInsets.only(left: 42),
-          child: AnswerButton(
-            isSmaller: true,
-            username: widget.comment.author?.username,
-            respondToUser: widget.respondToUser,
+          SizedBox(height: widget.isOP ? 12 : 0),
+          _buildContent(),
+          _buildPictures(),
+          Padding(
+            padding: const EdgeInsets.only(left: 42),
+            child: AnswerButton(
+              isSmaller: true,
+              username: widget.comment.author?.username,
+              respondToUser: widget.respondToUser,
+            ),
           ),
-        ),
-        const SizedBox(height: 0),
-      ],
+          const SizedBox(height: 0),
+        ],
+      ),
     );
   }
 
@@ -229,7 +233,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
     }
   }
 
-  Row _buildContent() {
+  Widget _buildContent() {
     return Row(
       children: [
         const SizedBox(width: 52),
@@ -320,9 +324,10 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
                 Text(
                   widget.isOP ? 'OP' : '',
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: Colors.blue),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: Colors.blue,
+                  ),
                 ),
                 SizedBox(width: widget.isOP ? 5 : 0),
                 const SizedBox(width: 5),
