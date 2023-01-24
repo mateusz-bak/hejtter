@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
+import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 
 import 'package:hejtter/logic/cubit/search_cubit.dart';
@@ -37,7 +38,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   FocusNode focusNode = FocusNode();
   var _showSearchBar = false;
-  int bottomNavBarIndex = 0;
+  late int bottomNavBarIndex;
   int _notificationsCounter = 0;
 
   Future<String?> _addPost(
@@ -97,10 +98,27 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  _loadDefaultHomePage() {
+    final state = context.read<PreferencesBloc>().state;
+    if (state is PreferencesSet) {
+      switch (state.defaultPage) {
+        case HejtoPage.discussions:
+          bottomNavBarIndex = 1;
+          break;
+
+        default:
+          bottomNavBarIndex = 0;
+          break;
+      }
+    }
+  }
+
   @override
   void initState() {
-    super.initState();
+    _loadDefaultHomePage();
     _openPostFromDeepLink();
+
+    super.initState();
   }
 
   @override
@@ -109,12 +127,12 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         return WillPopScope(
           onWillPop: () async {
-            if (bottomNavBarIndex == 1) {
-              setState(() {
-                bottomNavBarIndex = 0;
-              });
-              return false;
-            }
+            // if (bottomNavBarIndex == 1) {
+            //   setState(() {
+            //     bottomNavBarIndex = 0;
+            //   });
+            //   return false;
+            // }
 
             return true;
           },
