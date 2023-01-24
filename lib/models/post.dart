@@ -30,6 +30,7 @@ class Post {
     this.link,
     this.updatedAt,
     this.numLikes,
+    this.numComments,
     this.isLiked,
     this.isFavorited,
     this.isCommented,
@@ -63,6 +64,7 @@ class Post {
   final String? link;
   final DateTime? updatedAt;
   final int? numLikes;
+  final int? numComments;
   final bool? isLiked;
   final bool? isFavorited;
   final bool? isCommented;
@@ -114,6 +116,7 @@ class Post {
             ? null
             : DateTime.parse(json["updated_at"]),
         numLikes: json["num_likes"],
+        numComments: json["num_comments"],
         isLiked: json["is_liked"],
         isFavorited: json["is_favorited"],
         isCommented: json["is_commented"],

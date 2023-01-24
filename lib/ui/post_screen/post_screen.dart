@@ -486,6 +486,23 @@ class _PostScreenState extends State<PostScreen> {
     super.initState();
   }
 
+  String _decideNumberOfCommentsText(int numComments) {
+    if (numComments == 0) {
+      return 'komentarzy';
+    } else if (numComments == 1) {
+      return 'komentarz';
+    }
+
+    final numVotesString = numComments.toString();
+    final lastChar = numVotesString[numVotesString.length - 1];
+
+    if (lastChar == '2' || lastChar == '3' || lastChar == '4') {
+      return 'komentarze';
+    } else {
+      return 'komentarzy';
+    }
+  }
+
   @override
   void dispose() {
     _pagingController.dispose();
@@ -805,12 +822,18 @@ class _PostScreenState extends State<PostScreen> {
                             ? _buildPicture()
                             : const SizedBox(),
                         const SizedBox(height: 20),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 5),
-                          child: AnswerButton(
-                            username: post.author?.username,
-                            respondToUser: _respondToUser,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 5),
+                              child: AnswerButton(
+                                username: post.author?.username,
+                                respondToUser: _respondToUser,
+                              ),
+                            ),
+                            _buildNumberOfComments(),
+                          ],
                         ),
                         _buildComments(),
                       ],
@@ -823,6 +846,20 @@ class _PostScreenState extends State<PostScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildNumberOfComments() {
+    return post.numComments != null
+        ? Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: Text(
+              '${post.numComments} ${_decideNumberOfCommentsText(post.numComments!)}',
+              style: const TextStyle(
+                fontSize: 12,
+              ),
+            ),
+          )
+        : const SizedBox();
   }
 
   Widget _buildHotIcon() {

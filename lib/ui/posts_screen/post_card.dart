@@ -135,6 +135,23 @@ class _PostCardState extends State<PostCard>
     }
   }
 
+  String _decideNumberOfCommentsText(int numComments) {
+    if (numComments == 0) {
+      return 'komentarzy';
+    } else if (numComments == 1) {
+      return 'komentarz';
+    }
+
+    final numVotesString = numComments.toString();
+    final lastChar = numVotesString[numVotesString.length - 1];
+
+    if (lastChar == '2' || lastChar == '3' || lastChar == '4') {
+      return 'komentarze';
+    } else {
+      return 'komentarzy';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -224,6 +241,12 @@ class _PostCardState extends State<PostCard>
                     item?.type != 'article'
                         ? _buildPicture()
                         : const SizedBox(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        _buildNumberOfComments(),
+                      ],
+                    ),
                     const SizedBox(height: 20),
                     item?.type != 'article'
                         ? _buildComments()
@@ -236,6 +259,20 @@ class _PostCardState extends State<PostCard>
         ),
       ),
     );
+  }
+
+  Widget _buildNumberOfComments() {
+    return item?.numComments != null
+        ? Padding(
+            padding: const EdgeInsets.only(right: 10, top: 5),
+            child: Text(
+              '${item!.numComments} ${_decideNumberOfCommentsText(item!.numComments!)}',
+              style: const TextStyle(
+                fontSize: 12,
+              ),
+            ),
+          )
+        : const SizedBox();
   }
 
   Widget _buildPicture() {
