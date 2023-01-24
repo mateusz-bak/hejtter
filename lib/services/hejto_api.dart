@@ -198,6 +198,11 @@ class HejtoApi {
     if (response.statusCode == 201) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas piorunowania wpisu: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -228,6 +233,11 @@ class HejtoApi {
     if (response.statusCode == 204) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas odpiorunowywania wpisu: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -263,6 +273,13 @@ class HejtoApi {
     final stringData = await response.transform(utf8.decoder).join();
 
     _saveCookiesFromResponse(response);
+
+    if (response.statusCode != 200) {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania wpisu: ${response.statusCode}',
+      );
+    }
 
     return Post.fromJson(json.decode(stringData));
   }
@@ -324,28 +341,35 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode == 401) {
-      _showFlushBar(
-        context,
-        'Sesja wygasła :( przekierowanie na stronę logowania',
-      );
+    if (response.statusCode != 200) {
+      if (response.statusCode == 401) {
+        _showFlushBar(
+          context,
+          'Sesja wygasła :( przekierowanie na stronę logowania',
+        );
 
-      await Future.delayed(const Duration(seconds: 3));
+        await Future.delayed(const Duration(seconds: 3));
 
-      BlocProvider.of<AuthBloc>(context).add(
-        const LogOutAuthEvent(),
-      );
+        BlocProvider.of<AuthBloc>(context).add(
+          const LogOutAuthEvent(),
+        );
 
-      BlocProvider.of<ProfileBloc>(context).add(
-        const ClearProfileEvent(),
-      );
+        BlocProvider.of<ProfileBloc>(context).add(
+          const ClearProfileEvent(),
+        );
 
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
-        ),
-        (Route<dynamic> route) => false,
-      );
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(),
+          ),
+          (Route<dynamic> route) => false,
+        );
+      } else {
+        _showFlushBar(
+          context,
+          'Błąd podczas pobierania wpisów: ${response.statusCode}',
+        );
+      }
     }
 
     return postFromJson(stringData).embedded?.items;
@@ -556,6 +580,13 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
+    if (response.statusCode != 200) {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania komentarzy: ${response.statusCode}',
+      );
+    }
+
     return commentsResponseFromJson(stringData).embedded?.items;
   }
 
@@ -588,6 +619,11 @@ class HejtoApi {
     if (response.statusCode == 201) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas piorunowania komentarza: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -621,6 +657,11 @@ class HejtoApi {
     if (response.statusCode == 204) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas odpiorunowywania komentarza: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -659,6 +700,13 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
+    if (response.statusCode != 200) {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania komentarza: ${response.statusCode}',
+      );
+    }
+
     return CommentItem.fromJson(json.decode(stringData));
   }
 
@@ -687,6 +735,12 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
+    if (response.statusCode != 200) {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania konta: ${response.statusCode}',
+      );
+    }
     return accountFromJson(stringData);
   }
 
@@ -724,7 +778,11 @@ class HejtoApi {
     _saveCookiesFromResponse(response);
 
     if (response.statusCode != 201) {
-      _showSnackBar('Dodanie komentarza nieudane (${response.statusCode})');
+      _showFlushBar(
+        context,
+        'Błąd podczas dodawania komentarza: ${response.statusCode}',
+      );
+
       return false;
     }
 
@@ -769,6 +827,13 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
+    if (response.statusCode != 200) {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania społeczności: ${response.statusCode}',
+      );
+    }
+
     return communitiesResponseFromJson(stringData).embedded?.items;
   }
 
@@ -798,6 +863,13 @@ class HejtoApi {
     final stringData = await response.transform(utf8.decoder).join();
 
     _saveCookiesFromResponse(response);
+
+    if (response.statusCode != 200) {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania użytkownika: ${response.statusCode}',
+      );
+    }
 
     return userDetailsResponseFromJson(stringData);
   }
@@ -830,6 +902,11 @@ class HejtoApi {
     if (response.statusCode == 201) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas blokowania użytkownika: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -862,6 +939,11 @@ class HejtoApi {
     if (response.statusCode == 204) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas odblokowywania użytkownika: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -894,6 +976,11 @@ class HejtoApi {
     if (response.statusCode == 201) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas obserwowania użytkownika: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -926,6 +1013,11 @@ class HejtoApi {
     if (response.statusCode == 204) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas odobserwowywania użytkownika: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -958,6 +1050,11 @@ class HejtoApi {
     if (response.statusCode == 201) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas dodawania wpisu do ulubionych: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -990,6 +1087,11 @@ class HejtoApi {
     if (response.statusCode == 204) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas usuwania wpisu z ulubionych: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -1032,6 +1134,11 @@ class HejtoApi {
     if (response.statusCode == 204) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas aktualizacji ustawień konta: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -1081,7 +1188,10 @@ class HejtoApi {
       _showFlushBar(context, 'Przekroczono limit');
       return null;
     } else {
-      _showFlushBar(context, 'Błąd dodawania posta: ${response.statusCode}');
+      _showFlushBar(
+        context,
+        'Błąd podczas dodawania posta: ${response.statusCode}',
+      );
       return null;
     }
   }
@@ -1125,7 +1235,10 @@ class HejtoApi {
       _showFlushBar(context, 'Przekroczono limit');
       return null;
     } else {
-      _showFlushBar(context, 'Błąd dodawania posta: ${response.statusCode}');
+      _showFlushBar(
+        context,
+        'Błąd podczas dodawania zdjęcia: ${response.statusCode}',
+      );
       return null;
     }
   }
@@ -1156,7 +1269,10 @@ class HejtoApi {
     if (response.statusCode == 204) {
       return true;
     } else {
-      _showFlushBar(context, 'Błąd usuwania posta: ${response.statusCode}');
+      _showFlushBar(
+        context,
+        'Błąd podczas usuwania posta: ${response.statusCode}',
+      );
 
       return false;
     }
@@ -1189,7 +1305,10 @@ class HejtoApi {
     if (response.statusCode == 204) {
       return true;
     } else {
-      _showFlushBar(context, 'Błąd usuwania posta: ${response.statusCode}');
+      _showFlushBar(
+        context,
+        'Błąd podczas usuwania komentarza: ${response.statusCode}',
+      );
 
       return false;
     }
@@ -1231,28 +1350,35 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode == 401) {
-      _showFlushBar(
-        context,
-        'Sesja wygasła :( przekierowanie na stronę logowania',
-      );
+    if (response.statusCode != 200) {
+      if (response.statusCode == 401) {
+        _showFlushBar(
+          context,
+          'Sesja wygasła :( przekierowanie na stronę logowania',
+        );
 
-      await Future.delayed(const Duration(seconds: 3));
+        await Future.delayed(const Duration(seconds: 3));
 
-      BlocProvider.of<AuthBloc>(context).add(
-        const LogOutAuthEvent(),
-      );
+        BlocProvider.of<AuthBloc>(context).add(
+          const LogOutAuthEvent(),
+        );
 
-      BlocProvider.of<ProfileBloc>(context).add(
-        const ClearProfileEvent(),
-      );
+        BlocProvider.of<ProfileBloc>(context).add(
+          const ClearProfileEvent(),
+        );
 
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
-        ),
-        (Route<dynamic> route) => false,
-      );
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(),
+          ),
+          (Route<dynamic> route) => false,
+        );
+      } else {
+        _showFlushBar(
+          context,
+          'Błąd podczas pobierania powiadomień: ${response.statusCode}',
+        );
+      }
     }
 
     return userNotificationFromJson(stringData).embedded?.items;
@@ -1285,6 +1411,11 @@ class HejtoApi {
     if (response.statusCode == 204) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania powiadomienia: ${response.statusCode}',
+      );
+
       return false;
     }
   }
@@ -1315,6 +1446,10 @@ class HejtoApi {
     if (response.statusCode == 204) {
       return true;
     } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas oznaczania powiadomień jako przeczytane: ${response.statusCode}',
+      );
       return false;
     }
   }
