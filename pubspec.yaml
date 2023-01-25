@@ -13,16 +13,15 @@ dependencies:
   http: ^0.13.5
   cached_network_image: ^3.2.3
   timeago: ^3.3.0
-
   dart_emoji: ^0.2.0+2
   infinite_scroll_pagination: ^3.2.0
   extended_image: ^6.3.4
-  any_link_preview: ^2.0.9
+  any_link_preview: ^3.0.0
   flutter_markdown: ^0.6.13
   url_launcher: ^6.1.7
   photo_view: ^0.14.0
   dropdown_button2: ^1.9.2
-  flutter_displaymode: ^0.4.1
+  flutter_displaymode: ^0.5.0
   flutter_downloader: ^1.9.1
   permission_handler: ^10.2.0
   path_provider: ^2.0.11
