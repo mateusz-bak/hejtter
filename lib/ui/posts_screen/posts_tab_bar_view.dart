@@ -31,6 +31,7 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
     super.build(context);
 
     return RefreshIndicator(
+      color: primaryColor,
       onRefresh: () => Future.sync(
         () => widget.controller.refresh(),
       ),

@@ -8,6 +8,7 @@ import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class CommunitiesScreen extends StatefulWidget {
   const CommunitiesScreen({super.key});
@@ -72,6 +73,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         children: [
           Expanded(
             child: RefreshIndicator(
+              color: primaryColor,
               onRefresh: () => Future.sync(
                 () => _pagingController.refresh(),
               ),
@@ -81,6 +83,16 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                 builderDelegate: PagedChildBuilderDelegate<Community>(
                   itemBuilder: (context, item, index) =>
                       CommunityCard(item: item),
+                  firstPageProgressIndicatorBuilder: (context) =>
+                      LoadingAnimationWidget.fourRotatingDots(
+                    color: primaryColor,
+                    size: 36,
+                  ),
+                  newPageProgressIndicatorBuilder: (context) =>
+                      LoadingAnimationWidget.fourRotatingDots(
+                    color: primaryColor,
+                    size: 36,
+                  ),
                 ),
               ),
             ),

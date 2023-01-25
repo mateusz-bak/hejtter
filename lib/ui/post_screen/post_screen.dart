@@ -761,6 +761,7 @@ class _PostScreenState extends State<PostScreen> {
     return Container(
       color: backgroundColor,
       child: RefreshIndicator(
+        color: primaryColor,
         onRefresh: () => Future.sync(
           () => _refreshPostAndComments(),
         ),

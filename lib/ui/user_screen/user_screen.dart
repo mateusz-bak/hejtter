@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/post.dart';
@@ -195,6 +196,26 @@ class _UserScreenState extends State<UserScreen> {
     }
   }
 
+  _reportUser() async {
+    if (widget.userName == null) return;
+
+    const firstPart = 'Zgłaszam złamanie regulaminu:\n\n';
+    final postUrl = 'Użytkownik ${widget.userName}';
+    const lastpart = '\n\nPozdrawiam';
+
+    final Email email = Email(
+      body: '$firstPart$postUrl$lastpart',
+      subject: 'Złamanie regulaminu',
+      recipients: ['support@hejto.pl'],
+      isHTML: false,
+    );
+
+    FlutterEmailSender.send(email).then((value) {
+      const SnackBar snackBar = SnackBar(content: Text('Zgłoszono wpis'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
+
   @override
   void initState() {
     _pagingController.addPageRequestListener((pageKey) {
@@ -293,53 +314,67 @@ class _UserScreenState extends State<UserScreen> {
   }) {
     return Column(
       children: [
+        data.currentRank != null ? _buildRankPlate(data) : const SizedBox(),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 13),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildUserDetails(data),
-              !isCurrentUser
-                  ? isLoggedIn
-                      ? UserActionButton(
-                          icon: data.interactions?.isBlocked == true
-                              ? Icons.lock_open
-                              : Icons.lock,
-                          onPressed: data.interactions?.isBlocked == true
-                              ? () => _unblockUser(data.username)
-                              : () => _blockUser(data.username),
-                        )
-                      : _buildLocalBlockButton(data)
-                  : const SizedBox(),
-            ],
-          ),
+          child: _buildUserDetails(data),
         ),
         const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 13),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildUserJoinedDate(data),
-              isLoggedIn && !isCurrentUser
-                  ? UserActionButton(
-                      icon: data.interactions?.isFollowed == true
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      onPressed: data.interactions?.isFollowed == true
-                          ? () => _unfollowUser(data.username)
-                          : () => _followUser(data.username),
-                    )
-                  : const SizedBox(),
             ],
           ),
         ),
         const SizedBox(height: 15),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(width: 10),
+            !isCurrentUser
+                ? isLoggedIn
+                    ? UserActionButton(
+                        icon: data.interactions?.isBlocked == true
+                            ? Icons.lock_open
+                            : Icons.lock_outline,
+                        color: data.interactions?.isBlocked == true
+                            ? Colors.red
+                            : Colors.white,
+                        onPressed: data.interactions?.isBlocked == true
+                            ? () => _unblockUser(data.username)
+                            : () => _blockUser(data.username),
+                      )
+                    : _buildLocalBlockButton(data)
+                : const SizedBox(),
+            isLoggedIn && !isCurrentUser
+                ? UserActionButton(
+                    icon: data.interactions?.isFollowed == true
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: Colors.white,
+                    onPressed: data.interactions?.isFollowed == true
+                        ? () => _unfollowUser(data.username)
+                        : () => _followUser(data.username),
+                  )
+                : const SizedBox(),
+            !isCurrentUser
+                ? UserActionButton(
+                    icon: Icons.report,
+                    color: Colors.yellow,
+                    onPressed: _reportUser,
+                  )
+                : const SizedBox(),
+          ],
+        ),
+        const SizedBox(height: 5),
         _buildDropDowns(),
         Expanded(
           child: RefreshIndicator(
+            color: primaryColor,
             onRefresh: () => Future.sync(
               () {
                 _pagingController.refresh();
@@ -367,6 +402,7 @@ class _UserScreenState extends State<UserScreen> {
             if (state.blockedUsers!.contains(data.username)) {
               return UserActionButton(
                 icon: Icons.lock_open,
+                color: Colors.red,
                 onPressed: () => _unblockUserLocally(
                   username: data.username,
                   currentList: state.blockedUsers!,
@@ -374,7 +410,8 @@ class _UserScreenState extends State<UserScreen> {
               );
             } else {
               return UserActionButton(
-                icon: Icons.lock,
+                icon: Icons.lock_outline,
+                color: Colors.white,
                 onPressed: () => _blockUserLocally(
                   username: data.username,
                   currentList: state.blockedUsers!,
@@ -383,7 +420,8 @@ class _UserScreenState extends State<UserScreen> {
             }
           } else {
             return UserActionButton(
-              icon: Icons.lock,
+              icon: Icons.lock_outline,
+              color: Colors.white,
               onPressed: () => _blockUserLocally(
                 username: data.username,
                 currentList: null,
@@ -411,12 +449,12 @@ class _UserScreenState extends State<UserScreen> {
       children: [
         const Text(
           'Dołączył/a: ',
-          style: TextStyle(fontSize: 16),
+          style: TextStyle(fontSize: 14),
         ),
         Text(
           '$joinDay.$joinMonth.$joinYear',
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -470,10 +508,8 @@ class _UserScreenState extends State<UserScreen> {
 
   Widget _buildUserDetails(UserDetailsResponse data) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        data.currentRank != null ? _buildRankPlate(data) : const SizedBox(),
-        const SizedBox(width: 15),
         Row(
           children: [
             const Icon(
@@ -514,23 +550,26 @@ class _UserScreenState extends State<UserScreen> {
   }
 
   Widget _buildRankPlate(UserDetailsResponse data) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
-      decoration: BoxDecoration(
-        color: data.currentColor != null
-            ? Color(
-                int.parse(
-                  data.currentColor!.replaceAll('#', '0xff'),
-                ),
-              )
-            : Colors.black,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Text(
-        data.currentRank!,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(5, 0, 5, 15),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+        decoration: BoxDecoration(
+          color: data.currentColor != null
+              ? Color(
+                  int.parse(
+                    data.currentColor!.replaceAll('#', '0xff'),
+                  ),
+                )
+              : Colors.black,
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Text(
+          data.currentRank!,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
     );
