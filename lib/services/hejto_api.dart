@@ -37,10 +37,33 @@ class HejtoApi {
   }
 
   _showFlushBar(BuildContext context, String msg) {
-    Flushbar(
+    late Flushbar flush;
+    flush = Flushbar(
       message: msg,
-      duration: const Duration(seconds: 3),
-    ).show(context);
+      duration: const Duration(seconds: 8),
+      margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+      borderRadius: BorderRadius.circular(8),
+      icon: const Icon(
+        Icons.error,
+        color: Colors.red,
+      ),
+      animationDuration: const Duration(milliseconds: 500),
+      mainButton: TextButton(
+        onPressed: () {
+          flush.dismiss(true);
+        },
+        child: const Text(
+          "OK",
+          style: TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+
+    flush.show(context);
   }
 
   Future<HttpClientRequest> _addCookiesToRequest(
