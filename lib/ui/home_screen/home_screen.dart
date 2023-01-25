@@ -153,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   bottomNavBarIndex == 0 ? [_buildSearchButton(context)] : null,
             ),
             drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
-            floatingActionButton: bottomNavBarIndex == 0
+            floatingActionButton: bottomNavBarIndex == 1
                 ? _buildNewPostFAB()
                 : bottomNavBarIndex == 2
                     ? _buildReadNotificationsFAB()
@@ -179,14 +179,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             });
                           })
                         : const SizedBox(),
-            bottomNavigationBar: _buildBottomNavigationBar(),
+            bottomNavigationBar: _buildBottomNavigationBar(state),
           ),
         );
       },
     );
   }
 
-  Widget _buildBottomNavigationBar() {
+  Widget _buildBottomNavigationBar(ProfileState state) {
     return NavigationBarTheme(
       data: const NavigationBarThemeData(
         indicatorColor: primaryColor,
@@ -197,9 +197,21 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedIndex: bottomNavBarIndex,
         height: 70,
         onDestinationSelected: (int index) {
-          setState(() {
-            bottomNavBarIndex = index;
-          });
+          if (index == 2) {
+            if (state is ProfilePresentState) {
+              setState(() {
+                bottomNavBarIndex = index;
+              });
+            } else {
+              Navigator.push(context, MaterialPageRoute(builder: (_) {
+                return const LoginScreen();
+              }));
+            }
+          } else {
+            setState(() {
+              bottomNavBarIndex = index;
+            });
+          }
         },
         labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         destinations: const <Widget>[
@@ -227,6 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         if (state is AuthorizedAuthState) {
           return FloatingActionButton(
+            backgroundColor: primaryColor,
             onPressed: _openAddPostDialog,
             child: const Icon(Icons.add),
           );
@@ -239,6 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildReadNotificationsFAB() {
     return FloatingActionButton.extended(
+      backgroundColor: primaryColor,
       onPressed: () async {
         await hejtoApi.markAllNotificationsAsRead(context: context);
       },

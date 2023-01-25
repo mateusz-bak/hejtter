@@ -193,7 +193,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                   });
                 },
                 indicatorColor: const Color(0xff2295F3),
-                indicatorPadding: const EdgeInsets.symmetric(horizontal: 12),
+                labelColor: primaryColor,
                 tabs: [
                   _buildTab(context, 0, 'Moje'),
                   _buildTab(context, 1, 'Obserwowane'),
