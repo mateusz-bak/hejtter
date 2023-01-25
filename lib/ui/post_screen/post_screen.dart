@@ -888,7 +888,7 @@ class _PostScreenState extends State<PostScreen> {
 
   Widget _buildComments() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
       decoration: BoxDecoration(
         color: Colors.black.withAlpha(50),
         borderRadius: const BorderRadius.only(

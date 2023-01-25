@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-UserNotification userNotificationFromJson(String str) =>
-    UserNotification.fromJson(json.decode(str));
+UserNotifications userNotificationFromJson(String str) =>
+    UserNotifications.fromJson(json.decode(str));
 
-class UserNotification {
-  UserNotification({
+class UserNotifications {
+  UserNotifications({
     this.page,
     this.limit,
     this.pages,
@@ -20,8 +20,8 @@ class UserNotification {
   final UserNotificationLinks? links;
   final Embedded? embedded;
 
-  factory UserNotification.fromJson(Map<String, dynamic> json) =>
-      UserNotification(
+  factory UserNotifications.fromJson(Map<String, dynamic> json) =>
+      UserNotifications(
         page: json["page"],
         limit: json["limit"],
         pages: json["pages"],
@@ -36,18 +36,18 @@ class Embedded {
     this.items,
   });
 
-  final List<NotificationItem>? items;
+  final List<HejtoNotification>? items;
 
   factory Embedded.fromJson(Map<String, dynamic> json) => Embedded(
         items: json["items"] == null
             ? null
-            : List<NotificationItem>.from(
-                json["items"].map((x) => NotificationItem.fromJson(x))),
+            : List<HejtoNotification>.from(
+                json["items"].map((x) => HejtoNotification.fromJson(x))),
       );
 }
 
-class NotificationItem {
-  NotificationItem({
+class HejtoNotification {
+  HejtoNotification({
     this.excerpt,
     this.status,
     this.sender,
@@ -73,8 +73,8 @@ class NotificationItem {
   final DateTime? createdAt;
   final ItemLinks? links;
 
-  factory NotificationItem.fromJson(Map<String, dynamic> json) =>
-      NotificationItem(
+  factory HejtoNotification.fromJson(Map<String, dynamic> json) =>
+      HejtoNotification(
         excerpt: json["excerpt"],
         status: itemStatusValues!.map[json["status"]],
         sender: Sender.fromJson(json["sender"]),

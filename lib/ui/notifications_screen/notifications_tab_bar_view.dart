@@ -12,7 +12,7 @@ class NotificationsTabBarView extends StatefulWidget {
     this.topDropdown = const SizedBox(),
   });
 
-  final PagingController<int, NotificationItem> controller;
+  final PagingController<int, HejtoNotification> controller;
   final Widget topDropdown;
 
   @override
@@ -37,10 +37,10 @@ class _NotificationsTabBarViewState extends State<NotificationsTabBarView>
         children: [
           widget.topDropdown,
           Expanded(
-            child: PagedListView<int, NotificationItem>(
+            child: PagedListView<int, HejtoNotification>(
               pagingController: widget.controller,
               padding: const EdgeInsets.all(10),
-              builderDelegate: PagedChildBuilderDelegate<NotificationItem>(
+              builderDelegate: PagedChildBuilderDelegate<HejtoNotification>(
                 itemBuilder: (context, item, index) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
                   child: NotificationCard(item: item),

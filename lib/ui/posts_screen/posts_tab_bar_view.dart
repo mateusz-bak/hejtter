@@ -46,12 +46,12 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
                 firstPageProgressIndicatorBuilder: (context) =>
                     LoadingAnimationWidget.fourRotatingDots(
                   color: primaryColor,
-                  size: 32,
+                  size: 36,
                 ),
                 newPageProgressIndicatorBuilder: (context) =>
                     LoadingAnimationWidget.fourRotatingDots(
                   color: primaryColor,
-                  size: 32,
+                  size: 36,
                 ),
               ),
             ),

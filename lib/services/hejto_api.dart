@@ -1337,11 +1337,11 @@ class HejtoApi {
     }
   }
 
-  Future<List<NotificationItem>?> getNotifications({
+  Future<List<HejtoNotification>?> getNotifications({
     required int pageKey,
     required int pageSize,
     required BuildContext context,
-    required String type,
+    required String? type,
   }) async {
     final accessToken = await _getAccessToken(context);
     if (accessToken == null) return null;
@@ -1431,7 +1431,7 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode == 204) {
+    if (response.statusCode == 200) {
       return true;
     } else {
       _showFlushBar(

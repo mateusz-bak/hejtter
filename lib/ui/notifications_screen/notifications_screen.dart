@@ -19,9 +19,9 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   static const _pageSize = 20;
   int _currentTab = 0;
 
-  final PagingController<int, NotificationItem>
+  final PagingController<int, HejtoNotification>
       _myNotificationsPagingController = PagingController(firstPageKey: 1);
-  final PagingController<int, NotificationItem>
+  final PagingController<int, HejtoNotification>
       _followedNotificationsPagingController =
       PagingController(firstPageKey: 1);
 
@@ -128,11 +128,11 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     widget.updateCounter(counter);
   }
 
-  List<NotificationItem> _removeDoubledNotifications(
-    PagingController<int, NotificationItem> controller,
-    List<NotificationItem> items,
+  List<HejtoNotification> _removeDoubledNotifications(
+    PagingController<int, HejtoNotification> controller,
+    List<HejtoNotification> items,
   ) {
-    final checkedItems = List<NotificationItem>.empty(growable: true);
+    final checkedItems = List<HejtoNotification>.empty(growable: true);
     final currentList = controller.itemList;
     if (currentList == null) {
       return items;

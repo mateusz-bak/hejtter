@@ -13,14 +13,14 @@ class NotificationCard extends StatefulWidget {
     required this.item,
   });
 
-  final NotificationItem item;
+  final HejtoNotification item;
 
   @override
   State<NotificationCard> createState() => _NotificationCardState();
 }
 
 class _NotificationCardState extends State<NotificationCard> {
-  late NotificationItem item;
+  late HejtoNotification item;
 
   String _addEmojis(String text) {
     final parser = EmojiParser();
@@ -115,7 +115,7 @@ class _NotificationCardState extends State<NotificationCard> {
     );
   }
 
-  Widget _buildContent(NotificationItem item) {
+  Widget _buildContent(HejtoNotification item) {
     return Expanded(
       child: Html(
         data: _addEmojis(item.content.toString()),
