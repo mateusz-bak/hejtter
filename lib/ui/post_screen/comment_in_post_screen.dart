@@ -4,6 +4,7 @@ import 'package:dart_emoji/dart_emoji.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 
@@ -44,6 +45,8 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
     // 'Edytuj',
     'Usuń',
   };
+
+  final buttonOptions = {'Zgłoś'};
 
   _removeComment() async {
     if (comment?.postSlug == null || comment?.uuid == null) return;
@@ -172,13 +175,35 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
           SizedBox(height: widget.isOP ? 12 : 0),
           _buildContent(),
           _buildPictures(),
-          Padding(
-            padding: const EdgeInsets.only(left: 42),
-            child: AnswerButton(
-              isSmaller: true,
-              username: widget.comment.author?.username,
-              respondToUser: widget.respondToUser,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 42),
+                child: AnswerButton(
+                  isSmaller: true,
+                  username: widget.comment.author?.username,
+                  respondToUser: widget.respondToUser,
+                ),
+              ),
+              PopupMenuButton<String>(
+                iconSize: 18,
+                onSelected: (_) {},
+                itemBuilder: (BuildContext context) {
+                  return buttonOptions.map((String choice) {
+                    return PopupMenuItem<String>(
+                      value: choice,
+                      child: Text(choice),
+                      onTap: () {
+                        if (choice == 'Zgłoś') {
+                          _reportComment();
+                        }
+                      },
+                    );
+                  }).toList();
+                },
+              ),
+            ],
           ),
           const SizedBox(height: 0),
         ],
@@ -371,5 +396,24 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
         ),
       ),
     );
+  }
+
+  _reportComment() async {
+    if (comment?.links?.self == null) return;
+    const firstPart = 'Zgłaszam złamanie regulaminu:\n\n';
+    final commentUrl = 'https://www.hejto.pl/posts/${comment?.links?.self?.href}';
+    const lastPart = '\n\nPozdrawiam';
+
+    final Email email = Email(
+      body: '$firstPart$commentUrl$lastPart',
+      subject: 'Złamanie regulaminu',
+      recipients: ['support@hejto.pl'],
+      isHTML: false,
+    );
+
+    FlutterEmailSender.send(email).then((value) {
+      const SnackBar snackBar = SnackBar(content: Text('Zgłoszono komentarz'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
   }
 }
