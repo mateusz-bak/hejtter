@@ -175,35 +175,13 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
           SizedBox(height: widget.isOP ? 12 : 0),
           _buildContent(),
           _buildPictures(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 42),
-                child: AnswerButton(
-                  isSmaller: true,
-                  username: widget.comment.author?.username,
-                  respondToUser: widget.respondToUser,
-                ),
-              ),
-              PopupMenuButton<String>(
-                iconSize: 18,
-                onSelected: (_) {},
-                itemBuilder: (BuildContext context) {
-                  return buttonOptions.map((String choice) {
-                    return PopupMenuItem<String>(
-                      value: choice,
-                      child: Text(choice),
-                      onTap: () {
-                        if (choice == 'Zgłoś') {
-                          _reportComment();
-                        }
-                      },
-                    );
-                  }).toList();
-                },
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.only(left: 42),
+            child: AnswerButton(
+              isSmaller: true,
+              username: widget.comment.author?.username,
+              respondToUser: widget.respondToUser,
+            ),
           ),
           const SizedBox(height: 0),
         ],
@@ -234,7 +212,22 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
             },
           );
         } else {
-          return const SizedBox();
+          return PopupMenuButton<String>(
+            onSelected: (_) {},
+            itemBuilder: (BuildContext context) {
+              return buttonOptions.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                  onTap: () {
+                    if (choice == 'Zgłoś') {
+                      _reportComment();
+                    }
+                  },
+                );
+              }).toList();
+            },
+          );
         }
       },
     );
