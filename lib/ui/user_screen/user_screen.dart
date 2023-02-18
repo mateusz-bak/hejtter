@@ -89,6 +89,7 @@ class _UserScreenState extends State<UserScreen> {
         commentedBy: postsType == 'Wpisy komentowane' ? widget.userName : null,
         favorited: postsType == 'Wpisy ulubione' ? true : null,
         orderDir: orderType == 'Najnowsze' ? 'desc' : 'asc',
+        types: ['article', 'link', 'discussion', 'offer'],
       );
 
       final isLastPage = newItems!.length < pageSize;

@@ -53,6 +53,10 @@ class _DefaultTabDialogState extends State<DefaultTabDialog> {
             ),
             const SizedBox(height: 15),
             SettingsDialogButton(
+              text: 'Wszystko',
+              onPressed: () => _updatePreferences(HejtoPage.all),
+            ),
+            SettingsDialogButton(
               text: 'Artykuły',
               onPressed: () => _updatePreferences(HejtoPage.articles),
             ),

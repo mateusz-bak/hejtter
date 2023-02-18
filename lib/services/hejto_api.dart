@@ -305,7 +305,7 @@ class HejtoApi {
     required int pageKey,
     required int pageSize,
     required BuildContext context,
-    String? type,
+    required List<String> types,
     String? communitySlug,
     String? tagName,
     String? author,
@@ -323,13 +323,13 @@ class HejtoApi {
       'limit': '$pageSize',
       'page': '$pageKey',
       'orderBy': orderBy,
+      'type[]': types,
     };
 
     queryParameters = _addCommunityFilter(queryParameters, communitySlug);
     queryParameters = _addTagFilter(queryParameters, tagName);
     queryParameters = _addSearchQuery(queryParameters, query);
     queryParameters = _addPostsPeriod(queryParameters, postsPeriod);
-    queryParameters = _addPostsType(queryParameters, type);
     queryParameters = _addPostsAuthor(queryParameters, author);
     queryParameters = _addPostsCommenter(queryParameters, commentedBy);
     queryParameters = _addPostsFavorited(queryParameters, favorited);
@@ -392,8 +392,8 @@ class HejtoApi {
     return postFromJson(stringData).embedded?.items;
   }
 
-  Map<String, String> _addCommunityFilter(
-    Map<String, String> queryParameters,
+  Map<String, Object> _addCommunityFilter(
+    Map<String, Object> queryParameters,
     String? communityName,
   ) {
     if (communityName != null) {
@@ -405,8 +405,8 @@ class HejtoApi {
     return queryParameters;
   }
 
-  Map<String, String> _addTagFilter(
-    Map<String, String> queryParameters,
+  Map<String, Object> _addTagFilter(
+    Map<String, Object> queryParameters,
     String? tagName,
   ) {
     if (tagName != null) {
@@ -418,8 +418,8 @@ class HejtoApi {
     return queryParameters;
   }
 
-  Map<String, String> _addSearchQuery(
-    Map<String, String> queryParameters,
+  Map<String, Object> _addSearchQuery(
+    Map<String, Object> queryParameters,
     String query,
   ) {
     if (query.isNotEmpty) {
@@ -431,8 +431,8 @@ class HejtoApi {
     return queryParameters;
   }
 
-  Map<String, String> _addPostsAuthor(
-    Map<String, String> queryParameters,
+  Map<String, Object> _addPostsAuthor(
+    Map<String, Object> queryParameters,
     String? author,
   ) {
     if (author != null) {
@@ -444,8 +444,8 @@ class HejtoApi {
     return queryParameters;
   }
 
-  Map<String, String> _addPostsCommenter(
-    Map<String, String> queryParameters,
+  Map<String, Object> _addPostsCommenter(
+    Map<String, Object> queryParameters,
     String? commentedBy,
   ) {
     if (commentedBy != null) {
@@ -457,8 +457,8 @@ class HejtoApi {
     return queryParameters;
   }
 
-  Map<String, String> _addPostsOrderDir(
-    Map<String, String> queryParameters,
+  Map<String, Object> _addPostsOrderDir(
+    Map<String, Object> queryParameters,
     String? orderDir,
   ) {
     if (orderDir != null) {
@@ -470,8 +470,8 @@ class HejtoApi {
     return queryParameters;
   }
 
-  Map<String, String> _addPostsFavorited(
-    Map<String, String> queryParameters,
+  Map<String, Object> _addPostsFavorited(
+    Map<String, Object> queryParameters,
     bool? favorited,
   ) {
     if (favorited == true) {
@@ -483,8 +483,8 @@ class HejtoApi {
     return queryParameters;
   }
 
-  Map<String, String> _addPostsFollowed(
-    Map<String, String> queryParameters,
+  Map<String, Object> _addPostsFollowed(
+    Map<String, Object> queryParameters,
     bool? followed,
   ) {
     if (followed == true) {
@@ -496,21 +496,8 @@ class HejtoApi {
     return queryParameters;
   }
 
-  Map<String, String> _addPostsType(
-    Map<String, String> queryParameters,
-    String? type,
-  ) {
-    if (type != null) {
-      queryParameters.addEntries(
-        <String, String>{'type[]': type}.entries,
-      );
-    }
-
-    return queryParameters;
-  }
-
-  Map<String, String> _addPostsPeriod(
-    Map<String, String> queryParameters,
+  Map<String, Object> _addPostsPeriod(
+    Map<String, Object> queryParameters,
     PostsPeriod? postsPeriod,
   ) {
     switch (postsPeriod) {

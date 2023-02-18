@@ -10,7 +10,7 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
       : super(
           const PreferencesSet(
             deepLinkDialogDisplayed: false,
-            defaultPage: HejtoPage.articles,
+            defaultPage: HejtoPage.all,
             defaultHotPeriod: PostsPeriod.sixHours,
           ),
         ) {
@@ -35,7 +35,9 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
       deepLinkDialogDisplayed: deepLinkDialogDisplayed ?? false,
       defaultPage: defaultPage == 'discussions'
           ? HejtoPage.discussions
-          : HejtoPage.articles,
+          : defaultPage == 'articles'
+              ? HejtoPage.articles
+              : HejtoPage.all,
       defaultHotPeriod: defaultHotPeriod == 'three_hours'
           ? PostsPeriod.threeHours
           : defaultHotPeriod == 'twelve_hours'
@@ -55,7 +57,9 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
             ? 'discussions'
             : state.defaultPage == HejtoPage.articles
                 ? 'articles'
-                : null,
+                : state.defaultPage == HejtoPage.all
+                    ? 'all'
+                    : null,
         'default_hot_period': state.defaultHotPeriod == PostsPeriod.threeHours
             ? 'three_hours'
             : state.defaultHotPeriod == PostsPeriod.sixHours

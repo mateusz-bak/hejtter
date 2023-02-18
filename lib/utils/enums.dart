@@ -2,7 +2,7 @@ enum CurrentScreen { home, communities, followed }
 
 enum DiscussionsTab { hot, top, newTab, followed }
 
-enum HejtoPage { articles, discussions }
+enum HejtoPage { all, articles, discussions }
 
 enum PostsPeriod {
   threeHours,

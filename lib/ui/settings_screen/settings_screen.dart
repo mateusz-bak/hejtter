@@ -129,7 +129,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case HejtoPage.discussions:
         return 'Dyskusje';
       default:
-        return 'Artykuły';
+        return 'Wszystko';
     }
   }
 

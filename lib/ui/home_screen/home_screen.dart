@@ -101,10 +101,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final state = context.read<PreferencesBloc>().state;
     if (state is PreferencesSet) {
       switch (state.defaultPage) {
-        case HejtoPage.discussions:
+        case HejtoPage.articles:
           bottomNavBarIndex = 1;
           break;
-
+        case HejtoPage.discussions:
+          bottomNavBarIndex = 2;
+          break;
         default:
           bottomNavBarIndex = 0;
           break;
@@ -136,47 +138,10 @@ class _HomeScreenState extends State<HomeScreen> {
             return true;
           },
           child: Scaffold(
-            appBar: AppBar(
-              title: Text(
-                bottomNavBarIndex == 0
-                    ? 'Artykuły'
-                    : bottomNavBarIndex == 1
-                        ? 'Dyskusje'
-                        : bottomNavBarIndex == 2
-                            ? 'Powiadomienia'
-                            : '',
-                style: const TextStyle(fontSize: 18),
-              ),
-              actions:
-                  bottomNavBarIndex == 0 ? [_buildSearchButton(context)] : null,
-            ),
+            appBar: _buildAppBar(),
             drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
-            floatingActionButton: bottomNavBarIndex == 1
-                ? _buildNewPostFAB()
-                : bottomNavBarIndex == 2
-                    ? _buildReadNotificationsFAB()
-                    : null,
-            body: bottomNavBarIndex == 0
-                ? PostsTabView(
-                    showSearchBar: _showSearchBar,
-                    focusNode: focusNode,
-                    fiterPosts: HejtoPage.articles,
-                    showFollowedTab: state is ProfilePresentState,
-                  )
-                : bottomNavBarIndex == 1
-                    ? PostsTabView(
-                        showSearchBar: _showSearchBar,
-                        focusNode: focusNode,
-                        fiterPosts: HejtoPage.discussions,
-                        showFollowedTab: state is ProfilePresentState,
-                      )
-                    : bottomNavBarIndex == 2
-                        ? NotificationsScreen(updateCounter: (newValue) {
-                            setState(() {
-                              _notificationsCounter = newValue;
-                            });
-                          })
-                        : const SizedBox(),
+            floatingActionButton: _buildFab(),
+            body: _buildScaffoldBody(state),
             bottomNavigationBar: _buildBottomNavigationBar(state),
           ),
         );
@@ -184,47 +149,146 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildScaffoldBody(ProfileState state) {
+    switch (bottomNavBarIndex) {
+      case 0:
+        return PostsTabView(
+          showSearchBar: _showSearchBar,
+          focusNode: focusNode,
+          fiterPosts: HejtoPage.all,
+          showFollowedTab: state is ProfilePresentState,
+        );
+      case 1:
+        return PostsTabView(
+          showSearchBar: _showSearchBar,
+          focusNode: focusNode,
+          fiterPosts: HejtoPage.articles,
+          showFollowedTab: state is ProfilePresentState,
+        );
+      case 2:
+        return PostsTabView(
+          showSearchBar: _showSearchBar,
+          focusNode: focusNode,
+          fiterPosts: HejtoPage.discussions,
+          showFollowedTab: state is ProfilePresentState,
+        );
+      case 3:
+        return NotificationsScreen(updateCounter: (newValue) {
+          setState(() {
+            _notificationsCounter = newValue;
+          });
+        });
+      default:
+        return const SizedBox();
+    }
+  }
+
+  AppBar? _buildAppBar() {
+    const textStyle = TextStyle(fontSize: 18);
+
+    switch (bottomNavBarIndex) {
+      case 0:
+        return AppBar(title: const Text('Hejto', style: textStyle));
+      case 1:
+        return AppBar(title: const Text('Artykuły', style: textStyle));
+      case 2:
+        return AppBar(title: const Text('Dyskusje', style: textStyle));
+      case 3:
+        return AppBar(title: const Text('Powiadomienia', style: textStyle));
+      default:
+        return null;
+    }
+  }
+
   Widget _buildBottomNavigationBar(ProfileState state) {
-    return NavigationBarTheme(
-      data: const NavigationBarThemeData(),
-      child: NavigationBar(
-        selectedIndex: bottomNavBarIndex,
-        height: 70,
-        onDestinationSelected: (int index) {
-          if (index == 2) {
-            if (state is ProfilePresentState) {
-              setState(() {
-                bottomNavBarIndex = index;
-              });
-            } else {
-              Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return const LoginScreen();
-              }));
-            }
-          } else {
+    return NavigationBar(
+      selectedIndex: bottomNavBarIndex,
+      height: 60,
+      onDestinationSelected: (int index) {
+        if (index == 2) {
+          if (state is ProfilePresentState) {
             setState(() {
               bottomNavBarIndex = index;
             });
+          } else {
+            Navigator.push(context, MaterialPageRoute(builder: (_) {
+              return const LoginScreen();
+            }));
           }
-        },
-        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-        destinations: const <Widget>[
-          NavigationDestination(
-            icon: Icon(Icons.newspaper),
-            label: 'Artykuły',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.forum),
-            icon: Icon(Icons.forum_outlined),
-            label: 'Dyskusje',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.notifications_rounded),
-            icon: Icon(Icons.notifications_none),
-            label: 'Powiadomienia',
-          ),
-        ],
-      ),
+        } else {
+          setState(() {
+            bottomNavBarIndex = index;
+          });
+        }
+      },
+      labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+      destinations: const <Widget>[
+        NavigationDestination(
+          icon: Icon(Icons.all_inclusive),
+          label: 'Wszystko',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.newspaper),
+          label: 'Artykuły',
+        ),
+        NavigationDestination(
+          selectedIcon: Icon(Icons.forum),
+          icon: Icon(Icons.forum_outlined),
+          label: 'Dyskusje',
+        ),
+        NavigationDestination(
+          selectedIcon: Icon(Icons.notifications_rounded),
+          icon: Icon(Icons.notifications_none),
+          label: 'Powiadomienia',
+        ),
+      ],
+    );
+  }
+
+  Widget? _buildFab() {
+    switch (bottomNavBarIndex) {
+      case 0:
+        return _buildNewArticleAndPostFAB();
+      case 1:
+        return _buildNewArticleFAB();
+      case 2:
+        return _buildNewPostFAB();
+      case 3:
+        return _buildReadNotificationsFAB();
+      default:
+        return null;
+    }
+  }
+
+  // TODO: Do Article adding
+  Widget _buildNewArticleAndPostFAB() {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthorizedAuthState) {
+          return FloatingActionButton(
+            onPressed: _openAddPostDialog,
+            child: const Icon(Icons.add),
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
+    );
+  }
+
+  // TODO: Do Article adding
+  Widget _buildNewArticleFAB() {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthorizedAuthState) {
+          return FloatingActionButton(
+            onPressed: _openAddPostDialog,
+            child: const Icon(Icons.add),
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
     );
   }
 
