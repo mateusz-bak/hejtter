@@ -11,7 +11,6 @@ import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
-import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -430,34 +429,45 @@ class _PostsTabViewState extends State<PostsTabView>
       stream: discussionsNavCubit.hotTabPeriod,
       builder: (BuildContext context, AsyncSnapshot<PostsPeriod> snapshot) {
         if (snapshot.hasData) {
-          return SizedBox(
-            width: MediaQuery.of(context).size.width / 2,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                isExpanded: true,
-                alignment: Alignment.center,
-                items: dropdownItems,
-                value: _getPostsPeriodString(snapshot.data),
-                onChanged: (value) {
-                  switch (value) {
-                    case '3h':
-                      discussionsNavCubit
-                          .changeHotTabPeriod(PostsPeriod.threeHours);
-                      break;
-                    case '6h':
-                      discussionsNavCubit
-                          .changeHotTabPeriod(PostsPeriod.sixHours);
-                      break;
-                    case '12h':
-                      discussionsNavCubit
-                          .changeHotTabPeriod(PostsPeriod.twelveHours);
-                      break;
-                    case '24h':
-                      discussionsNavCubit
-                          .changeHotTabPeriod(PostsPeriod.twentyFourHours);
-                      break;
-                  }
-                },
+          return Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: 3,
+            ),
+            child: Container(
+              width: MediaQuery.of(context).size.width / 2,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  alignment: Alignment.center,
+                  items: dropdownItems,
+                  value: _getPostsPeriodString(snapshot.data),
+                  onChanged: (value) {
+                    switch (value) {
+                      case '3h':
+                        discussionsNavCubit
+                            .changeHotTabPeriod(PostsPeriod.threeHours);
+                        break;
+                      case '6h':
+                        discussionsNavCubit
+                            .changeHotTabPeriod(PostsPeriod.sixHours);
+                        break;
+                      case '12h':
+                        discussionsNavCubit
+                            .changeHotTabPeriod(PostsPeriod.twelveHours);
+                        break;
+                      case '24h':
+                        discussionsNavCubit
+                            .changeHotTabPeriod(PostsPeriod.twentyFourHours);
+                        break;
+                    }
+                  },
+                ),
               ),
             ),
           );
@@ -482,29 +492,40 @@ class _PostsTabViewState extends State<PostsTabView>
       stream: discussionsNavCubit.topTabPeriod,
       builder: (BuildContext context, AsyncSnapshot<PostsPeriod> snapshot) {
         if (snapshot.hasData) {
-          return SizedBox(
-            width: MediaQuery.of(context).size.width / 2,
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                isExpanded: true,
-                alignment: Alignment.center,
-                items: dropdownItems,
-                value: _getPostsPeriodString(snapshot.data),
-                onChanged: (value) {
-                  switch (value) {
-                    case '7d':
-                      discussionsNavCubit
-                          .changeTopTabPeriod(PostsPeriod.sevenDays);
-                      break;
-                    case '30d':
-                      discussionsNavCubit
-                          .changeTopTabPeriod(PostsPeriod.thirtyDays);
-                      break;
-                    case 'Od początku':
-                      discussionsNavCubit.changeTopTabPeriod(PostsPeriod.all);
-                      break;
-                  }
-                },
+          return Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: 3,
+            ),
+            child: Container(
+              width: MediaQuery.of(context).size.width / 2,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  alignment: Alignment.center,
+                  items: dropdownItems,
+                  value: _getPostsPeriodString(snapshot.data),
+                  onChanged: (value) {
+                    switch (value) {
+                      case '7d':
+                        discussionsNavCubit
+                            .changeTopTabPeriod(PostsPeriod.sevenDays);
+                        break;
+                      case '30d':
+                        discussionsNavCubit
+                            .changeTopTabPeriod(PostsPeriod.thirtyDays);
+                        break;
+                      case 'Od początku':
+                        discussionsNavCubit.changeTopTabPeriod(PostsPeriod.all);
+                        break;
+                    }
+                  },
+                ),
               ),
             ),
           );

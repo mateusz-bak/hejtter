@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/ui/posts_screen/post_card.dart';
-import 'package:hejtter/utils/constants.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -34,13 +33,15 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
       onRefresh: () => Future.sync(
         () => widget.controller.refresh(),
       ),
-      child: Column(
-        children: [
-          widget.topDropdown,
-          Expanded(
-            child: PagedListView<int, Post>(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: widget.topDropdown,
+            ),
+            PagedSliverList<int, Post>(
               pagingController: widget.controller,
-              padding: const EdgeInsets.all(5),
               builderDelegate: PagedChildBuilderDelegate<Post>(
                 itemBuilder: (context, item, index) => PostCard(item: item),
                 firstPageProgressIndicatorBuilder: (context) =>
@@ -55,8 +56,8 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
