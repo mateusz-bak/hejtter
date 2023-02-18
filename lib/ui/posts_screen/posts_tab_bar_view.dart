@@ -37,8 +37,10 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
         padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(
-              child: widget.topDropdown,
+            SliverPersistentHeader(
+              delegate: PeriodDropdownHeader(dropdown: widget.topDropdown),
+              pinned: false,
+              floating: true,
             ),
             PagedSliverList<int, Post>(
               pagingController: widget.controller,
@@ -61,4 +63,28 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
       ),
     );
   }
+}
+
+class PeriodDropdownHeader extends SliverPersistentHeaderDelegate {
+  const PeriodDropdownHeader({
+    required this.dropdown,
+  });
+
+  final Widget dropdown;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return dropdown;
+  }
+
+  @override
+  double get maxExtent => 70;
+
+  @override
+  double get minExtent => 70;
+
+  @override
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
+      true;
 }

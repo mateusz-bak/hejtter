@@ -424,11 +424,12 @@ class _PostsTabViewState extends State<PostsTabView>
       stream: discussionsNavCubit.hotTabPeriod,
       builder: (BuildContext context, AsyncSnapshot<PostsPeriod> snapshot) {
         if (snapshot.hasData) {
-          return Padding(
+          return Container(
             padding: const EdgeInsets.symmetric(
               vertical: 10,
               horizontal: 3,
             ),
+            color: Theme.of(context).colorScheme.surface,
             child: Container(
               width: MediaQuery.of(context).size.width / 2,
               padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -487,11 +488,12 @@ class _PostsTabViewState extends State<PostsTabView>
       stream: discussionsNavCubit.topTabPeriod,
       builder: (BuildContext context, AsyncSnapshot<PostsPeriod> snapshot) {
         if (snapshot.hasData) {
-          return Padding(
+          return Container(
             padding: const EdgeInsets.symmetric(
               vertical: 10,
               horizontal: 3,
             ),
+            color: Theme.of(context).colorScheme.surface,
             child: Container(
               width: MediaQuery.of(context).size.width / 2,
               padding: const EdgeInsets.symmetric(horizontal: 10),
