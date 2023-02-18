@@ -53,13 +53,7 @@ class HejtoApi {
         onPressed: () {
           flush.dismiss(true);
         },
-        child: const Text(
-          "OK",
-          style: TextStyle(
-            color: primaryColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        child: const Text("OK"),
       ),
     );
 

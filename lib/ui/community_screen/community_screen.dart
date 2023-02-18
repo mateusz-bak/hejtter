@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:hejtter/models/communities_response.dart';
 
-import 'package:hejtter/ui/communities_screen/community_app_bar.dart';
+import 'package:hejtter/ui/community_screen/community_app_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
-import 'package:hejtter/utils/constants.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({
@@ -32,7 +31,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
       body: NestedScrollView(
         headerSliverBuilder: (context, value) {
           return [

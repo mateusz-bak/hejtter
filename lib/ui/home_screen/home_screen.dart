@@ -16,7 +16,6 @@ import 'package:hejtter/ui/notifications_screen/notifications_screen.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
-import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -148,7 +147,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             : '',
                 style: const TextStyle(fontSize: 18),
               ),
-              backgroundColor: backgroundColor,
               actions:
                   bottomNavBarIndex == 0 ? [_buildSearchButton(context)] : null,
             ),
@@ -188,11 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBottomNavigationBar(ProfileState state) {
     return NavigationBarTheme(
-      data: const NavigationBarThemeData(
-        indicatorColor: primaryColor,
-        backgroundColor: backgroundColor,
-        elevation: 0.9,
-      ),
+      data: const NavigationBarThemeData(),
       child: NavigationBar(
         selectedIndex: bottomNavBarIndex,
         height: 70,
@@ -239,7 +233,6 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         if (state is AuthorizedAuthState) {
           return FloatingActionButton(
-            backgroundColor: primaryColor,
             onPressed: _openAddPostDialog,
             child: const Icon(Icons.add),
           );
@@ -252,7 +245,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildReadNotificationsFAB() {
     return FloatingActionButton.extended(
-      backgroundColor: primaryColor,
       onPressed: () async {
         await hejtoApi.markAllNotificationsAsRead(context: context);
       },

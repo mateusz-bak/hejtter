@@ -4,7 +4,6 @@ import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/communities_screen/community_card.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
-import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -60,9 +59,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: backgroundColor,
         title: const Text(
           'Społeczności',
           style: TextStyle(fontSize: 20),
@@ -73,7 +70,6 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
         children: [
           Expanded(
             child: RefreshIndicator(
-              color: primaryColor,
               onRefresh: () => Future.sync(
                 () => _pagingController.refresh(),
               ),
@@ -85,12 +81,12 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
                       CommunityCard(item: item),
                   firstPageProgressIndicatorBuilder: (context) =>
                       LoadingAnimationWidget.fourRotatingDots(
-                    color: primaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 36,
                   ),
                   newPageProgressIndicatorBuilder: (context) =>
                       LoadingAnimationWidget.fourRotatingDots(
-                    color: primaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 36,
                   ),
                 ),

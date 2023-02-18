@@ -5,7 +5,6 @@ import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/home_screen/communities_dialog.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
-import 'package:hejtter/utils/constants.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -157,13 +156,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
           'Dodaj wpis',
           style: TextStyle(fontSize: 20),
         ),
-        backgroundColor: backgroundColor,
-        scrolledUnderElevation: 0,
       ),
-      backgroundColor: backgroundColor,
       body: Container(
         padding: const EdgeInsets.all(10),
-        color: backgroundColor,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,11 +206,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: primaryColor,
-                    ),
+                  child: FilledButton(
                     onPressed: _isPostAdding ||
                             _chosenCommunity == null ||
                             !_isMinLength
@@ -223,7 +214,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         : _startAddingPost,
                     child: _isPostAdding
                         ? LoadingAnimationWidget.fourRotatingDots(
-                            color: primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                             size: 20,
                           )
                         : const Text('Dodaj'),
@@ -267,7 +258,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         width: 32,
         height: 32,
         child: LoadingAnimationWidget.fourRotatingDots(
-          color: primaryColor,
+          color: Theme.of(context).colorScheme.primary,
           size: 20,
         ),
       ),
@@ -318,7 +309,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Widget _buildPictureAdding() {
     return IconButton(
       onPressed: _loadPhotoFromStorage,
-      icon: const Icon(Icons.image),
+      icon: Icon(
+        Icons.image,
+        color: Theme.of(context).colorScheme.primary,
+      ),
     );
   }
 
@@ -328,7 +322,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         const Text('NSFW'),
         Switch(
           value: _isNsfw,
-          activeColor: primaryColor,
+          activeColor: Theme.of(context).colorScheme.primary,
           onChanged: (value) {
             setState(() {
               _isNsfw = value;

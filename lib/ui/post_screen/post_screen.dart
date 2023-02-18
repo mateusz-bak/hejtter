@@ -516,13 +516,10 @@ class _PostScreenState extends State<PostScreen> {
 
     if (post.title == null) {
       return Scaffold(
-        backgroundColor: backgroundColor,
-        appBar: AppBar(
-          backgroundColor: backgroundColor,
-        ),
+        appBar: AppBar(),
         body: Center(
           child: LoadingAnimationWidget.fourRotatingDots(
-            color: primaryColor,
+            color: Theme.of(context).colorScheme.primary,
             size: 24,
           ),
         ),
@@ -537,9 +534,7 @@ class _PostScreenState extends State<PostScreen> {
           );
 
           return Scaffold(
-            backgroundColor: backgroundColor,
             appBar: AppBar(
-              backgroundColor: backgroundColor,
               actions: [
                 PopupMenuButton<String>(
                   onSelected: (_) {},
@@ -569,7 +564,7 @@ class _PostScreenState extends State<PostScreen> {
             ),
             body: _buildPost(),
             bottomSheet: Container(
-              color: backgroundColor,
+              color: Theme.of(context).colorScheme.surface,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -604,25 +599,25 @@ class _PostScreenState extends State<PostScreen> {
                       const SizedBox(width: 15),
                       GestureDetector(
                         onTap: _loadPhotoFromStorage,
-                        child: const Icon(
+                        child: Icon(
                           Icons.image,
-                          color: primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       const SizedBox(width: 15),
                       GestureDetector(
                         onTap: !_isCommentSending ? _sendComment : null,
                         child: !_isCommentSending
-                            ? const Icon(
+                            ? Icon(
                                 Icons.send_sharp,
-                                color: primaryColor,
+                                color: Theme.of(context).colorScheme.primary,
                               )
                             : Container(
                                 padding: const EdgeInsets.all(5),
                                 width: 24,
                                 height: 24,
                                 child: LoadingAnimationWidget.fourRotatingDots(
-                                  color: primaryColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                   size: 24,
                                 ),
                               ),
@@ -638,9 +633,7 @@ class _PostScreenState extends State<PostScreen> {
           _setMoreOptionsButtons(false);
 
           return Scaffold(
-            backgroundColor: backgroundColor,
             appBar: AppBar(
-              backgroundColor: backgroundColor,
               actions: [
                 PopupMenuButton<String>(
                   onSelected: (_) {},
@@ -709,7 +702,7 @@ class _PostScreenState extends State<PostScreen> {
         width: 32,
         height: 32,
         child: LoadingAnimationWidget.fourRotatingDots(
-          color: primaryColor,
+          color: Theme.of(context).colorScheme.primary,
           size: 24,
         ),
       ),
@@ -758,100 +751,88 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildPost() {
-    return Container(
-      color: backgroundColor,
-      child: RefreshIndicator(
-        color: primaryColor,
-        onRefresh: () => Future.sync(
-          () => _refreshPostAndComments(),
-        ),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          controller: _scrollController,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(5, 5, 5, 200),
-            child: Material(
-              color: backgroundColor,
-              child: Card(
-                color: backgroundColor,
-                elevation: 10,
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withAlpha(50),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                          bottomLeft: Radius.circular(5),
-                          bottomRight: Radius.circular(5),
-                        ),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          _buildAvatar(),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildUsernameAndRank(),
-                                const SizedBox(height: 3),
-                                _buildCommunityAndDate(),
-                              ],
-                            ),
-                          ),
-                          _buildHotIcon(),
-                          const SizedBox(width: 15),
-                          HejtterLikeButton(
-                            likeStatus: post.isLiked,
-                            numLikes: post.numLikes,
-                            unlikeComment: _unlikePost,
-                            likeComment: _likePost,
-                          ),
-                        ],
-                      ),
+    return RefreshIndicator(
+      onRefresh: () => Future.sync(
+        () => _refreshPostAndComments(),
+      ),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        controller: _scrollController,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(5, 5, 5, 200),
+          child: Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
+                  decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 10),
-                        _buildTitle(),
-                        SizedBox(height: post.type == 'article' ? 10 : 0),
-                        post.type == 'article'
-                            ? _buildPicture()
-                            : const SizedBox(),
-                        SizedBox(height: post.type == 'article' ? 10 : 0),
-                        _buildContent(),
-                        _buildTags(),
-                        _buildPoll(),
-                        post.type != 'article'
-                            ? _buildPicture()
-                            : const SizedBox(),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildAvatar(),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 5),
-                              child: AnswerButton(
-                                username: post.author?.username,
-                                respondToUser: _respondToUser,
-                              ),
-                            ),
-                            _buildNumberOfComments(),
+                            _buildUsernameAndRank(),
+                            const SizedBox(height: 3),
+                            _buildCommunityAndDate(),
                           ],
                         ),
-                        _buildComments(),
+                      ),
+                      _buildHotIcon(),
+                      const SizedBox(width: 15),
+                      HejtterLikeButton(
+                        likeStatus: post.isLiked,
+                        numLikes: post.numLikes,
+                        unlikeComment: _unlikePost,
+                        likeComment: _likePost,
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    _buildTitle(),
+                    SizedBox(height: post.type == 'article' ? 10 : 0),
+                    post.type == 'article' ? _buildPicture() : const SizedBox(),
+                    SizedBox(height: post.type == 'article' ? 10 : 0),
+                    _buildContent(),
+                    _buildTags(),
+                    _buildPoll(),
+                    post.type != 'article' ? _buildPicture() : const SizedBox(),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: AnswerButton(
+                            username: post.author?.username,
+                            respondToUser: _respondToUser,
+                          ),
+                        ),
+                        _buildNumberOfComments(),
                       ],
                     ),
+                    _buildComments(),
                   ],
                 ),
-              ),
+              ],
             ),
           ),
         ),
@@ -878,9 +859,9 @@ class _PostScreenState extends State<PostScreen> {
       children: [
         SizedBox(width: widget.post?.hot == true ? 5 : 0),
         widget.post?.hot == true
-            ? const Icon(
+            ? Icon(
                 Icons.local_fire_department_outlined,
-                color: Color(0xff2295F3),
+                color: Theme.of(context).colorScheme.primary,
               )
             : const SizedBox(),
       ],
@@ -891,7 +872,7 @@ class _PostScreenState extends State<PostScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
       decoration: BoxDecoration(
-        color: Colors.black.withAlpha(50),
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(5),
           topRight: Radius.circular(5),

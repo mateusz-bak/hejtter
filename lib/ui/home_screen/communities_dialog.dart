@@ -65,9 +65,7 @@ class _CommunitiesDialogState extends State<CommunitiesDialog> {
 
     return Container(
       padding: const EdgeInsets.all(10),
-      decoration: const BoxDecoration(
-        color: backgroundColor,
-      ),
+      color: Theme.of(context).colorScheme.surface,
       height: MediaQuery.of(context).size.height / 3,
       width: MediaQuery.of(context).size.width - 20,
       child: Material(
@@ -95,7 +93,7 @@ class _CommunitiesDialogState extends State<CommunitiesDialog> {
                 : Padding(
                     padding: const EdgeInsets.only(top: 30),
                     child: LoadingAnimationWidget.fourRotatingDots(
-                      color: primaryColor,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 32,
                     ),
                   ),

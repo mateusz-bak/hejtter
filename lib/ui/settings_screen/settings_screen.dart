@@ -10,7 +10,6 @@ import 'package:hejtter/ui/settings_screen/default_tab_dialog.dart';
 import 'package:hejtter/ui/settings_screen/settings_section.dart';
 import 'package:hejtter/ui/settings_screen/switch_setting.dart';
 import 'package:hejtter/ui/settings_screen/text_setting.dart';
-import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -152,13 +151,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: const Text(
           'Ustawienia',
           style: TextStyle(fontSize: 20),
         ),
-        backgroundColor: backgroundColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
@@ -172,7 +169,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           LoadingAnimationWidget.staggeredDotsWave(
-                            color: primaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                             size: 32,
                           ),
                         ],

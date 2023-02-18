@@ -24,7 +24,7 @@ class UserActionButton extends StatelessWidget {
         icon: Icon(icon),
         style: IconButton.styleFrom(
           foregroundColor: color,
-          backgroundColor: primaryColor.withAlpha(100),
+          backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(100),
         ),
       ),
     );

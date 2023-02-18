@@ -70,7 +70,10 @@ class _PicturePreviewState extends State<PicturePreview> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: backgroundColor.withAlpha(150),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withAlpha(150),
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: const Icon(
@@ -132,7 +135,7 @@ class _PicturePreviewState extends State<PicturePreview> {
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: backgroundColor.withAlpha(150),
+                  color: Theme.of(context).colorScheme.surface.withAlpha(150),
                   borderRadius: BorderRadius.circular(5),
                 ),
                 child: Icon(

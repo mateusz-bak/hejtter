@@ -104,12 +104,10 @@ class _PictureFullScreenState extends State<PictureFullScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: backgroundColor,
       appBar: SlidingAppBar(
         controller: _appbarAnimController,
         visible: _appBarVisible,
         child: AppBar(
-          backgroundColor: backgroundColor,
           title: (widget.imagesUrls != null && widget.imagesUrls!.length > 1)
               ? Text(
                   'Obraz ${currentIndex + 1}/${widget.imagesUrls?.length}',
@@ -158,8 +156,8 @@ class _PictureFullScreenState extends State<PictureFullScreen>
                     size: 32,
                   ),
                 ),
-                backgroundDecoration: const BoxDecoration(
-                  color: backgroundColor,
+                backgroundDecoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
                 ),
                 pageController: _pageController,
                 onPageChanged: (index) {

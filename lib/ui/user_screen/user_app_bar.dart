@@ -22,7 +22,6 @@ class UserAppBar extends StatelessWidget {
       expandedHeight: expandedHeight,
       collapsedHeight: collapsedHeight,
       pinned: true,
-      backgroundColor: backgroundColor,
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.pin,
         title: Row(

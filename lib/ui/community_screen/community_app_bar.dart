@@ -1,11 +1,7 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:hejtter/models/communities_response.dart';
-
-import 'package:hejtter/utils/constants.dart';
 
 class CommunityAppBar extends StatelessWidget {
   const CommunityAppBar({
@@ -24,7 +20,6 @@ class CommunityAppBar extends StatelessWidget {
       expandedHeight: expandedHeight,
       collapsedHeight: collapsedHeight,
       pinned: true,
-      backgroundColor: backgroundColor,
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.pin,
         title: Row(

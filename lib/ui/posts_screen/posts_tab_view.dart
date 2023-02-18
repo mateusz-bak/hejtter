@@ -328,42 +328,39 @@ class _PostsTabViewState extends State<PostsTabView>
                 focusNode: widget.focusNode,
               ),
               Expanded(
-                child: Container(
-                  color: backgroundColor,
-                  child: Column(
-                    children: [
-                      _buildTabBar(),
-                      StreamBuilder<String>(
-                        stream: searchCubit.searchString,
-                        builder: (context, AsyncSnapshot<String> snapshot) {
-                          if (snapshot.hasData) {
-                            if (snapshot.data != query) {
-                              query = snapshot.data!;
+                child: Column(
+                  children: [
+                    _buildTabBar(),
+                    StreamBuilder<String>(
+                      stream: searchCubit.searchString,
+                      builder: (context, AsyncSnapshot<String> snapshot) {
+                        if (snapshot.hasData) {
+                          if (snapshot.data != query) {
+                            query = snapshot.data!;
 
-                              _refreshAllControllers();
-                            }
+                            _refreshAllControllers();
                           }
-                          return Expanded(
-                            child: TabBarView(
-                              controller: _tabController,
-                              children: widget.showFollowedTab
-                                  ? [
-                                      _buildHotPostsTabBarView(),
-                                      _buildTopPostsTabBarView(),
-                                      _buildNewPostsTabBarView(),
-                                      _buildFollowedPostsTabBarView(),
-                                    ]
-                                  : [
-                                      _buildHotPostsTabBarView(),
-                                      _buildTopPostsTabBarView(),
-                                      _buildNewPostsTabBarView(),
-                                    ],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                        }
+                        return Expanded(
+                          child: TabBarView(
+                            controller: _tabController,
+                            children: widget.showFollowedTab
+                                ? [
+                                    _buildHotPostsTabBarView(),
+                                    _buildTopPostsTabBarView(),
+                                    _buildNewPostsTabBarView(),
+                                    _buildFollowedPostsTabBarView(),
+                                  ]
+                                : [
+                                    _buildHotPostsTabBarView(),
+                                    _buildTopPostsTabBarView(),
+                                    _buildNewPostsTabBarView(),
+                                  ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -564,8 +561,6 @@ class _PostsTabViewState extends State<PostsTabView>
             _currentTab = value;
           }
         },
-        indicatorColor: primaryColor,
-        labelColor: primaryColor,
         tabs: widget.showFollowedTab
             ? [
                 _buildTab(context, 0, 'Gorące'),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/notifications_screen/notifications_tab_bar_view.dart';
-import 'package:hejtter/utils/constants.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -172,47 +171,42 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Builder(builder: (context) {
-      return Container(
-        color: backgroundColor,
-        child: DefaultTabController(
-          length: 2,
-          child: Column(
-            children: [
-              TabBar(
-                onTap: (value) {
-                  if (value == _currentTab) {
-                    if (value == 0) {
-                      _myNotificationsPagingController.refresh();
-                    } else if (value == 1) {
-                      _followedNotificationsPagingController.refresh();
-                    }
+      return DefaultTabController(
+        length: 2,
+        child: Column(
+          children: [
+            TabBar(
+              onTap: (value) {
+                if (value == _currentTab) {
+                  if (value == 0) {
+                    _myNotificationsPagingController.refresh();
+                  } else if (value == 1) {
+                    _followedNotificationsPagingController.refresh();
                   }
+                }
 
-                  setState(() {
-                    _currentTab = value;
-                  });
-                },
-                indicatorColor: const Color(0xff2295F3),
-                labelColor: primaryColor,
-                tabs: [
-                  _buildTab(context, 0, 'Moje'),
-                  _buildTab(context, 1, 'Obserwowane'),
+                setState(() {
+                  _currentTab = value;
+                });
+              },
+              tabs: [
+                _buildTab(context, 0, 'Moje'),
+                _buildTab(context, 1, 'Obserwowane'),
+              ],
+            ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  NotificationsTabBarView(
+                    controller: _myNotificationsPagingController,
+                  ),
+                  NotificationsTabBarView(
+                    controller: _followedNotificationsPagingController,
+                  ),
                 ],
               ),
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    NotificationsTabBarView(
-                      controller: _myNotificationsPagingController,
-                    ),
-                    NotificationsTabBarView(
-                      controller: _followedNotificationsPagingController,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     });

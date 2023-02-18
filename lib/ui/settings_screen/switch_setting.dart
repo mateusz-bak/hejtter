@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:hejtter/utils/constants.dart';
-
 class SwitchSetting extends StatelessWidget {
   const SwitchSetting({
     super.key,
@@ -23,7 +21,6 @@ class SwitchSetting extends StatelessWidget {
         trailing: Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: primaryColor,
         ),
       ),
     );

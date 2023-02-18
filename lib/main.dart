@@ -53,10 +53,13 @@ void main() async {
         BlocProvider<PreferencesBloc>(create: (context) => PreferencesBloc()),
       ],
       child: MaterialApp(
-        home: const InitScreen(),
-        theme: ThemeData.dark(useMaterial3: true).copyWith(
-          primaryColor: const Color(0xff2295F3),
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          colorSchemeSeed: const Color(0xff2295F3),
+          brightness: Brightness.dark,
         ),
+        themeMode: ThemeMode.dark,
+        home: const InitScreen(),
       ),
     ),
   );

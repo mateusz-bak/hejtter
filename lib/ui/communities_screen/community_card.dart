@@ -30,8 +30,6 @@ class CommunityCard extends StatelessWidget {
           );
         }),
         child: Card(
-          color: backgroundColor,
-          elevation: 5,
           child: Padding(
             padding: const EdgeInsets.all(10),
             child: Row(
@@ -78,10 +76,10 @@ class CommunityCard extends StatelessWidget {
                       const SizedBox(height: 15),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.person,
                             size: 18,
-                            color: Color(0xff2295F3),
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           const SizedBox(width: 5),
                           Text(item.numMembers.toString()),
@@ -90,10 +88,10 @@ class CommunityCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.article,
                             size: 18,
-                            color: Color(0xff2295F3),
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           const SizedBox(width: 5),
                           Text(item.numPosts.toString()),

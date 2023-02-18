@@ -59,7 +59,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
 
     if (result && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Komenatrz usunięty')),
+        const SnackBar(content: Text('Komentarz usunięty')),
       );
 
       widget.refreshPost();
@@ -138,7 +138,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: widget.isOP ? Colors.black.withOpacity(0.5) : Colors.transparent,
+        color: widget.isOP ? Colors.black.withOpacity(0.4) : Colors.transparent,
         borderRadius: BorderRadius.circular(5),
       ),
       child: Column(
@@ -394,7 +394,8 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
   _reportComment() async {
     if (comment?.links?.self == null) return;
     const firstPart = 'Zgłaszam złamanie regulaminu:\n\n';
-    final commentUrl = 'https://www.hejto.pl/posts/${comment?.links?.self?.href}';
+    final commentUrl =
+        'https://www.hejto.pl/posts/${comment?.links?.self?.href}';
     const lastPart = '\n\nPozdrawiam';
 
     final Email email = Email(

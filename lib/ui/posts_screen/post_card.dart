@@ -178,83 +178,72 @@ class _PostCardState extends State<PostCard>
             );
           }));
         },
-        child: Material(
-          color: backgroundColor,
-          child: Card(
-            color: backgroundColor,
-            elevation: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.only(left: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withAlpha(50),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(5),
-                      bottomRight: Radius.circular(5),
-                    ),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _buildAvatar(),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildUsernameAndRank(),
-                            const SizedBox(height: 3),
-                            _buildCommunityAndDate(),
-                          ],
-                        ),
-                      ),
-                      _buildHotIcon(),
-                      const SizedBox(width: 5),
-                      HejtterLikeButton(
-                        likeStatus: item?.isLiked,
-                        numLikes: item?.numLikes,
-                        unlikeComment: _unlikePost,
-                        likeComment: _likePost,
-                      ),
-                    ],
+        child: Card(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.only(left: 10),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                    bottomLeft: Radius.circular(5),
+                    bottomRight: Radius.circular(5),
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 10),
-                    _buildTitle(),
-                    SizedBox(height: item?.type == 'article' ? 10 : 0),
-                    item?.type == 'article'
-                        ? _buildContentPreviewAndPicture()
-                        : const SizedBox(),
-                    SizedBox(height: item?.type == 'article' ? 10 : 0),
-                    item?.type != 'article'
-                        ? _buildContent()
-                        : const SizedBox(),
-                    _buildTags(),
-                    _buildPoll(),
-                    item?.type != 'article'
-                        ? _buildPicture()
-                        : const SizedBox(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        _buildNumberOfComments(),
-                      ],
+                    _buildAvatar(),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildUsernameAndRank(),
+                          const SizedBox(height: 3),
+                          _buildCommunityAndDate(),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                    item?.type != 'article'
-                        ? _buildComments()
-                        : const SizedBox(),
+                    _buildHotIcon(),
+                    const SizedBox(width: 5),
+                    HejtterLikeButton(
+                      likeStatus: item?.isLiked,
+                      numLikes: item?.numLikes,
+                      unlikeComment: _unlikePost,
+                      likeComment: _likePost,
+                    ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10),
+                  _buildTitle(),
+                  SizedBox(height: item?.type == 'article' ? 10 : 0),
+                  item?.type == 'article'
+                      ? _buildContentPreviewAndPicture()
+                      : const SizedBox(),
+                  SizedBox(height: item?.type == 'article' ? 10 : 0),
+                  item?.type != 'article' ? _buildContent() : const SizedBox(),
+                  _buildTags(),
+                  _buildPoll(),
+                  item?.type != 'article' ? _buildPicture() : const SizedBox(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _buildNumberOfComments(),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  item?.type != 'article' ? _buildComments() : const SizedBox(),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -338,9 +327,9 @@ class _PostCardState extends State<PostCard>
       children: [
         SizedBox(width: item?.hot == true ? 5 : 0),
         item?.hot == true
-            ? const Icon(
+            ? Icon(
                 Icons.local_fire_department_outlined,
-                color: Color(0xff2295F3),
+                color: Theme.of(context).colorScheme.primary,
               )
             : const SizedBox(),
       ],
@@ -352,7 +341,7 @@ class _PostCardState extends State<PostCard>
     if (widget.item.comments != null && widget.item.comments!.isNotEmpty) {
       return Container(
         decoration: BoxDecoration(
-          color: Colors.black.withAlpha(50),
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(5),
             topRight: Radius.circular(5),

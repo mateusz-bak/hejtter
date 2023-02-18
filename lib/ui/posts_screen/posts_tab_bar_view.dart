@@ -31,7 +31,6 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
     super.build(context);
 
     return RefreshIndicator(
-      color: primaryColor,
       onRefresh: () => Future.sync(
         () => widget.controller.refresh(),
       ),
@@ -46,12 +45,12 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
                 itemBuilder: (context, item, index) => PostCard(item: item),
                 firstPageProgressIndicatorBuilder: (context) =>
                     LoadingAnimationWidget.fourRotatingDots(
-                  color: primaryColor,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 36,
                 ),
                 newPageProgressIndicatorBuilder: (context) =>
                     LoadingAnimationWidget.fourRotatingDots(
-                  color: primaryColor,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 36,
                 ),
               ),

@@ -6,7 +6,6 @@ import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
 import 'package:hejtter/ui/settings_screen/deep_links_dialog.dart';
-import 'package:hejtter/utils/constants.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -103,10 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: AppBar(
-        backgroundColor: backgroundColor,
-      ),
+      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -149,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xff2295F3).withAlpha(30),
+                      color: Theme.of(context).colorScheme.surfaceVariant,
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: TextField(
@@ -166,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xff2295F3).withAlpha(30),
+                      color: Theme.of(context).colorScheme.surfaceVariant,
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: TextField(
@@ -201,11 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xff2295F3),
-                      foregroundColor: Colors.white,
-                    ),
+                  child: FilledButton(
                     onPressed: _loading ? null : () => _login(context),
                     child: _loading
                         ? SizedBox(
@@ -213,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 16,
                             child: Center(
                               child: LoadingAnimationWidget.fourRotatingDots(
-                                color: primaryColor,
+                                color: Theme.of(context).colorScheme.primary,
                                 size: 16,
                               ),
                             ),
@@ -228,9 +220,6 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 TextButton(
                   onPressed: (() => _skipLogin(context)),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                  ),
                   child: const Text('Kontynuuj bez logowania'),
                 ),
               ],

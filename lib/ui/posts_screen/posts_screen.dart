@@ -31,7 +31,6 @@ class _PostsScreenState extends State<PostsScreen> {
           widget.communityName ?? '#${widget.tagName}',
           style: const TextStyle(fontSize: 20),
         ),
-        backgroundColor: backgroundColor,
         actions: [
           _buildSearchButton(context),
         ],

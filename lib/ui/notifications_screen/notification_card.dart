@@ -71,44 +71,41 @@ class _NotificationCardState extends State<NotificationCard> {
       onTap: () {
         _openNotification(context);
       },
-      child: Material(
-        color: backgroundColor,
-        child: Card(
-          color: item.status == ItemStatus.NEW
-              ? primaryColor.withOpacity(0.15)
-              : backgroundColor,
-          child: Padding(
-            padding: const EdgeInsets.all(0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(100),
-                    child: Container(
-                      padding:
-                          EdgeInsets.all(item.status == ItemStatus.NEW ? 3 : 1),
-                      color: item.status == ItemStatus.NEW
-                          ? Colors.green
-                          : Colors.white,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: CachedNetworkImage(
-                          height: item.status == ItemStatus.NEW ? 32 : 36,
-                          width: item.status == ItemStatus.NEW ? 32 : 36,
-                          imageUrl: item.sender?.avatar?.urls?.the250X250 ??
-                              defaultAvatar,
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
-                        ),
+      child: Card(
+        color: item.status == ItemStatus.NEW
+            ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
+            : null,
+        child: Padding(
+          padding: const EdgeInsets.all(0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: Container(
+                    padding:
+                        EdgeInsets.all(item.status == ItemStatus.NEW ? 3 : 1),
+                    color: item.status == ItemStatus.NEW
+                        ? Colors.green
+                        : Colors.white,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: CachedNetworkImage(
+                        height: item.status == ItemStatus.NEW ? 32 : 36,
+                        width: item.status == ItemStatus.NEW ? 32 : 36,
+                        imageUrl: item.sender?.avatar?.urls?.the250X250 ??
+                            defaultAvatar,
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
                       ),
                     ),
                   ),
                 ),
-                _buildContent(item),
-              ],
-            ),
+              ),
+              _buildContent(item),
+            ],
           ),
         ),
       ),

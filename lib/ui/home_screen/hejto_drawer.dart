@@ -28,12 +28,11 @@ class HejtoDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: backgroundColor,
       child: Column(
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue.shade900,
+              color: Theme.of(context).colorScheme.surfaceVariant,
             ),
             child: Row(
               children: [

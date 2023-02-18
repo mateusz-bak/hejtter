@@ -2,7 +2,6 @@ import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
-import 'package:hejtter/utils/constants.dart';
 
 class DeepLinksDialog extends StatefulWidget {
   const DeepLinksDialog({
@@ -91,22 +90,14 @@ class _DeepLinksDialogState extends State<DeepLinksDialog> {
       ),
       actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black.withOpacity(0.1),
-            foregroundColor: Colors.white,
-          ),
+        FilledButton.tonal(
           onPressed: () {
             _updatePreferences(context);
             Navigator.of(context).pop();
           },
           child: const Text('Nie'),
         ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: primaryColor,
-            foregroundColor: Colors.white,
-          ),
+        FilledButton(
           onPressed: !_goToSettingsClicked
               ? () {
                   setState(() {

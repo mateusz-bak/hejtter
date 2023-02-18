@@ -25,14 +25,12 @@ class PostsSearchBar extends StatelessWidget {
             duration: const Duration(milliseconds: 250),
             width: double.infinity,
             height: show ? 75 : 0,
-            decoration: const BoxDecoration(
-              color: backgroundColor,
-            ),
+            decoration: const BoxDecoration(),
             clipBehavior: Clip.hardEdge,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               decoration: BoxDecoration(
-                color: const Color(0xff2295F3).withAlpha(30),
+                color: Theme.of(context).colorScheme.primary.withAlpha(30),
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Column(

@@ -87,8 +87,8 @@ class PollWidget extends StatelessWidget {
         child: Stack(
           children: [
             _buildOptionBackground(),
-            _buildOptionForeground(percentage.toInt(), option),
-            _buildOptionContent(option, percentageSize, percentage),
+            _buildOptionForeground(percentage.toInt(), option, context),
+            _buildOptionContent(option, percentageSize, percentage, context),
           ],
         ),
       ));
@@ -101,6 +101,7 @@ class PollWidget extends StatelessWidget {
     HejtoPollOption option,
     Size percentageSize,
     double percentage,
+    BuildContext context,
   ) {
     return GestureDetector(
       onTap: votingOnOption == null && option.num != null
@@ -124,7 +125,7 @@ class PollWidget extends StatelessWidget {
                         width: 16,
                         height: 16,
                         child: LoadingAnimationWidget.fourRotatingDots(
-                          color: primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                           size: 16,
                         ),
                       ),
@@ -174,7 +175,11 @@ class PollWidget extends StatelessWidget {
     );
   }
 
-  Positioned _buildOptionForeground(int percentage, HejtoPollOption option) {
+  Positioned _buildOptionForeground(
+    int percentage,
+    HejtoPollOption option,
+    BuildContext context,
+  ) {
     return Positioned.fill(
       child: Row(
         children: [
@@ -191,7 +196,10 @@ class PollWidget extends StatelessWidget {
                       color: userVote == null
                           ? Colors.transparent
                           : userVote == option.num
-                              ? primaryColor.withOpacity(0.4)
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.4)
                               : Colors.black.withOpacity(0.4),
                     ),
                   ),

@@ -235,7 +235,6 @@ class _UserScreenState extends State<UserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
       body: FutureBuilder<UserDetailsResponse>(
         future: hejtoApi.getUserDetails(
           username: widget.userName.toString(),
@@ -297,7 +296,7 @@ class _UserScreenState extends State<UserScreen> {
             padding: const EdgeInsets.all(10),
             child: Center(
               child: LoadingAnimationWidget.fourRotatingDots(
-                color: primaryColor,
+                color: Theme.of(context).colorScheme.primary,
                 size: 24,
               ),
             ),
@@ -374,7 +373,6 @@ class _UserScreenState extends State<UserScreen> {
         _buildDropDowns(),
         Expanded(
           child: RefreshIndicator(
-            color: primaryColor,
             onRefresh: () => Future.sync(
               () {
                 _pagingController.refresh();
@@ -512,10 +510,10 @@ class _UserScreenState extends State<UserScreen> {
       children: [
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.text_snippet_sharp,
               size: 20,
-              color: primaryColor,
+              color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 5),
             Text('${data.stats?.numPosts}'),
@@ -524,10 +522,10 @@ class _UserScreenState extends State<UserScreen> {
         const SizedBox(width: 15),
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.comment,
               size: 20,
-              color: primaryColor,
+              color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 5),
             Text('${data.stats?.numComments}'),
@@ -536,10 +534,10 @@ class _UserScreenState extends State<UserScreen> {
         const SizedBox(width: 15),
         Row(
           children: [
-            const Icon(
+            Icon(
               Icons.person,
               size: 20,
-              color: primaryColor,
+              color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 5),
             Text('${data.stats?.numFollows}'),
