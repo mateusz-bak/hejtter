@@ -10,11 +10,11 @@ class PostsTabBarView extends StatefulWidget {
   const PostsTabBarView({
     super.key,
     required this.controller,
-    this.topDropdown = const SizedBox(),
+    this.topDropdown,
   });
 
   final PagingController<int, Post> controller;
-  final Widget topDropdown;
+  final Widget? topDropdown;
 
   @override
   State<PostsTabBarView> createState() => _PostsTabBarViewState();
@@ -37,11 +37,14 @@ class _PostsTabBarViewState extends State<PostsTabBarView>
         padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
         child: CustomScrollView(
           slivers: [
-            SliverPersistentHeader(
-              delegate: PeriodDropdownHeader(dropdown: widget.topDropdown),
-              pinned: false,
-              floating: true,
-            ),
+            widget.topDropdown != null
+                ? SliverPersistentHeader(
+                    delegate:
+                        PeriodDropdownHeader(dropdown: widget.topDropdown!),
+                    pinned: false,
+                    floating: true,
+                  )
+                : const SliverToBoxAdapter(),
             PagedSliverList<int, Post>(
               pagingController: widget.controller,
               builderDelegate: PagedChildBuilderDelegate<Post>(
