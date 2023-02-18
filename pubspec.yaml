@@ -15,7 +15,7 @@ dependencies:
   timeago: ^3.3.0
   dart_emoji: ^0.2.0+2
   infinite_scroll_pagination: ^3.2.0
-  extended_image: ^6.3.4
+  extended_image: ^7.0.2
   any_link_preview: ^3.0.0
   flutter_markdown: ^0.6.13
   url_launcher: ^6.1.7
@@ -32,7 +32,7 @@ dependencies:
   cookie_jar: ^3.0.1
   equatable: ^2.0.5
   hydrated_bloc: ^9.0.0
-  flutter_secure_storage: ^7.0.1
+  flutter_secure_storage: ^8.0.0
   flutter_email_sender: ^5.2.0
   share_plus: ^6.3.0
   image_picker: ^0.8.6
