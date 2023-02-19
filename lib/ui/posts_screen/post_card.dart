@@ -210,6 +210,7 @@ class _PostCardState extends State<PostCard>
                     _buildHotIcon(),
                     const SizedBox(width: 5),
                     HejtterLikeButton(
+                      author: item?.author?.username,
                       likeStatus: item?.isLiked,
                       numLikes: item?.numLikes,
                       unlikeComment: _unlikePost,

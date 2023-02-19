@@ -795,6 +795,7 @@ class _PostScreenState extends State<PostScreen> {
                       _buildHotIcon(),
                       const SizedBox(width: 15),
                       HejtterLikeButton(
+                        author: post.author?.username,
                         likeStatus: post.isLiked,
                         numLikes: post.numLikes,
                         unlikeComment: _unlikePost,

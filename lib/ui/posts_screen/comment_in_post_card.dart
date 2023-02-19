@@ -87,6 +87,7 @@ class CommentInPostCard extends StatelessWidget {
               ),
             ),
             HejtterLikeButton(
+              author: comment.author?.username,
               likeStatus: comment.isLiked,
               numLikes: comment.numLikes,
               unlikeComment: _unlikeComment,

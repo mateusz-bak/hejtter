@@ -164,6 +164,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
                 ),
                 _buildMoreButton(comment?.author?.username),
                 HejtterLikeButton(
+                  author: comment?.author?.username,
                   likeStatus: comment?.isLiked,
                   numLikes: comment?.numLikes,
                   unlikeComment: _unlikeComment,

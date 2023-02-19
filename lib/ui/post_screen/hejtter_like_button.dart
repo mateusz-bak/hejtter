@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
+import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:like_button/like_button.dart';
 
@@ -9,10 +12,12 @@ class HejtterLikeButton extends StatelessWidget {
     required this.numLikes,
     required this.unlikeComment,
     required this.likeComment,
+    required this.author,
   });
 
   final bool? likeStatus;
   final int? numLikes;
+  final String? author;
   final Future Function(BuildContext) unlikeComment;
   final Future Function(BuildContext) likeComment;
 
@@ -48,13 +53,23 @@ class HejtterLikeButton extends StatelessWidget {
         );
       },
       onTap: (isLiked) async {
-        if (isLiked) {
-          await unlikeComment(context);
+        final profileState = context.read<ProfileBloc>().state;
+        if (profileState is ProfilePresentState) {
+          if (profileState.username != author) {
+            if (isLiked) {
+              await unlikeComment(context);
+            } else {
+              await likeComment(context);
+            }
+            return !isLiked;
+          }
+          return isLiked;
         } else {
-          await likeComment(context);
+          Navigator.push(context, MaterialPageRoute(builder: (_) {
+            return const LoginScreen();
+          }));
         }
-
-        return !isLiked;
+        return isLiked;
       },
     );
   }
