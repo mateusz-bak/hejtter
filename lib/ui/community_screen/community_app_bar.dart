@@ -4,48 +4,64 @@ import 'package:flutter/material.dart';
 import 'package:hejtter/models/communities_response.dart';
 
 class CommunityAppBar extends StatelessWidget {
-  const CommunityAppBar({
+  CommunityAppBar({
     Key? key,
     required this.community,
     required this.changeCommunityMembership,
-    required this.changingMembershipState,
+    required this.changeCommunityBlockState,
   }) : super(key: key);
 
   final Community community;
   final Function(bool) changeCommunityMembership;
-  final bool changingMembershipState;
+  final Function(bool) changeCommunityBlockState;
+
+  late final Set<String> moreButtonOptions;
+  final moreButtonOptionsMember = {'Opuść'};
+  final moreButtonOptionsNotAMember = {'Dołącz'};
+
+  _preparePopMenuOptions() {
+    if (community.isMember == true) {
+      moreButtonOptions = moreButtonOptionsMember;
+    } else {
+      moreButtonOptions = moreButtonOptionsNotAMember;
+    }
+
+    if (community.isBlocked == true) {
+      moreButtonOptions.add('Odblokuj');
+    } else {
+      moreButtonOptions.add('Zablokuj');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    _preparePopMenuOptions();
+
     return SliverAppBar.large(
       pinned: true,
       actions: [
-        community.memberRole == 'owner'
-            ? const SizedBox()
-            : Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: community.isMember == true
-                    ? FilledButton.tonal(
-                        onPressed: () => changeCommunityMembership(false),
-                        child: changingMembershipState
-                            ? const SizedBox(
-                                height: 12,
-                                width: 12,
-                                child: CircularProgressIndicator(),
-                              )
-                            : const Text('Opuść'),
-                      )
-                    : FilledButton(
-                        onPressed: () => changeCommunityMembership(true),
-                        child: changingMembershipState
-                            ? const SizedBox(
-                                height: 12,
-                                width: 12,
-                                child: CircularProgressIndicator(),
-                              )
-                            : const Text('Dołącz'),
-                      ),
-              ),
+        PopupMenuButton<String>(
+          onSelected: (_) {},
+          itemBuilder: (BuildContext context) {
+            return moreButtonOptions.map((String choice) {
+              return PopupMenuItem<String>(
+                value: choice,
+                child: Text(choice),
+                onTap: () {
+                  if (choice == 'Opuść') {
+                    changeCommunityMembership(false);
+                  } else if (choice == 'Dołącz') {
+                    changeCommunityMembership(true);
+                  } else if (choice == 'Odblokuj') {
+                    changeCommunityBlockState(false);
+                  } else if (choice == 'Zablokuj') {
+                    changeCommunityBlockState(true);
+                  }
+                },
+              );
+            }).toList();
+          },
+        ),
       ],
       title: Row(
         children: [

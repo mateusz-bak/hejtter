@@ -953,6 +953,80 @@ class HejtoApi {
     return true;
   }
 
+  Future<bool> blockCommunity({
+    required BuildContext context,
+    required String communitySlug,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.postUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/communities/$communitySlug/blocks',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(
+      HttpHeaders.authorizationHeader,
+      'Bearer $accessToken',
+    );
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode != 201) {
+      _showFlushBar(
+        context,
+        'Błąd podczas blokowania do społeczności: ${response.statusCode}',
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<bool> unblockCommunity({
+    required BuildContext context,
+    required String communitySlug,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.deleteUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/communities/$communitySlug/blocks',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(
+      HttpHeaders.authorizationHeader,
+      'Bearer $accessToken',
+    );
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode != 204) {
+      _showFlushBar(
+        context,
+        'Błąd podczas odblokowywania społeczności: ${response.statusCode}',
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
   Future<UserDetailsResponse> getUserDetails({
     required BuildContext context,
     required String username,

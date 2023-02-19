@@ -28,7 +28,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
   static const _pageSize = 20;
 
   Community? community;
-  bool _changingMembershipState = false;
 
   Future<void> _fetchPage(int pageKey) async {
     try {
@@ -71,10 +70,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
   _changeCommunityMembership(bool newState) async {
     if (widget.communitySlug == null) return;
 
-    setState(() {
-      _changingMembershipState = true;
-    });
-
     if (newState) {
       await hejtoApi.joinCommunity(
         context: context,
@@ -90,10 +85,26 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
       await _loadCommunityDetails(true);
     }
+  }
 
-    setState(() {
-      _changingMembershipState = false;
-    });
+  _changeCommunityBlockState(bool newState) async {
+    if (widget.communitySlug == null) return;
+
+    if (newState) {
+      await hejtoApi.blockCommunity(
+        context: context,
+        communitySlug: widget.communitySlug!,
+      );
+
+      await _loadCommunityDetails(true);
+    } else {
+      await hejtoApi.unblockCommunity(
+        context: context,
+        communitySlug: widget.communitySlug!,
+      );
+
+      await _loadCommunityDetails(true);
+    }
   }
 
   _loadCommunityDetails(bool update) async {
@@ -150,7 +161,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
               CommunityAppBar(
                 community: community!,
                 changeCommunityMembership: _changeCommunityMembership,
-                changingMembershipState: _changingMembershipState,
+                changeCommunityBlockState: _changeCommunityBlockState,
               ),
               SliverToBoxAdapter(
                 child: Padding(

@@ -66,6 +66,7 @@ class Community {
     this.numMembers,
     this.numPosts,
     this.isMember,
+    this.isBlocked,
     this.newPosts,
     this.updatedAt,
     this.links,
@@ -84,6 +85,7 @@ class Community {
   final int? numMembers;
   final int? numPosts;
   final bool? isMember;
+  final bool? isBlocked;
   final int? newPosts;
   final DateTime? updatedAt;
   final ItemLinks? links;
@@ -110,6 +112,7 @@ class Community {
         numMembers: json["num_members"],
         numPosts: json["num_posts"],
         isMember: json["is_member"],
+        isBlocked: json["is_blocked"],
         newPosts: json["new_posts"],
         updatedAt: json["updated_at"] == null
             ? null
