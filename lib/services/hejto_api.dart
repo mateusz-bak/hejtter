@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:hejtter/models/hejto_tag.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
@@ -1131,6 +1132,191 @@ class HejtoApi {
       _showFlushBar(
         context,
         'Błąd podczas odobserwowywania użytkownika: ${response.statusCode}',
+      );
+
+      return false;
+    }
+  }
+
+  Future<dynamic> getTagDetails({
+    required BuildContext context,
+    required String tag,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/tags/$tag',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    if (accessToken != null) {
+      request.headers.set(
+        HttpHeaders.authorizationHeader,
+        'Bearer $accessToken',
+      );
+    }
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode != 200) {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania tagu: ${response.statusCode}',
+      );
+    }
+
+    return HejtoTag.fromJson(json.decode(stringData));
+  }
+
+  Future<bool> followTag({
+    required String tag,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.postUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/tags/$tag/follows',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas obserwowania tagu: ${response.statusCode}',
+      );
+
+      return false;
+    }
+  }
+
+  Future<bool> unfollowTag({
+    required String tag,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.deleteUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/tags/$tag/follows',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas odobserwowania tagu: ${response.statusCode}',
+      );
+
+      return false;
+    }
+  }
+
+  Future<bool> blockTag({
+    required String tag,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.postUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/tags/$tag/blocks',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas blokowania tagu: ${response.statusCode}',
+      );
+
+      return false;
+    }
+  }
+
+  Future<bool> unblockTag({
+    required String tag,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.deleteUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/tags/$tag/blocks',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 204) {
+      return true;
+    } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas odblokowywania tagu: ${response.statusCode}',
       );
 
       return false;

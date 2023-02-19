@@ -20,7 +20,7 @@ import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/ui/post_screen/hejtter_like_button.dart';
 import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/post_screen/poll_widget.dart';
-import 'package:hejtter/ui/posts_screen/posts_screen.dart';
+import 'package:hejtter/ui/tag_screen/tag_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -919,8 +919,8 @@ class _PostScreenState extends State<PostScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PostsScreen(
-                    tagName: tag.name!,
+                  builder: (context) => TagScreen(
+                    tag: tag.name!,
                   ),
                 ),
               );
