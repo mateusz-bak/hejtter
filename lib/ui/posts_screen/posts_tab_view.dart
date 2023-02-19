@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
-import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/logic/cubit/discussions_nav_cubit.dart';
 
 import 'package:hejtter/logic/cubit/search_cubit.dart';
@@ -12,6 +11,7 @@ import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:hejtter/utils/enums.dart';
+import 'package:hejtter/utils/helpers.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
@@ -71,21 +71,6 @@ class _PostsTabViewState extends State<PostsTabView>
   final PagingController<int, Post> _followedPagingController =
       PagingController(firstPageKey: 1);
 
-  List<Post> _filterLocallyBlockedUsers(List<Post> list) {
-    final state = BlocProvider.of<ProfileBloc>(context).state;
-    if (state is ProfileAbsentState) {
-      if (state.blockedUsers == null) return list;
-
-      list.removeWhere((element) {
-        return state.blockedUsers!.contains(element.author?.username);
-      });
-
-      return list;
-    } else {
-      return list;
-    }
-  }
-
   Future<void> _fetchHotPage(int pageKey) async {
     try {
       final newItems = await hejtoApi.getPosts(
@@ -104,16 +89,18 @@ class _PostsTabViewState extends State<PostsTabView>
       if (isLastPage) {
         if (!mounted) return;
         _hotPagingController.appendLastPage(
-          _filterLocallyBlockedUsers(
-            _removeDoubledPosts(_newPagingController, newItems),
+          filterLocallyBlockedUsers(
+            removeDoubledPosts(_hotPagingController, newItems),
+            context,
           ),
         );
       } else {
         final nextPageKey = pageKey + 1;
         if (!mounted) return;
         _hotPagingController.appendPage(
-          _filterLocallyBlockedUsers(
-            _removeDoubledPosts(_newPagingController, newItems),
+          filterLocallyBlockedUsers(
+            removeDoubledPosts(_hotPagingController, newItems),
+            context,
           ),
           nextPageKey,
         );
@@ -142,16 +129,18 @@ class _PostsTabViewState extends State<PostsTabView>
       if (isLastPage) {
         if (!mounted) return;
         _topPagingController.appendLastPage(
-          _filterLocallyBlockedUsers(
-            _removeDoubledPosts(_newPagingController, newItems),
+          filterLocallyBlockedUsers(
+            removeDoubledPosts(_topPagingController, newItems),
+            context,
           ),
         );
       } else {
         if (!mounted) return;
         final nextPageKey = pageKey + 1;
         _topPagingController.appendPage(
-          _filterLocallyBlockedUsers(
-            _removeDoubledPosts(_newPagingController, newItems),
+          filterLocallyBlockedUsers(
+            removeDoubledPosts(_topPagingController, newItems),
+            context,
           ),
           nextPageKey,
         );
@@ -180,16 +169,18 @@ class _PostsTabViewState extends State<PostsTabView>
       if (isLastPage) {
         if (!mounted) return;
         _newPagingController.appendLastPage(
-          _filterLocallyBlockedUsers(
-            _removeDoubledPosts(_newPagingController, newItems),
+          filterLocallyBlockedUsers(
+            removeDoubledPosts(_newPagingController, newItems),
+            context,
           ),
         );
       } else {
         if (!mounted) return;
         final nextPageKey = pageKey + 1;
         _newPagingController.appendPage(
-          _filterLocallyBlockedUsers(
-            _removeDoubledPosts(_newPagingController, newItems),
+          filterLocallyBlockedUsers(
+            removeDoubledPosts(_newPagingController, newItems),
+            context,
           ),
           nextPageKey,
         );
@@ -235,25 +226,6 @@ class _PostsTabViewState extends State<PostsTabView>
       default:
         return ['article', 'link', 'discussion', 'offer'];
     }
-  }
-
-  List<Post> _removeDoubledPosts(
-    PagingController<int, Post> controller,
-    List<Post> items,
-  ) {
-    final checkedItems = List<Post>.empty(growable: true);
-    final currentList = controller.itemList;
-    if (currentList == null) {
-      return items;
-    }
-
-    for (var item in items) {
-      if (!currentList.any((element) => element.slug == item.slug)) {
-        checkedItems.add(item);
-      }
-    }
-
-    return checkedItems;
   }
 
   _refreshAllControllers() async {
@@ -432,10 +404,10 @@ class _PostsTabViewState extends State<PostsTabView>
             color: Theme.of(context).colorScheme.surface,
             child: Container(
               width: MediaQuery.of(context).size.width / 2,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(25),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
@@ -496,10 +468,10 @@ class _PostsTabViewState extends State<PostsTabView>
             color: Theme.of(context).colorScheme.surface,
             child: Container(
               width: MediaQuery.of(context).size.width / 2,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(25),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
