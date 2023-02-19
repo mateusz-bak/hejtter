@@ -1,4 +1,4 @@
-enum CurrentScreen { home, communities, followed }
+enum CurrentScreen { home, communities }
 
 enum DiscussionsTab { hot, top, newTab, followed }
 
