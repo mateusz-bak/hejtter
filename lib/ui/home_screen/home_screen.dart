@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => CommunityScreen(
-            community: Community(name: widget.navigateToCommunity),
+            communitySlug: widget.navigateToCommunity,
           ),
         ),
       );
@@ -188,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     switch (bottomNavBarIndex) {
       case 0:
-        return AppBar(title: const Text('Hejto', style: textStyle));
+        return AppBar(title: const Text('Hejtter', style: textStyle));
       case 1:
         return AppBar(title: const Text('Artykuły', style: textStyle));
       case 2:

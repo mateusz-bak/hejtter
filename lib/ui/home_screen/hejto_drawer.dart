@@ -132,23 +132,8 @@ class _HejtoDrawerState extends State<HejtoDrawer> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CommunityScreen(
-              community: Community(
-                slug: 'Hejtter',
-                name: 'Hejtter',
-                avatar: Avatar(
-                  urls: AvatarUrls(
-                    the250X250:
-                        'https://hejto-media.s3.eu-central-1.amazonaws.com/uploads/communities/images/avatars/250x250/c9dc19226b6dd04bd625960dedbb41d0.png',
-                  ),
-                ),
-                background: Background(
-                  urls: BackgroundUrls(
-                    the1200X900:
-                        'https://hejto-media.s3.eu-central-1.amazonaws.com/uploads/communities/images/backgrounds/1200x900/d07ab812a674241079adeb90b06b4879.jpg',
-                  ),
-                ),
-              ),
+            builder: (context) => const CommunityScreen(
+              communitySlug: 'hejtter',
             ),
           ),
         );

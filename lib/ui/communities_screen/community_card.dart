@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/ui/community_screen/community_screen.dart';
-import 'package:hejtter/utils/constants.dart';
 
 class CommunityCard extends StatelessWidget {
   const CommunityCard({
@@ -24,7 +23,7 @@ class CommunityCard extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => CommunityScreen(
-                community: item,
+                communitySlug: item.slug,
               ),
             ),
           );
@@ -40,10 +39,17 @@ class CommunityCard extends StatelessWidget {
                   width: 80,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(100),
-                    child: CachedNetworkImage(
-                      imageUrl: '${item.avatar?.urls?.the100X100}',
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.error),
+                    child: Container(
+                      padding: const EdgeInsets.all(1),
+                      color: Theme.of(context).colorScheme.onSurface,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: CachedNetworkImage(
+                          imageUrl: '${item.avatar?.urls?.the100X100}',
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -76,25 +82,29 @@ class CommunityCard extends StatelessWidget {
                       const SizedBox(height: 15),
                       Row(
                         children: [
-                          Icon(
-                            Icons.person,
-                            size: 18,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 5),
                           Text(item.numMembers.toString()),
+                          Text(
+                            ' członków',
+                            style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          Icon(
-                            Icons.article,
-                            size: 18,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 5),
                           Text(item.numPosts.toString()),
+                          Text(
+                            ' wpisów',
+                            style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                          ),
                         ],
                       ),
                     ],

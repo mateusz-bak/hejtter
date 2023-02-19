@@ -841,6 +841,117 @@ class HejtoApi {
     return communitiesResponseFromJson(stringData).embedded?.items;
   }
 
+  Future<Community?> getCommunityDetails({
+    required BuildContext context,
+    required String communitySlug,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/communities/$communitySlug',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    if (accessToken != null) {
+      request.headers.set(
+        HttpHeaders.authorizationHeader,
+        'Bearer $accessToken',
+      );
+    }
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode != 200) {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania społeczności: ${response.statusCode}',
+      );
+    }
+
+    return Community.fromJson(json.decode(stringData));
+  }
+
+  Future<bool> joinCommunity({
+    required BuildContext context,
+    required String communitySlug,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.postUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/communities/$communitySlug/members',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(
+      HttpHeaders.authorizationHeader,
+      'Bearer $accessToken',
+    );
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode != 201) {
+      _showFlushBar(
+        context,
+        'Błąd podczas dołączania do społeczności: ${response.statusCode}',
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<bool> leaveCommunity({
+    required BuildContext context,
+    required String communitySlug,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    HttpClientRequest request = await client.deleteUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/communities/$communitySlug/members',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(
+      HttpHeaders.authorizationHeader,
+      'Bearer $accessToken',
+    );
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode != 204) {
+      _showFlushBar(
+        context,
+        'Błąd podczas opuszczania społeczności: ${response.statusCode}',
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
   Future<UserDetailsResponse> getUserDetails({
     required BuildContext context,
     required String username,

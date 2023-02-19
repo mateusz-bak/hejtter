@@ -13,10 +13,10 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({
     super.key,
-    required this.community,
+    required this.communitySlug,
   });
 
-  final Community community;
+  final String? communitySlug;
 
   @override
   State<CommunityScreen> createState() => _CommunityScreenState();
@@ -27,13 +27,16 @@ class _CommunityScreenState extends State<CommunityScreen> {
       PagingController(firstPageKey: 1);
   static const _pageSize = 20;
 
+  Community? community;
+  bool _changingMembershipState = false;
+
   Future<void> _fetchPage(int pageKey) async {
     try {
       final newItems = await hejtoApi.getPosts(
         pageKey: pageKey,
         pageSize: _pageSize,
         context: context,
-        communitySlug: widget.community.slug,
+        communitySlug: widget.communitySlug,
         orderBy: 'p.createdAt',
         types: ['article', 'link', 'discussion', 'offer'],
       );
@@ -65,6 +68,51 @@ class _CommunityScreenState extends State<CommunityScreen> {
     }
   }
 
+  _changeCommunityMembership(bool newState) async {
+    if (widget.communitySlug == null) return;
+
+    setState(() {
+      _changingMembershipState = true;
+    });
+
+    if (newState) {
+      await hejtoApi.joinCommunity(
+        context: context,
+        communitySlug: widget.communitySlug!,
+      );
+
+      await _loadCommunityDetails(true);
+    } else {
+      await hejtoApi.leaveCommunity(
+        context: context,
+        communitySlug: widget.communitySlug!,
+      );
+
+      await _loadCommunityDetails(true);
+    }
+
+    setState(() {
+      _changingMembershipState = false;
+    });
+  }
+
+  _loadCommunityDetails(bool update) async {
+    if (widget.communitySlug == null) return;
+
+    final response = await hejtoApi.getCommunityDetails(
+      context: context,
+      communitySlug: widget.communitySlug!,
+    );
+
+    if (update) {
+      setState(() {
+        community = response;
+      });
+    } else {
+      community = response;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -83,13 +131,57 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          CommunityAppBar(community: widget.community),
-          _buildCommunityPosts(),
-        ],
-      ),
+    return FutureBuilder<dynamic>(
+      future: _loadCommunityDetails(false),
+      builder: (context, snapshot) {
+        if (community == null) {
+          return Scaffold(
+            body: CustomScrollView(slivers: [
+              SliverAppBar.large(
+                title: const SizedBox(),
+              ),
+            ]),
+          );
+        }
+
+        return Scaffold(
+          body: CustomScrollView(
+            slivers: [
+              CommunityAppBar(
+                community: community!,
+                changeCommunityMembership: _changeCommunityMembership,
+                changingMembershipState: _changingMembershipState,
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 5),
+                      Text(community!.numMembers.toString()),
+                      Text(
+                        ' członków',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(community!.numPosts.toString()),
+                      Text(
+                        ' wpisów',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              _buildCommunityPosts(),
+            ],
+          ),
+        );
+      },
     );
   }
 

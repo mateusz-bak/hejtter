@@ -1130,12 +1130,7 @@ class _PostScreenState extends State<PostScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => CommunityScreen(
-                    community: Community(
-                      slug: post.community?.slug,
-                      name: post.community?.name,
-                      background: post.community?.background,
-                      avatar: post.community?.avatar,
-                    ),
+                    communitySlug: post.community?.slug,
                   ),
                 ),
               );

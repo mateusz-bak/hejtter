@@ -70,6 +70,7 @@ class Community {
     this.updatedAt,
     this.links,
     this.description,
+    this.memberRole,
   });
 
   final String? name;
@@ -87,6 +88,7 @@ class Community {
   final DateTime? updatedAt;
   final ItemLinks? links;
   final String? description;
+  final String? memberRole;
 
   factory Community.fromJson(Map<String, dynamic> json) => Community(
         name: json["name"],
@@ -115,6 +117,7 @@ class Community {
         links:
             json["_links"] == null ? null : ItemLinks.fromJson(json["_links"]),
         description: json["description"],
+        memberRole: json["member_role"],
       );
 }
 

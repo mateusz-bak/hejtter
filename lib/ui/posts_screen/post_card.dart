@@ -602,12 +602,7 @@ class _PostCardState extends State<PostCard>
                 context,
                 MaterialPageRoute(
                   builder: (context) => CommunityScreen(
-                    community: Community(
-                      slug: item!.community?.slug,
-                      name: item!.community?.name,
-                      background: item!.community?.background,
-                      avatar: item!.community?.avatar,
-                    ),
+                    communitySlug: item!.community?.slug,
                   ),
                 ),
               );
