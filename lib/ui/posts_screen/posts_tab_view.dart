@@ -5,10 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/cubit/discussions_nav_cubit.dart';
 
-import 'package:hejtter/logic/cubit/search_cubit.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
-import 'package:hejtter/ui/posts_screen/posts_search_bar.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_bar_view.dart';
 import 'package:hejtter/utils/enums.dart';
 import 'package:hejtter/utils/helpers.dart';
@@ -18,7 +16,6 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 class PostsTabView extends StatefulWidget {
   const PostsTabView({
     super.key,
-    this.showSearchBar = false,
     this.focusNode,
     this.fiterPosts,
     this.communitySlug,
@@ -26,7 +23,6 @@ class PostsTabView extends StatefulWidget {
     this.showFollowedTab = false,
   });
 
-  final bool showSearchBar;
   final bool showFollowedTab;
   final HejtoPage? fiterPosts;
   final String? communitySlug;
@@ -289,42 +285,26 @@ class _PostsTabViewState extends State<PostsTabView>
 
           return Column(
             children: [
-              PostsSearchBar(
-                show: widget.showSearchBar,
-                focusNode: widget.focusNode,
-              ),
               Expanded(
                 child: Column(
                   children: [
                     _buildTabBar(),
-                    StreamBuilder<String>(
-                      stream: searchCubit.searchString,
-                      builder: (context, AsyncSnapshot<String> snapshot) {
-                        if (snapshot.hasData) {
-                          if (snapshot.data != query) {
-                            query = snapshot.data!;
-
-                            _refreshAllControllers();
-                          }
-                        }
-                        return Expanded(
-                          child: TabBarView(
-                            controller: _tabController,
-                            children: widget.showFollowedTab
-                                ? [
-                                    _buildHotPostsTabBarView(),
-                                    _buildTopPostsTabBarView(),
-                                    _buildNewPostsTabBarView(),
-                                    _buildFollowedPostsTabBarView(),
-                                  ]
-                                : [
-                                    _buildHotPostsTabBarView(),
-                                    _buildTopPostsTabBarView(),
-                                    _buildNewPostsTabBarView(),
-                                  ],
-                          ),
-                        );
-                      },
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: widget.showFollowedTab
+                            ? [
+                                _buildHotPostsTabBarView(),
+                                _buildTopPostsTabBarView(),
+                                _buildNewPostsTabBarView(),
+                                _buildFollowedPostsTabBarView(),
+                              ]
+                            : [
+                                _buildHotPostsTabBarView(),
+                                _buildTopPostsTabBarView(),
+                                _buildNewPostsTabBarView(),
+                              ],
+                      ),
                     ),
                   ],
                 ),

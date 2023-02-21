@@ -13,3 +13,11 @@ enum PostsPeriod {
   thirtyDays,
   all,
 }
+
+// post does not work
+enum SearchType {
+  // post,
+  tag,
+  user,
+  community,
+}

@@ -4,8 +4,6 @@ import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 
-import 'package:hejtter/logic/cubit/search_cubit.dart';
-import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/add_post_screen/add_post_screen.dart';
@@ -15,6 +13,7 @@ import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:hejtter/ui/notifications_screen/notifications_screen.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
+import 'package:hejtter/ui/search_screen/search_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/enums.dart';
 
@@ -36,7 +35,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   FocusNode focusNode = FocusNode();
-  var _showSearchBar = false;
   late int bottomNavBarIndex;
   int _notificationsCounter = 0;
 
@@ -153,21 +151,18 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (bottomNavBarIndex) {
       case 0:
         return PostsTabView(
-          showSearchBar: _showSearchBar,
           focusNode: focusNode,
           fiterPosts: HejtoPage.all,
           showFollowedTab: state is ProfilePresentState,
         );
       case 1:
         return PostsTabView(
-          showSearchBar: _showSearchBar,
           focusNode: focusNode,
           fiterPosts: HejtoPage.articles,
           showFollowedTab: state is ProfilePresentState,
         );
       case 2:
         return PostsTabView(
-          showSearchBar: _showSearchBar,
           focusNode: focusNode,
           fiterPosts: HejtoPage.discussions,
           showFollowedTab: state is ProfilePresentState,
@@ -186,18 +181,38 @@ class _HomeScreenState extends State<HomeScreen> {
   AppBar? _buildAppBar() {
     const textStyle = TextStyle(fontSize: 18);
 
+    String? title;
+
     switch (bottomNavBarIndex) {
       case 0:
-        return AppBar(title: const Text('Hejtter', style: textStyle));
+        title = 'Hejtter';
+        break;
       case 1:
-        return AppBar(title: const Text('Artykuły', style: textStyle));
+        title = 'Artykuły';
+        break;
       case 2:
-        return AppBar(title: const Text('Dyskusje', style: textStyle));
+        title = 'Dyskusje';
+        break;
       case 3:
-        return AppBar(title: const Text('Powiadomienia', style: textStyle));
-      default:
-        return null;
+        title = 'Powiadomienia';
+        break;
     }
+
+    return AppBar(
+      title: Text(title ?? '', style: textStyle),
+      actions: [
+        IconButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const SearchScreen(),
+              ),
+            );
+          },
+          icon: const Icon(Icons.search),
+        ),
+      ],
+    );
   }
 
   Widget _buildBottomNavigationBar(ProfileState state) {
@@ -322,23 +337,5 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(context, MaterialPageRoute(builder: (_) {
       return AddPostScreen(addPost: _addPost);
     }));
-  }
-
-  IconButton _buildSearchButton(BuildContext context) {
-    return IconButton(
-      onPressed: (() {
-        setState(() {
-          _showSearchBar = !_showSearchBar;
-          searchCubit.changeString('');
-
-          if (_showSearchBar) {
-            FocusScope.of(context).requestFocus(focusNode);
-          } else {
-            FocusManager.instance.primaryFocus?.unfocus();
-          }
-        });
-      }),
-      icon: Icon(_showSearchBar ? Icons.search_off : Icons.search),
-    );
   }
 }

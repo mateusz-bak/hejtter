@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:hejtter/models/hejto_tag.dart';
+import 'package:hejtter/models/hejto_tags_response.dart';
+import 'package:hejtter/models/hejto_users_response.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
@@ -391,6 +393,103 @@ class HejtoApi {
     }
 
     return postFromJson(stringData).embedded?.items;
+  }
+
+  Future<List<HejtoTag>?> getTags({
+    required int pageKey,
+    required int pageSize,
+    required BuildContext context,
+    String query = '',
+    required String orderBy,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+
+    var queryParameters = {
+      'limit': '$pageSize',
+      'page': '$pageKey',
+      'orderBy': orderBy,
+      'query': query,
+    };
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/tags',
+        queryParameters,
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    if (accessToken != null) {
+      request.headers.set(
+        HttpHeaders.authorizationHeader,
+        'Bearer $accessToken',
+      );
+    }
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode != 200) {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania tagów: ${response.statusCode}',
+      );
+    }
+
+    return HejtoTagsResponse.fromJson(json.decode(stringData)).embedded?.items;
+  }
+
+  Future<List<HejtoUser>?> getUsers({
+    required int pageKey,
+    required int pageSize,
+    required BuildContext context,
+    String query = '',
+  }) async {
+    final accessToken = await _getAccessToken(context);
+
+    var queryParameters = {
+      'limit': '$pageSize',
+      'page': '$pageKey',
+      'query': query,
+      'orderDir': 'asc',
+    };
+
+    HttpClientRequest request = await client.getUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/users',
+        queryParameters,
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    if (accessToken != null) {
+      request.headers.set(
+        HttpHeaders.authorizationHeader,
+        'Bearer $accessToken',
+      );
+    }
+
+    HttpClientResponse response = await request.close();
+    final stringData = await response.transform(utf8.decoder).join();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode != 200) {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania użytkowników: ${response.statusCode}',
+      );
+    }
+
+    return HejtoUsersResponse.fromJson(json.decode(stringData))
+        .eEmbedded
+        ?.items;
   }
 
   Map<String, Object> _addCommunityFilter(
