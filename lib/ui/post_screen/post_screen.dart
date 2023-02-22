@@ -9,7 +9,6 @@ import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
-import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
@@ -809,13 +808,23 @@ class _PostScreenState extends State<PostScreen> {
                   children: [
                     const SizedBox(height: 10),
                     _buildTitle(),
-                    SizedBox(height: post.type == 'article' ? 10 : 0),
-                    post.type == 'article' ? _buildPicture() : const SizedBox(),
-                    SizedBox(height: post.type == 'article' ? 10 : 0),
+                    SizedBox(
+                        height: post.type == 'article' || post.type == 'link'
+                            ? 10
+                            : 0),
+                    post.type == 'article' || post.type == 'link'
+                        ? _buildPicture()
+                        : const SizedBox(),
+                    SizedBox(
+                        height: post.type == 'article' || post.type == 'link'
+                            ? 10
+                            : 0),
                     _buildContent(),
                     _buildTags(),
                     _buildPoll(),
-                    post.type != 'article' ? _buildPicture() : const SizedBox(),
+                    post.type != 'article' && post.type != 'link'
+                        ? _buildPicture()
+                        : const SizedBox(),
                     const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -981,23 +990,58 @@ class _PostScreenState extends State<PostScreen> {
 
     final bool multiplePics = post.images!.length > 1;
 
-    return PicturePreview(
-      imageUrl: post.images![0].urls!.the1200X900!,
-      multiplePics: multiplePics,
-      nsfw: post.nsfw ?? false,
-      imagesUrls: post.images,
+    return GestureDetector(
+      onTap: () {
+        if (post.type == 'link' && post.link != null) {
+          launchUrl(
+            Uri.parse(post.link!),
+            mode: LaunchMode.externalApplication,
+          );
+        }
+      },
+      child: PicturePreview(
+        imageUrl: post.images![0].urls!.the1200X900!,
+        multiplePics: multiplePics,
+        nsfw: post.nsfw ?? false,
+        imagesUrls: post.images,
+        openOnTap: post.type != 'link',
+      ),
     );
   }
 
   Widget _buildTitle() {
-    if (post.type == 'article') {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Text(
-          post.title ?? '',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
+    if (post.type == 'article' || post.type == 'link') {
+      return GestureDetector(
+        onTap: () {
+          if (post.type == 'link' && post.link != null) {
+            launchUrl(
+              Uri.parse(post.link!),
+              mode: LaunchMode.externalApplication,
+            );
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                post.title ?? '',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                ),
+              ),
+              post.link != null
+                  ? Text(
+                      post.link!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    )
+                  : const SizedBox(),
+            ],
           ),
         ),
       );

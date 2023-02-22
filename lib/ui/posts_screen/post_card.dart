@@ -224,15 +224,25 @@ class _PostCardState extends State<PostCard>
                 children: [
                   const SizedBox(height: 10),
                   _buildTitle(),
-                  SizedBox(height: item?.type == 'article' ? 10 : 0),
-                  item?.type == 'article'
+                  SizedBox(
+                      height: item?.type == 'article' || item?.type == 'link'
+                          ? 10
+                          : 0),
+                  item?.type == 'article' || item?.type == 'link'
                       ? _buildContentPreviewAndPicture()
                       : const SizedBox(),
-                  SizedBox(height: item?.type == 'article' ? 10 : 0),
-                  item?.type != 'article' ? _buildContent() : const SizedBox(),
+                  SizedBox(
+                      height: item?.type == 'article' || item?.type == 'link'
+                          ? 10
+                          : 0),
+                  item?.type != 'article' && item?.type != 'link'
+                      ? _buildContent()
+                      : const SizedBox(),
                   _buildTags(),
                   _buildPoll(),
-                  item?.type != 'article' ? _buildPicture() : const SizedBox(),
+                  item?.type != 'article' && item?.type != 'link'
+                      ? _buildPicture()
+                      : const SizedBox(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -240,7 +250,9 @@ class _PostCardState extends State<PostCard>
                     ],
                   ),
                   const SizedBox(height: 20),
-                  item?.type != 'article' ? _buildComments() : const SizedBox(),
+                  item?.type != 'article' && item?.type != 'link'
+                      ? _buildComments()
+                      : const SizedBox(),
                 ],
               ),
             ],
@@ -292,30 +304,48 @@ class _PostCardState extends State<PostCard>
 
     final bool multiplePics = item!.images!.length > 1;
 
-    return SizedBox(
-      height: 120,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxHeight: 120,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
-              child: Text(
-                item?.content ?? '',
-                softWrap: true,
-                textAlign: TextAlign.justify,
-                maxLines: null,
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+              child: Container(
+                clipBehavior: Clip.hardEdge,
+                decoration: const BoxDecoration(),
+                child: MarkdownBody(
+                  data: item?.content ?? '',
+                ),
               ),
             ),
           ),
-          PicturePreview(
-            imageUrl: item!.images![0].urls!.the1200X900!,
-            multiplePics: multiplePics,
-            nsfw: item!.nsfw ?? false,
-            imagesUrls: item!.images,
-            height: 100,
-            width: 100,
+          Column(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  if (item?.type == 'link' && item?.link != null) {
+                    launchUrl(
+                      Uri.parse(item!.link!),
+                      mode: LaunchMode.externalApplication,
+                    );
+                  }
+                },
+                child: PicturePreview(
+                  imageUrl: item!.images![0].urls!.the1200X900!,
+                  multiplePics: multiplePics,
+                  nsfw: item!.nsfw ?? false,
+                  imagesUrls: item!.images,
+                  height: 100,
+                  width: 100,
+                  openOnTap: item?.type != 'link',
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -480,14 +510,38 @@ class _PostCardState extends State<PostCard>
   }
 
   Widget _buildTitle() {
-    if (item?.type == 'article') {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Text(
-          item?.title ?? '',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+    if (item?.type == 'article' || item?.type == 'link') {
+      return GestureDetector(
+        onTap: () {
+          if (item?.type == 'link' && item?.link != null) {
+            launchUrl(
+              Uri.parse(item!.link!),
+              mode: LaunchMode.externalApplication,
+            );
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item?.title ?? '',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              item?.link != null
+                  ? Text(
+                      item!.link!,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    )
+                  : const SizedBox(),
+            ],
           ),
         ),
       );

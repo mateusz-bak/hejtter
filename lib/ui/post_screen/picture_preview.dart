@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/post_screen/picture_full_screen.dart';
-import 'package:hejtter/utils/constants.dart';
 
 class PicturePreview extends StatefulWidget {
   const PicturePreview({
@@ -19,12 +18,14 @@ class PicturePreview extends StatefulWidget {
     required this.nsfw,
     this.height,
     this.width,
+    this.openOnTap = true,
   }) : super(key: key);
 
   final String imageUrl;
   final List<PostImage>? imagesUrls;
   final bool multiplePics;
   final bool nsfw;
+  final bool openOnTap;
   final double? height;
   final double? width;
 
@@ -40,13 +41,15 @@ class _PicturePreviewState extends State<PicturePreview> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 15, 10, 5),
       child: GestureDetector(
-        onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) {
-            return PictureFullScreen(
-              imagesUrls: widget.imagesUrls,
-            );
-          }));
-        },
+        onTap: widget.openOnTap
+            ? () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) {
+                  return PictureFullScreen(
+                    imagesUrls: widget.imagesUrls,
+                  );
+                }));
+              }
+            : null,
         child: Stack(
           children: [
             Center(
