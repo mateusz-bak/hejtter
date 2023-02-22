@@ -320,6 +320,22 @@ class _PostCardState extends State<PostCard>
                 decoration: const BoxDecoration(),
                 child: MarkdownBody(
                   data: item?.content ?? '',
+                  selectable: true,
+                  styleSheet:
+                      MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                    blockquoteDecoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                  onTapText: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) {
+                      return PostScreen(
+                        post: item!,
+                        refreshCallback: _refreshPost,
+                      );
+                    }));
+                  },
                 ),
               ),
             ),

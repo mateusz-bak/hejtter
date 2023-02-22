@@ -22,6 +22,7 @@ class _SearchScreenState extends State<SearchScreen> {
   var _selectedSearchType = SearchType.tag;
   static const _pageSize = 20;
   String searchQuery = '';
+  bool titleRenderedForTheFirstTime = false;
 
   // final PagingController<int, Post> _postsPagingController =
   //     PagingController(firstPageKey: 1);
@@ -335,12 +336,21 @@ class _SearchScreenState extends State<SearchScreen> {
       //     ]),
       //   );
       case SearchType.tag:
-        return SizedBox(
-          key: Key(_selectedSearchType.toString()),
-          child: AnimatedTextKit(isRepeatingAnimation: false, animatedTexts: [
-            TyperAnimatedText('Szukaj tagu', speed: duration),
-          ]),
-        );
+        if (!titleRenderedForTheFirstTime) {
+          titleRenderedForTheFirstTime = true;
+          return SizedBox(
+            key: Key(_selectedSearchType.toString()),
+            child: const Text('Szukaj tagu'),
+          );
+        } else {
+          return SizedBox(
+            key: Key(_selectedSearchType.toString()),
+            child: AnimatedTextKit(isRepeatingAnimation: false, animatedTexts: [
+              TyperAnimatedText('Szukaj tagu', speed: duration),
+            ]),
+          );
+        }
+
       case SearchType.user:
         return SizedBox(
           key: Key(_selectedSearchType.toString()),

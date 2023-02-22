@@ -8,7 +8,6 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/post_screen/sliding_app_bar.dart';
-import 'package:hejtter/utils/constants.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -20,7 +19,6 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as path;
 
 class PictureFullScreen extends StatefulWidget {
   const PictureFullScreen({
@@ -42,7 +40,7 @@ class _PictureFullScreenState extends State<PictureFullScreen>
 
   late final _appbarAnimController = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 400),
+    duration: const Duration(milliseconds: 250),
   );
 
   Future<String?> getDownloadPath() async {
@@ -108,6 +106,8 @@ class _PictureFullScreenState extends State<PictureFullScreen>
         controller: _appbarAnimController,
         visible: _appBarVisible,
         child: AppBar(
+          backgroundColor:
+              Theme.of(context).colorScheme.surface.withOpacity(0.8),
           title: (widget.imagesUrls != null && widget.imagesUrls!.length > 1)
               ? Text(
                   'Obraz ${currentIndex + 1}/${widget.imagesUrls?.length}',

@@ -55,7 +55,7 @@ void main() async {
       child: MaterialApp(
         darkTheme: ThemeData(
           useMaterial3: true,
-          colorSchemeSeed: const Color(0xff2295F3),
+          colorSchemeSeed: Colors.lightBlue,
           brightness: Brightness.dark,
         ),
         themeMode: ThemeMode.dark,

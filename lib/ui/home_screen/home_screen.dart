@@ -220,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
       selectedIndex: bottomNavBarIndex,
       height: 60,
       onDestinationSelected: (int index) {
-        if (index == 2) {
+        if (index == 3) {
           if (state is ProfilePresentState) {
             setState(() {
               bottomNavBarIndex = index;
