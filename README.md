@@ -8,6 +8,7 @@
 | :---:   | :---:  |
 An unofficial mobile app for [Hejto](https://hejto.pl) written in `Flutter`. | Nieoficjalna aplikacja serwisu [Hejto](https://hejto.pl) napisana we `Flutterze`.
 Currently available for `Android`. `iOS` release is planned after collecting the required funding. | Obecnie dostępna na `Androida`. Wydanie na `iOS` jest planowane po zebraniu odpowiedniego finansowania. 
+You can see what's going on with the project and track the development progress here: [Hejtter Project](https://github.com/users/mateusz-bak/projects/3). | Możesz zobaczyć co się dzieje w projekcie i śledzić postępy w rozwoju tutaj: [Hejtter Project](https://github.com/users/mateusz-bak/projects/3).
 
 </br>
 
