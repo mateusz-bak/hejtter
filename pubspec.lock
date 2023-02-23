@@ -181,10 +181,10 @@ packages:
     dependency: "direct main"
     description:
       name: dropdown_button2
-      sha256: "580bfe26a91e822a95d96e227ac02c1e14a7d5eea32501d0fbc6fe8d5c5606e5"
+      sha256: "604b87283e251e0e4a0cb1d0fdfa91fd527702b06e80999c4054cecc603e10e7"
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.2"
+    version: "1.9.4"
   equatable:
     dependency: "direct main"
     description:
@@ -524,10 +524,10 @@ packages:
     dependency: transitive
     description:
       name: intl
-      sha256: "910f85bce16fb5c6f614e117efa303e85a1731bb0081edf3604a2ae6e9a3cc91"
+      sha256: a3715e3bc90294e971cb7dc063fbf3cd9ee0ebf8604ffeafabd9e6f16abbdbe6
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.0"
+    version: "0.18.0"
   js:
     dependency: transitive
     description:
@@ -641,7 +641,7 @@ packages:
     source: hosted
     version: "2.0.1"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       sha256: db9d4f58c908a4ba5953fcee2ae317c94889433e5024c27ce74a37f94267945b
@@ -993,10 +993,10 @@ packages:
     dependency: "direct main"
     description:
       name: timeago
-      sha256: "46c128312ab0ea144b146c0ac6426ddd96810efec2de3fccc425d00179cd8254"
+      sha256: a415b9a05ef64b845c859a91161fc9f689f88eaaa4c04759517d201891b99e90
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0"
+    version: "3.4.0"
   tuple:
     dependency: transitive
     description:

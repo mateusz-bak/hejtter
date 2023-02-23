@@ -25,6 +25,13 @@ class LogInAuthEvent extends AuthEvent {
       ];
 }
 
+class LogInWithSavedCredentialsAuthEvent extends AuthEvent {
+  const LogInWithSavedCredentialsAuthEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
 class LogOutAuthEvent extends AuthEvent {
   const LogOutAuthEvent();
 

@@ -94,22 +94,21 @@ class _InitScreenState extends State<InitScreen> {
                 final slug = splittedString.last;
 
                 if (type == 'wpis') {
-                  HomeScreen(navigateToPost: slug);
+                  return HomeScreen(navigateToPost: slug);
                 } else if (type == 'uzytkownik') {
-                  HomeScreen(navigateToUser: slug);
+                  return HomeScreen(navigateToUser: slug);
                 } else if (type == 'spolecznosc') {
                   return HomeScreen(navigateToCommunity: slug);
                 }
               }
 
-              if (state is AuthorizedAuthState ||
-                  state is LoginSkippedAuthState) {
-                if (state is AuthorizedAuthState) {
-                  BlocProvider.of<ProfileBloc>(context).add(
-                    SetProfileEvent(context: context),
-                  );
-                }
+              if (state is AuthorizedAuthState) {
+                BlocProvider.of<ProfileBloc>(context).add(
+                  SetProfileEvent(context: context),
+                );
 
+                return HomeScreen();
+              } else if (state is LoginSkippedAuthState) {
                 return HomeScreen();
               } else {
                 return const LoginScreen();

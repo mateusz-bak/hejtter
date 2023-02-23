@@ -9,7 +9,6 @@ import 'package:hejtter/models/hejto_tags_response.dart';
 import 'package:hejtter/models/hejto_users_response.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/models/user_notification.dart';
-import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:hejtter/utils/enums.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
@@ -61,6 +60,12 @@ class HejtoApi {
     );
 
     flush.show(context);
+  }
+
+  _loginAgainWithSavedCredentials(BuildContext context) {
+    BlocProvider.of<AuthBloc>(context).add(
+      const LogInWithSavedCredentialsAuthEvent(),
+    );
   }
 
   Future<HttpClientRequest> _addCookiesToRequest(
@@ -217,6 +222,9 @@ class HejtoApi {
 
     if (response.statusCode == 201) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -252,6 +260,10 @@ class HejtoApi {
 
     if (response.statusCode == 204) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -294,14 +306,16 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return Post.fromJson(json.decode(stringData));
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania wpisu: ${response.statusCode}',
       );
     }
-
-    return Post.fromJson(json.decode(stringData));
   }
 
   Future<List<Post>?> getPosts({
@@ -361,38 +375,16 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
-      if (response.statusCode == 401) {
-        _showFlushBar(
-          context,
-          'Sesja wygasła :( przekierowanie na stronę logowania',
-        );
-
-        await Future.delayed(const Duration(seconds: 3));
-
-        BlocProvider.of<AuthBloc>(context).add(
-          const LogOutAuthEvent(),
-        );
-
-        BlocProvider.of<ProfileBloc>(context).add(
-          const ClearProfileEvent(),
-        );
-
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const LoginScreen(),
-          ),
-          (Route<dynamic> route) => false,
-        );
-      } else {
-        _showFlushBar(
-          context,
-          'Błąd podczas pobierania wpisów: ${response.statusCode}',
-        );
-      }
+    if (response.statusCode == 200) {
+      return postFromJson(stringData).embedded?.items;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+    } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania wpisów: ${response.statusCode}',
+      );
     }
-
-    return postFromJson(stringData).embedded?.items;
   }
 
   Future<List<HejtoTag>?> getTags({
@@ -433,14 +425,18 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return HejtoTagsResponse.fromJson(json.decode(stringData))
+          .embedded
+          ?.items;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania tagów: ${response.statusCode}',
       );
     }
-
-    return HejtoTagsResponse.fromJson(json.decode(stringData)).embedded?.items;
   }
 
   Future<List<HejtoUser>?> getUsers({
@@ -480,16 +476,18 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return HejtoUsersResponse.fromJson(json.decode(stringData))
+          .eEmbedded
+          ?.items;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania użytkowników: ${response.statusCode}',
       );
     }
-
-    return HejtoUsersResponse.fromJson(json.decode(stringData))
-        .eEmbedded
-        ?.items;
   }
 
   Map<String, Object> _addCommunityFilter(
@@ -684,14 +682,16 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return commentsResponseFromJson(stringData).embedded?.items;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania komentarzy: ${response.statusCode}',
       );
     }
-
-    return commentsResponseFromJson(stringData).embedded?.items;
   }
 
   Future<bool> likeComment({
@@ -722,6 +722,9 @@ class HejtoApi {
 
     if (response.statusCode == 201) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -760,6 +763,9 @@ class HejtoApi {
 
     if (response.statusCode == 204) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -804,14 +810,16 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return CommentItem.fromJson(json.decode(stringData));
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania komentarza: ${response.statusCode}',
       );
     }
-
-    return CommentItem.fromJson(json.decode(stringData));
   }
 
   Future<Account?> getAccount({
@@ -839,13 +847,18 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return accountFromJson(stringData);
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return null;
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania konta: ${response.statusCode}',
       );
+      return null;
     }
-    return accountFromJson(stringData);
   }
 
   Future<bool> addComment({
@@ -881,16 +894,18 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 201) {
+    if (response.statusCode == 201) {
+      return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas dodawania komentarza: ${response.statusCode}',
       );
-
       return false;
     }
-
-    return true;
   }
 
   Future<List<Community>?> getCommunities({
@@ -931,14 +946,16 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return communitiesResponseFromJson(stringData).embedded?.items;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania społeczności: ${response.statusCode}',
       );
     }
-
-    return communitiesResponseFromJson(stringData).embedded?.items;
   }
 
   Future<Community?> getCommunityDetails({
@@ -968,14 +985,16 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return Community.fromJson(json.decode(stringData));
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania społeczności: ${response.statusCode}',
       );
     }
-
-    return Community.fromJson(json.decode(stringData));
   }
 
   Future<bool> joinCommunity({
@@ -1003,16 +1022,18 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 201) {
+    if (response.statusCode == 201) {
+      return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas dołączania do społeczności: ${response.statusCode}',
       );
-
       return false;
     }
-
-    return true;
   }
 
   Future<bool> leaveCommunity({
@@ -1040,16 +1061,18 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 204) {
+    if (response.statusCode == 204) {
+      return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas opuszczania społeczności: ${response.statusCode}',
       );
-
       return false;
     }
-
-    return true;
   }
 
   Future<bool> blockCommunity({
@@ -1077,7 +1100,12 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 201) {
+    if (response.statusCode == 201) {
+      return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas blokowania do społeczności: ${response.statusCode}',
@@ -1085,8 +1113,6 @@ class HejtoApi {
 
       return false;
     }
-
-    return true;
   }
 
   Future<bool> unblockCommunity({
@@ -1114,7 +1140,12 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 204) {
+    if (response.statusCode == 204) {
+      return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas odblokowywania społeczności: ${response.statusCode}',
@@ -1122,11 +1153,9 @@ class HejtoApi {
 
       return false;
     }
-
-    return true;
   }
 
-  Future<UserDetailsResponse> getUserDetails({
+  Future<UserDetailsResponse?> getUserDetails({
     required BuildContext context,
     required String username,
   }) async {
@@ -1153,14 +1182,16 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return userDetailsResponseFromJson(stringData);
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania użytkownika: ${response.statusCode}',
       );
     }
-
-    return userDetailsResponseFromJson(stringData);
   }
 
   Future<bool> blockUser({
@@ -1190,6 +1221,9 @@ class HejtoApi {
 
     if (response.statusCode == 201) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1227,6 +1261,9 @@ class HejtoApi {
 
     if (response.statusCode == 204) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1264,6 +1301,9 @@ class HejtoApi {
 
     if (response.statusCode == 201) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1301,6 +1341,9 @@ class HejtoApi {
 
     if (response.statusCode == 204) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1338,14 +1381,16 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
+    if (response.statusCode == 200) {
+      return HejtoTag.fromJson(json.decode(stringData));
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+    } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania tagu: ${response.statusCode}',
       );
     }
-
-    return HejtoTag.fromJson(json.decode(stringData));
   }
 
   Future<bool> followTag({
@@ -1375,6 +1420,9 @@ class HejtoApi {
 
     if (response.statusCode == 201) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1412,6 +1460,9 @@ class HejtoApi {
 
     if (response.statusCode == 204) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1449,6 +1500,9 @@ class HejtoApi {
 
     if (response.statusCode == 201) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1486,6 +1540,9 @@ class HejtoApi {
 
     if (response.statusCode == 204) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1523,6 +1580,9 @@ class HejtoApi {
 
     if (response.statusCode == 201) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1560,6 +1620,9 @@ class HejtoApi {
 
     if (response.statusCode == 204) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1607,6 +1670,9 @@ class HejtoApi {
 
     if (response.statusCode == 204) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1658,6 +1724,9 @@ class HejtoApi {
     if (response.statusCode == 201) {
       final location = response.headers['location'];
       return location?[0].replaceAll('/posts/', '');
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return null;
     } else if (response.statusCode == 429) {
       _showFlushBar(context, 'Przekroczono limit');
       return null;
@@ -1705,6 +1774,9 @@ class HejtoApi {
 
     if (response.statusCode == 201) {
       return jsonDecode(responseString)['uuid'];
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return null;
     } else if (response.statusCode == 429) {
       _showFlushBar(context, 'Przekroczono limit');
       return null;
@@ -1742,6 +1814,9 @@ class HejtoApi {
 
     if (response.statusCode == 204) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1778,6 +1853,9 @@ class HejtoApi {
 
     if (response.statusCode == 204) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1824,38 +1902,16 @@ class HejtoApi {
 
     _saveCookiesFromResponse(response);
 
-    if (response.statusCode != 200) {
-      if (response.statusCode == 401) {
-        _showFlushBar(
-          context,
-          'Sesja wygasła :( przekierowanie na stronę logowania',
-        );
-
-        await Future.delayed(const Duration(seconds: 3));
-
-        BlocProvider.of<AuthBloc>(context).add(
-          const LogOutAuthEvent(),
-        );
-
-        BlocProvider.of<ProfileBloc>(context).add(
-          const ClearProfileEvent(),
-        );
-
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const LoginScreen(),
-          ),
-          (Route<dynamic> route) => false,
-        );
-      } else {
-        _showFlushBar(
-          context,
-          'Błąd podczas pobierania powiadomień: ${response.statusCode}',
-        );
-      }
+    if (response.statusCode == 200) {
+      return userNotificationFromJson(stringData).embedded?.items;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+    } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas pobierania powiadomień: ${response.statusCode}',
+      );
     }
-
-    return userNotificationFromJson(stringData).embedded?.items;
   }
 
   Future<bool> getNotificationDetails({
@@ -1884,6 +1940,9 @@ class HejtoApi {
 
     if (response.statusCode == 200) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1919,6 +1978,9 @@ class HejtoApi {
 
     if (response.statusCode == 204) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else {
       _showFlushBar(
         context,
@@ -1960,6 +2022,9 @@ class HejtoApi {
     _saveCookiesFromResponse(response);
     if (response.statusCode == 201) {
       return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
     } else if (response.statusCode == 429) {
       _showFlushBar(context, 'Przekroczono limit');
       return false;

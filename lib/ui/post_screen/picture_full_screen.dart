@@ -19,6 +19,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
 
 class PictureFullScreen extends StatefulWidget {
   const PictureFullScreen({

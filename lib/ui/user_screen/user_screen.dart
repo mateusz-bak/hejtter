@@ -236,14 +236,14 @@ class _UserScreenState extends State<UserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<UserDetailsResponse>(
+      body: FutureBuilder<UserDetailsResponse?>(
         future: hejtoApi.getUserDetails(
           username: widget.userName.toString(),
           context: context,
         ),
         builder: (
           BuildContext context,
-          AsyncSnapshot<UserDetailsResponse> snapshot,
+          AsyncSnapshot<UserDetailsResponse?> snapshot,
         ) {
           if (snapshot.hasData) {
             return BlocBuilder<ProfileBloc, ProfileState>(
