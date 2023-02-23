@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/communities_response.dart';
 
 class CommunityAppBar extends StatelessWidget {
@@ -40,28 +42,30 @@ class CommunityAppBar extends StatelessWidget {
     return SliverAppBar.large(
       pinned: true,
       actions: [
-        PopupMenuButton<String>(
-          onSelected: (_) {},
-          itemBuilder: (BuildContext context) {
-            return moreButtonOptions.map((String choice) {
-              return PopupMenuItem<String>(
-                value: choice,
-                child: Text(choice),
-                onTap: () {
-                  if (choice == 'Opuść') {
-                    changeCommunityMembership(false);
-                  } else if (choice == 'Dołącz') {
-                    changeCommunityMembership(true);
-                  } else if (choice == 'Odblokuj') {
-                    changeCommunityBlockState(false);
-                  } else if (choice == 'Zablokuj') {
-                    changeCommunityBlockState(true);
-                  }
+        (context.read<ProfileBloc>().state is ProfilePresentState)
+            ? PopupMenuButton<String>(
+                onSelected: (_) {},
+                itemBuilder: (BuildContext context) {
+                  return moreButtonOptions.map((String choice) {
+                    return PopupMenuItem<String>(
+                      value: choice,
+                      child: Text(choice),
+                      onTap: () {
+                        if (choice == 'Opuść') {
+                          changeCommunityMembership(false);
+                        } else if (choice == 'Dołącz') {
+                          changeCommunityMembership(true);
+                        } else if (choice == 'Odblokuj') {
+                          changeCommunityBlockState(false);
+                        } else if (choice == 'Zablokuj') {
+                          changeCommunityBlockState(true);
+                        }
+                      },
+                    );
+                  }).toList();
                 },
-              );
-            }).toList();
-          },
-        ),
+              )
+            : const SizedBox(),
       ],
       title: Row(
         children: [

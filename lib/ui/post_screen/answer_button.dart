@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
+import 'package:hejtter/ui/login_screen/login_screen.dart';
 
 class AnswerButton extends StatelessWidget {
   const AnswerButton({
@@ -15,7 +18,15 @@ class AnswerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       style: TextButton.styleFrom(foregroundColor: Colors.white),
-      onPressed: () => respondToUser(username),
+      onPressed: () {
+        if (context.read<ProfileBloc>().state is ProfilePresentState) {
+          respondToUser(username);
+        } else {
+          Navigator.push(context, MaterialPageRoute(builder: (_) {
+            return const LoginScreen();
+          }));
+        }
+      },
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

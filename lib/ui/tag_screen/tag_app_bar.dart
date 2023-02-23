@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/hejto_tag.dart';
 
 class TagAppBar extends StatelessWidget {
@@ -38,28 +40,30 @@ class TagAppBar extends StatelessWidget {
     return SliverAppBar.medium(
       pinned: true,
       actions: [
-        PopupMenuButton<String>(
-          onSelected: (_) {},
-          itemBuilder: (BuildContext context) {
-            return moreButtonOptions.map((String choice) {
-              return PopupMenuItem<String>(
-                value: choice,
-                child: Text(choice),
-                onTap: () {
-                  if (choice == 'Przestań obserwować') {
-                    changeTagFollowState(false);
-                  } else if (choice == 'Obserwuj') {
-                    changeTagFollowState(true);
-                  } else if (choice == 'Odblokuj') {
-                    changeTagBlockState(false);
-                  } else if (choice == 'Zablokuj') {
-                    changeTagBlockState(true);
-                  }
+        (context.read<ProfileBloc>().state is ProfilePresentState)
+            ? PopupMenuButton<String>(
+                onSelected: (_) {},
+                itemBuilder: (BuildContext context) {
+                  return moreButtonOptions.map((String choice) {
+                    return PopupMenuItem<String>(
+                      value: choice,
+                      child: Text(choice),
+                      onTap: () {
+                        if (choice == 'Przestań obserwować') {
+                          changeTagFollowState(false);
+                        } else if (choice == 'Obserwuj') {
+                          changeTagFollowState(true);
+                        } else if (choice == 'Odblokuj') {
+                          changeTagBlockState(false);
+                        } else if (choice == 'Zablokuj') {
+                          changeTagBlockState(true);
+                        }
+                      },
+                    );
+                  }).toList();
                 },
-              );
-            }).toList();
-          },
-        ),
+              )
+            : const SizedBox(),
       ],
       title: Text(
         '#${tag.name}',
