@@ -153,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       autofillHints: const [AutofillHints.email],
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(
-                        hintText: 'Email',
+                        hintText: 'Email / Login',
                         border: InputBorder.none,
                       ),
                     ),
