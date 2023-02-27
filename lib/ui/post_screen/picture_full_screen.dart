@@ -19,6 +19,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 
@@ -63,7 +64,25 @@ class _PictureFullScreenState extends State<PictureFullScreen>
     return directory?.path;
   }
 
-  void _downloadPicture() async {
+  _showFlushBar(BuildContext context, String msg) {
+    late Flushbar flush;
+    flush = Flushbar(
+      message: msg,
+      duration: const Duration(seconds: 1),
+      margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+      borderRadius: BorderRadius.circular(8),
+      icon: const Icon(
+        Icons.download_done,
+        color: Colors.green,
+      ),
+      animationDuration: const Duration(milliseconds: 500)
+    );
+
+    flush.show(context);
+  }
+
+  void _downloadPicture(BuildContext context) async {
     var status = await Permission.storage.status;
     if (!status.isGranted) {
       await Permission.storage.request();
@@ -75,13 +94,22 @@ class _PictureFullScreenState extends State<PictureFullScreen>
     final imageUrl = widget.imagesUrls?[currentIndex].urls?.the1200X900;
     if (imageUrl == null) return;
 
-    await FlutterDownloader.enqueue(
+    final imageId = await FlutterDownloader.enqueue(
       url: imageUrl,
       savedDir: downloadPath,
       saveInPublicStorage: true,
       showNotification: true,
       openFileFromNotification: true,
     );
+
+    if (imageId != null) {
+      if (context.mounted) {
+        _showFlushBar(
+          context,
+          'Plik zapisany',
+        );
+      }
+    }
   }
 
   _sharePicture() async {
@@ -122,7 +150,7 @@ class _PictureFullScreenState extends State<PictureFullScreen>
               icon: const Icon(Icons.share),
             ),
             IconButton(
-              onPressed: _downloadPicture,
+              onPressed: () => _downloadPicture(context),
               icon: const Icon(Icons.download),
             ),
           ],
