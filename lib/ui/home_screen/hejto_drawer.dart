@@ -69,8 +69,7 @@ class _HejtoDrawerState extends State<HejtoDrawer> {
               child: CachedNetworkImage(
                 height: 22,
                 width: 22,
-                imageUrl:
-                    'https://hejto-media.s3.eu-central-1.amazonaws.com/uploads/communities/images/avatars/250x250/c9dc19226b6dd04bd625960dedbb41d0.png',
+                imageUrl: hejtterAvatar,
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),

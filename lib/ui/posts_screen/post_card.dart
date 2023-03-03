@@ -178,44 +178,57 @@ class _PostCardState extends State<PostCard>
           }));
         },
         child: Card(
+          elevation: 0,
+          color: backgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: const BorderSide(
+              color: dividerColor,
+              width: 1,
+            ),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.only(left: 10),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                  borderRadius: const BorderRadius.only(
+                padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                decoration: const BoxDecoration(
+                  color: backgroundSecondaryColor,
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
-                    bottomLeft: Radius.circular(5),
-                    bottomRight: Radius.circular(5),
                   ),
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                child: Column(
                   children: [
-                    _buildAvatar(),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildUsernameAndRank(),
-                          const SizedBox(height: 3),
-                          _buildCommunityAndDate(),
-                        ],
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _buildAvatar(),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildUsername(),
+                              const SizedBox(height: 3),
+                              _buildRankPlate(),
+                            ],
+                          ),
+                        ),
+                        _buildHotIcon(),
+                        const SizedBox(width: 5),
+                        HejtterLikeButton(
+                          author: item?.author?.username,
+                          likeStatus: item?.isLiked,
+                          numLikes: item?.numLikes,
+                          unlikeComment: _unlikePost,
+                          likeComment: _likePost,
+                        ),
+                      ],
                     ),
-                    _buildHotIcon(),
-                    const SizedBox(width: 5),
-                    HejtterLikeButton(
-                      author: item?.author?.username,
-                      likeStatus: item?.isLiked,
-                      numLikes: item?.numLikes,
-                      unlikeComment: _unlikePost,
-                      likeComment: _likePost,
-                    ),
+                    const SizedBox(height: 3),
+                    _buildCommunityAndDate(),
                   ],
                 ),
               ),
@@ -238,7 +251,7 @@ class _PostCardState extends State<PostCard>
                   item?.type != 'article' && item?.type != 'link'
                       ? _buildContent()
                       : const SizedBox(),
-                  _buildTags(),
+                  // _buildTags(),
                   _buildPoll(),
                   item?.type != 'article' && item?.type != 'link'
                       ? _buildPicture()
@@ -592,7 +605,7 @@ class _PostCardState extends State<PostCard>
     );
   }
 
-  Widget _buildUsernameAndRank() {
+  Widget _buildUsername() {
     return GestureDetector(
       onTap: _goToUserScreen,
       child: Row(
@@ -606,11 +619,12 @@ class _PostCardState extends State<PostCard>
                   child: Text(
                     item?.author != null
                         ? item!.author!.username.toString()
-                        : 'null',
+                        : '',
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: 16,
+                      letterSpacing: 0.8,
                     ),
                   ),
                 ),
@@ -621,12 +635,11 @@ class _PostCardState extends State<PostCard>
                         child: const Icon(
                           Icons.mode_night_rounded,
                           color: Colors.brown,
-                          size: 16,
+                          size: 18,
                         ),
                       )
                     : const SizedBox(),
                 const SizedBox(width: 5),
-                _buildRankPlate(),
               ],
             ),
           ),
@@ -646,13 +659,14 @@ class _PostCardState extends State<PostCard>
                 ),
               )
             : Colors.black,
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(2),
       ),
       child: Text(
         item?.author != null ? item!.author!.currentRank.toString() : 'null',
         style: const TextStyle(
-          fontSize: 11,
+          fontSize: 12,
           color: Colors.white,
+          letterSpacing: 0.8,
         ),
       ),
     );
@@ -660,8 +674,9 @@ class _PostCardState extends State<PostCard>
 
   Row _buildCommunityAndDate() {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        const SizedBox(width: 48),
         const Text('w '),
         Flexible(
           child: GestureDetector(

@@ -8,6 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/post_screen/picture_full_screen.dart';
+import 'package:hejtter/utils/constants.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class PicturePreview extends StatefulWidget {
   const PicturePreview({
@@ -53,16 +55,36 @@ class _PicturePreviewState extends State<PicturePreview> {
         child: Stack(
           children: [
             Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(3),
-                child: CachedNetworkImage(
-                  height: widget.height,
-                  width: widget.width,
-                  fit: (widget.height == null && widget.width == null)
-                      ? BoxFit.cover
-                      : BoxFit.cover,
-                  imageUrl: widget.imageUrl,
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minHeight: 32,
+                  maxHeight: 500,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: CachedNetworkImage(
+                    fadeOutDuration: const Duration(milliseconds: 250),
+                    placeholder: (context, url) {
+                      return SizedBox(
+                        height: 32,
+                        width: 32,
+                        child: Center(
+                          child: LoadingAnimationWidget.threeArchedCircle(
+                            color: boltColor,
+                            size: 24,
+                          ),
+                        ),
+                      );
+                    },
+                    height: widget.height,
+                    width: widget.width,
+                    fit: (widget.height == null && widget.width == null)
+                        ? BoxFit.cover
+                        : BoxFit.fitWidth,
+                    imageUrl: widget.imageUrl,
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
+                  ),
                 ),
               ),
             ),

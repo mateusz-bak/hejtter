@@ -94,6 +94,7 @@ class CommentInPostCard extends StatelessWidget {
               likeComment: _likeComment,
               small: true,
             ),
+            const SizedBox(width: 10),
           ],
         ),
         const SizedBox(height: 0),
