@@ -169,6 +169,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
                   numLikes: comment?.numLikes,
                   unlikeComment: _unlikeComment,
                   likeComment: _likeComment,
+                  small: true,
                 ),
               ],
             ),

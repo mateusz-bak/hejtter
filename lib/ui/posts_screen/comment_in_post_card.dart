@@ -92,6 +92,7 @@ class CommentInPostCard extends StatelessWidget {
               numLikes: comment.numLikes,
               unlikeComment: _unlikeComment,
               likeComment: _likeComment,
+              small: true,
             ),
           ],
         ),
