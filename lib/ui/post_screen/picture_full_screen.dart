@@ -8,6 +8,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 
 import 'package:hejtter/models/posts_response.dart';
 import 'package:hejtter/ui/post_screen/sliding_app_bar.dart';
+import 'package:hejtter/utils/constants.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -103,12 +104,12 @@ class _PictureFullScreenState extends State<PictureFullScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
+      backgroundColor: backgroundColor,
       appBar: SlidingAppBar(
         controller: _appbarAnimController,
         visible: _appBarVisible,
         child: AppBar(
-          backgroundColor:
-              Theme.of(context).colorScheme.surface.withOpacity(0.8),
+          backgroundColor: backgroundColor.withOpacity(0.8),
           title: (widget.imagesUrls != null && widget.imagesUrls!.length > 1)
               ? Text(
                   'Obraz ${currentIndex + 1}/${widget.imagesUrls?.length}',
@@ -152,13 +153,13 @@ class _PictureFullScreenState extends State<PictureFullScreen>
                 },
                 itemCount: widget.imagesUrls?.length ?? 0,
                 loadingBuilder: (context, event) => Center(
-                  child: LoadingAnimationWidget.fourRotatingDots(
-                    color: Colors.white.withOpacity(0.5),
+                  child: LoadingAnimationWidget.threeArchedCircle(
+                    color: boltColor,
                     size: 32,
                   ),
                 ),
-                backgroundDecoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
+                backgroundDecoration: const BoxDecoration(
+                  color: backgroundColor,
                 ),
                 pageController: _pageController,
                 onPageChanged: (index) {

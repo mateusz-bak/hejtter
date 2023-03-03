@@ -275,6 +275,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           },
           child: Scaffold(
             backgroundColor: backgroundColor,
+            extendBodyBehindAppBar: true,
             appBar: _buildAppBar(),
             drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
             floatingActionButton: _buildFab(),
@@ -308,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   AppBar? _buildAppBar() {
     return AppBar(
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor.withOpacity(0.8),
       scrolledUnderElevation: 0,
       title: Row(
         children: [

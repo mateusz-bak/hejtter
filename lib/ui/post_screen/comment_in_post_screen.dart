@@ -138,7 +138,9 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: widget.isOP ? Colors.black.withOpacity(0.4) : Colors.transparent,
+        color: widget.isOP
+            ? backgroundSecondaryColor.withOpacity(0.4)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(5),
       ),
       child: Column(
@@ -171,6 +173,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
                   likeComment: _likeComment,
                   small: true,
                 ),
+                const SizedBox(width: 5),
               ],
             ),
           ),

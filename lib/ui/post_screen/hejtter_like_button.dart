@@ -39,7 +39,7 @@ class _HejtterLikeButtonState extends State<HejtterLikeButton> {
         foregroundColor:
             widget.likeStatus == true ? Colors.black : onPrimaryColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(widget.small ? 5 : 10),
         ),
       ),
       child: !isLikeChanging

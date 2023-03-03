@@ -29,6 +29,7 @@ class _PostsFeedState extends State<PostsFeed>
     super.build(context);
 
     return RefreshIndicator(
+      edgeOffset: MediaQuery.of(context).padding.top,
       color: boltColor,
       onRefresh: () => Future.sync(
         () => widget.pagingController.refresh(),
@@ -37,19 +38,24 @@ class _PostsFeedState extends State<PostsFeed>
         padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
         child: CustomScrollView(
           slivers: [
-            PagedSliverList<int, Post>(
-              pagingController: widget.pagingController,
-              builderDelegate: PagedChildBuilderDelegate<Post>(
-                itemBuilder: (context, item, index) => PostCard(item: item),
-                firstPageProgressIndicatorBuilder: (context) =>
-                    LoadingAnimationWidget.threeArchedCircle(
-                  color: boltColor,
-                  size: 36,
-                ),
-                newPageProgressIndicatorBuilder: (context) =>
-                    LoadingAnimationWidget.threeArchedCircle(
-                  color: boltColor,
-                  size: 36,
+            SliverPadding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top,
+              ),
+              sliver: PagedSliverList<int, Post>(
+                pagingController: widget.pagingController,
+                builderDelegate: PagedChildBuilderDelegate<Post>(
+                  itemBuilder: (context, item, index) => PostCard(item: item),
+                  firstPageProgressIndicatorBuilder: (context) =>
+                      LoadingAnimationWidget.threeArchedCircle(
+                    color: boltColor,
+                    size: 36,
+                  ),
+                  newPageProgressIndicatorBuilder: (context) =>
+                      LoadingAnimationWidget.threeArchedCircle(
+                    color: boltColor,
+                    size: 36,
+                  ),
                 ),
               ),
             ),

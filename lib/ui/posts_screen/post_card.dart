@@ -399,9 +399,9 @@ class _PostCardState extends State<PostCard>
   Widget _buildComments() {
     if (widget.item.comments != null && widget.item.comments!.isNotEmpty) {
       return Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
-          borderRadius: const BorderRadius.only(
+        decoration: const BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.only(
             topLeft: Radius.circular(5),
             topRight: Radius.circular(5),
             bottomLeft: Radius.circular(10),

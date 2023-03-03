@@ -62,6 +62,7 @@ class _PostScreenState extends State<PostScreen> {
   final PagingController<int, CommentItem> _pagingController = PagingController(
     firstPageKey: 1,
   );
+  bool _userIsAtTheTopOfThePost = true;
 
   late Set<String> moreButtonOptions;
 
@@ -516,6 +517,8 @@ class _PostScreenState extends State<PostScreen> {
     if (post.title == null) {
       return Scaffold(
         appBar: AppBar(),
+        extendBodyBehindAppBar: true,
+        backgroundColor: backgroundColor,
         body: Center(
           child: LoadingAnimationWidget.fourRotatingDots(
             color: Theme.of(context).colorScheme.primary,
@@ -533,35 +536,10 @@ class _PostScreenState extends State<PostScreen> {
           );
 
           return Scaffold(
-            appBar: AppBar(
-              actions: [
-                PopupMenuButton<String>(
-                  onSelected: (_) {},
-                  itemBuilder: (BuildContext context) {
-                    return moreButtonOptions.map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice,
-                        child: Text(choice),
-                        onTap: () {
-                          if (choice == 'Dodaj do ulubionych') {
-                            _addPostToFavorites();
-                          } else if (choice == 'Usuń z ulubionych') {
-                            _removePostFromFavorites();
-                          } else if (choice == 'Udostępnij') {
-                            _sharePost();
-                          } else if (choice == 'Zgłoś') {
-                            _reportPost();
-                          } else if (choice == 'Usuń') {
-                            _removePost();
-                          }
-                        },
-                      );
-                    }).toList();
-                  },
-                ),
-              ],
-            ),
+            appBar: _buildAppBar(),
             body: _buildPost(),
+            extendBodyBehindAppBar: true,
+            backgroundColor: backgroundColor,
             bottomSheet: Container(
               color: Theme.of(context).colorScheme.surface,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
@@ -632,36 +610,47 @@ class _PostScreenState extends State<PostScreen> {
           _setMoreOptionsButtons(false);
 
           return Scaffold(
-            appBar: AppBar(
-              actions: [
-                PopupMenuButton<String>(
-                  onSelected: (_) {},
-                  itemBuilder: (BuildContext context) {
-                    return moreButtonOptions.map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice,
-                        child: Text(choice),
-                        onTap: () {
-                          if (choice == 'Dodaj do ulubionych') {
-                            _addPostToFavorites();
-                          } else if (choice == 'Usuń z ulubionych') {
-                            _removePostFromFavorites();
-                          } else if (choice == 'Udostępnij') {
-                            _sharePost();
-                          } else if (choice == 'Zgłoś') {
-                            _reportPost();
-                          }
-                        },
-                      );
-                    }).toList();
-                  },
-                ),
-              ],
-            ),
+            backgroundColor: backgroundColor,
+            extendBodyBehindAppBar: true,
+            appBar: _buildAppBar(),
             body: _buildPost(),
           );
         }
       },
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      backgroundColor: backgroundColor.withOpacity(0.8),
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      actions: [
+        PopupMenuButton<String>(
+          onSelected: (_) {},
+          itemBuilder: (BuildContext context) {
+            return moreButtonOptions.map((String choice) {
+              return PopupMenuItem<String>(
+                value: choice,
+                child: Text(choice),
+                onTap: () {
+                  if (choice == 'Dodaj do ulubionych') {
+                    _addPostToFavorites();
+                  } else if (choice == 'Usuń z ulubionych') {
+                    _removePostFromFavorites();
+                  } else if (choice == 'Udostępnij') {
+                    _sharePost();
+                  } else if (choice == 'Zgłoś') {
+                    _reportPost();
+                  } else if (choice == 'Usuń') {
+                    _removePost();
+                  }
+                },
+              );
+            }).toList();
+          },
+        ),
+      ],
     );
   }
 
@@ -750,103 +739,127 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget _buildPost() {
-    return RefreshIndicator(
-      onRefresh: () => Future.sync(
-        () => _refreshPostAndComments(),
-      ),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        controller: _scrollController,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(5, 5, 5, 200),
-          child: Card(
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.fromLTRB(10, 5, 0, 5),
-                  decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(5),
-                      bottomRight: Radius.circular(5),
+    return Column(
+      children: [
+        Expanded(
+          child: RefreshIndicator(
+            color: boltColor,
+            edgeOffset: AppBar().preferredSize.height +
+                MediaQuery.of(context).padding.top,
+            onRefresh: () => Future.sync(
+              () => _refreshPostAndComments(),
+            ),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              controller: _scrollController,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  5,
+                  5 +
+                      AppBar().preferredSize.height +
+                      MediaQuery.of(context).padding.top,
+                  5,
+                  150,
+                ),
+                child: Card(
+                  color: backgroundColor,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: const BorderSide(
+                      color: dividerColor,
+                      width: 1,
                     ),
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildAvatar(),
-                      const SizedBox(width: 10),
-                      Expanded(
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                        color: backgroundSecondaryColor,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildUsernameAndRank(),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                _buildAvatar(),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      _buildUsername(),
+                                      const SizedBox(height: 3),
+                                      _buildRankPlate(),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+                                HejtterLikeButton(
+                                  author: post.author?.username,
+                                  likeStatus: post.isLiked,
+                                  numLikes: post.numLikes,
+                                  unlikeComment: _unlikePost,
+                                  likeComment: _likePost,
+                                ),
+                              ],
+                            ),
                             const SizedBox(height: 3),
                             _buildCommunityAndDate(),
                           ],
                         ),
                       ),
-                      _buildHotIcon(),
-                      const SizedBox(width: 15),
-                      HejtterLikeButton(
-                        author: post.author?.username,
-                        likeStatus: post.isLiked,
-                        numLikes: post.numLikes,
-                        unlikeComment: _unlikePost,
-                        likeComment: _likePost,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 10),
+                          _buildTitle(),
+                          SizedBox(
+                              height:
+                                  post.type == 'article' || post.type == 'link'
+                                      ? 10
+                                      : 0),
+                          post.type == 'article' || post.type == 'link'
+                              ? _buildPicture()
+                              : const SizedBox(),
+                          SizedBox(
+                              height:
+                                  post.type == 'article' || post.type == 'link'
+                                      ? 10
+                                      : 0),
+                          _buildContent(),
+                          _buildTags(),
+                          _buildPoll(),
+                          post.type != 'article' && post.type != 'link'
+                              ? _buildPicture()
+                              : const SizedBox(),
+                          const SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 5),
+                                child: AnswerButton(
+                                  username: post.author?.username,
+                                  respondToUser: _respondToUser,
+                                ),
+                              ),
+                              _buildNumberOfComments(),
+                            ],
+                          ),
+                          _buildComments(),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    _buildTitle(),
-                    SizedBox(
-                        height: post.type == 'article' || post.type == 'link'
-                            ? 10
-                            : 0),
-                    post.type == 'article' || post.type == 'link'
-                        ? _buildPicture()
-                        : const SizedBox(),
-                    SizedBox(
-                        height: post.type == 'article' || post.type == 'link'
-                            ? 10
-                            : 0),
-                    _buildContent(),
-                    _buildTags(),
-                    _buildPoll(),
-                    post.type != 'article' && post.type != 'link'
-                        ? _buildPicture()
-                        : const SizedBox(),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 5),
-                          child: AnswerButton(
-                            username: post.author?.username,
-                            respondToUser: _respondToUser,
-                          ),
-                        ),
-                        _buildNumberOfComments(),
-                      ],
-                    ),
-                    _buildComments(),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -880,10 +893,10 @@ class _PostScreenState extends State<PostScreen> {
 
   Widget _buildComments() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
-        borderRadius: const BorderRadius.only(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      decoration: const BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(5),
           topRight: Radius.circular(5),
           bottomLeft: Radius.circular(10),
@@ -894,9 +907,24 @@ class _PostScreenState extends State<PostScreen> {
         shrinkWrap: true,
         clipBehavior: Clip.antiAlias,
         physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
         pagingController: _pagingController,
         builderDelegate: PagedChildBuilderDelegate<CommentItem>(
           noItemsFoundIndicatorBuilder: (context) => const SizedBox(),
+          firstPageProgressIndicatorBuilder: (context) => Padding(
+            padding: const EdgeInsets.all(16),
+            child: LoadingAnimationWidget.threeArchedCircle(
+              color: boltColor,
+              size: 24,
+            ),
+          ),
+          newPageProgressIndicatorBuilder: (context) => Padding(
+            padding: const EdgeInsets.all(16),
+            child: LoadingAnimationWidget.threeArchedCircle(
+              color: boltColor,
+              size: 24,
+            ),
+          ),
           itemBuilder: (context, item, index) {
             return CommentInPostScreen(
               comment: item,
@@ -1098,43 +1126,34 @@ class _PostScreenState extends State<PostScreen> {
     );
   }
 
-  Widget _buildUsernameAndRank() {
+  Widget _buildUsername() {
     return GestureDetector(
       onTap: _goToUserScreen,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(
-            child: Row(
-              children: [
-                Flexible(
-                  child: Text(
-                    post.author != null
-                        ? post.author!.username.toString()
-                        : 'null',
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-                SizedBox(width: widget.post?.author?.sponsor == true ? 5 : 0),
-                widget.post?.author?.sponsor == true
-                    ? Transform.rotate(
-                        angle: 180,
-                        child: const Icon(
-                          Icons.mode_night_rounded,
-                          color: Colors.brown,
-                          size: 16,
-                        ),
-                      )
-                    : const SizedBox(),
-                const SizedBox(width: 5),
-                _buildRankPlate(),
-              ],
+          Flexible(
+            child: Text(
+              post.author != null ? post.author!.username.toString() : 'null',
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                letterSpacing: 0.8,
+              ),
             ),
           ),
+          SizedBox(width: widget.post?.author?.sponsor == true ? 5 : 0),
+          widget.post?.author?.sponsor == true
+              ? Transform.rotate(
+                  angle: 180,
+                  child: const Icon(
+                    Icons.mode_night_rounded,
+                    color: Colors.brown,
+                    size: 18,
+                  ),
+                )
+              : const SizedBox(),
+          const SizedBox(width: 5),
         ],
       ),
     );
@@ -1151,13 +1170,14 @@ class _PostScreenState extends State<PostScreen> {
                 ),
               )
             : Colors.black,
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(2),
       ),
       child: Text(
         post.author != null ? post.author!.currentRank.toString() : '',
         style: const TextStyle(
           fontSize: 12,
           color: Colors.white,
+          letterSpacing: 0.8,
         ),
       ),
     );
@@ -1167,7 +1187,14 @@ class _PostScreenState extends State<PostScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        const Text('w '),
+        const SizedBox(width: 48),
+        const Text(
+          'w ',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
         Flexible(
           child: GestureDetector(
             onTap: (() {
