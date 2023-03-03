@@ -7,6 +7,7 @@ import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/communities_screen/community_card.dart';
 import 'package:hejtter/ui/search_screen/tag_card.dart';
 import 'package:hejtter/ui/search_screen/user_card.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -23,6 +24,8 @@ class _SearchScreenState extends State<SearchScreen> {
   static const _pageSize = 20;
   String searchQuery = '';
   bool titleRenderedForTheFirstTime = false;
+
+  final _searchController = TextEditingController();
 
   // final PagingController<int, Post> _postsPagingController =
   //     PagingController(firstPageKey: 1);
@@ -179,9 +182,12 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: _buildAppBarTitle(),
         titleTextStyle: const TextStyle(fontSize: 18),
+        backgroundColor: backgroundColor,
+        scrolledUnderElevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
@@ -191,45 +197,53 @@ class _SearchScreenState extends State<SearchScreen> {
             Container(
               padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(25),
+                color: backgroundSecondaryColor,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(width: 1, color: dividerColor),
               ),
               child: TextField(
+                controller: _searchController,
                 autofocus: true,
                 textInputAction: TextInputAction.search,
                 decoration: const InputDecoration(
                   hintText: '...',
                   border: InputBorder.none,
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    searchQuery = value;
-                  });
+                onChanged: (value) async {
+                  await Future.delayed(const Duration(milliseconds: 500));
 
-                  switch (_selectedSearchType) {
-                    // case SearchType.post:
-                    //   _postsPagingController.refresh();
-                    //   break;
-                    case SearchType.tag:
-                      _tagsPagingController.refresh();
-                      break;
-                    case SearchType.user:
-                      _usersPagingController.refresh();
-                      break;
-                    case SearchType.community:
-                      _communitiesPagingController.refresh();
-                      break;
+                  if (_searchController.text == value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+
+                    switch (_selectedSearchType) {
+                      // case SearchType.post:
+                      //   _postsPagingController.refresh();
+                      //   break;
+                      case SearchType.tag:
+                        _tagsPagingController.refresh();
+                        break;
+                      case SearchType.user:
+                        _usersPagingController.refresh();
+                        break;
+                      case SearchType.community:
+                        _communitiesPagingController.refresh();
+                        break;
+                    }
                   }
                 },
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Expanded(
               child: CustomScrollView(
                 slivers: [
                   SliverPersistentHeader(
                     delegate: SearchTypeHeader(
                       onSelectionChanged: (Set<SearchType> newSelection) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+
                         setState(() {
                           _selectedSearchType = newSelection.first;
                         });
@@ -276,13 +290,13 @@ class _SearchScreenState extends State<SearchScreen> {
           builderDelegate: PagedChildBuilderDelegate<HejtoTag>(
             itemBuilder: (context, item, index) => TagCard(tag: item),
             firstPageProgressIndicatorBuilder: (context) =>
-                LoadingAnimationWidget.fourRotatingDots(
-              color: Theme.of(context).colorScheme.primary,
+                LoadingAnimationWidget.threeArchedCircle(
+              color: boltColor,
               size: 36,
             ),
             newPageProgressIndicatorBuilder: (context) =>
-                LoadingAnimationWidget.fourRotatingDots(
-              color: Theme.of(context).colorScheme.primary,
+                LoadingAnimationWidget.threeArchedCircle(
+              color: boltColor,
               size: 36,
             ),
           ),
@@ -293,13 +307,13 @@ class _SearchScreenState extends State<SearchScreen> {
           builderDelegate: PagedChildBuilderDelegate<HejtoUser>(
             itemBuilder: (context, item, index) => UserCard(user: item),
             firstPageProgressIndicatorBuilder: (context) =>
-                LoadingAnimationWidget.fourRotatingDots(
-              color: Theme.of(context).colorScheme.primary,
+                LoadingAnimationWidget.threeArchedCircle(
+              color: boltColor,
               size: 36,
             ),
             newPageProgressIndicatorBuilder: (context) =>
-                LoadingAnimationWidget.fourRotatingDots(
-              color: Theme.of(context).colorScheme.primary,
+                LoadingAnimationWidget.threeArchedCircle(
+              color: boltColor,
               size: 36,
             ),
           ),
@@ -310,13 +324,13 @@ class _SearchScreenState extends State<SearchScreen> {
           builderDelegate: PagedChildBuilderDelegate<Community>(
             itemBuilder: (context, item, index) => CommunityCard(item: item),
             firstPageProgressIndicatorBuilder: (context) =>
-                LoadingAnimationWidget.fourRotatingDots(
-              color: Theme.of(context).colorScheme.primary,
+                LoadingAnimationWidget.threeArchedCircle(
+              color: boltColor,
               size: 36,
             ),
             newPageProgressIndicatorBuilder: (context) =>
-                LoadingAnimationWidget.fourRotatingDots(
-              color: Theme.of(context).colorScheme.primary,
+                LoadingAnimationWidget.threeArchedCircle(
+              color: boltColor,
               size: 36,
             ),
           ),
@@ -383,9 +397,25 @@ class SearchTypeHeader extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       padding: const EdgeInsets.only(bottom: 16),
-      color: Theme.of(context).colorScheme.surface,
+      color: backgroundColor,
       child: SegmentedButton<SearchType>(
         selected: <SearchType>{selectedSearchType},
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+          ),
+          foregroundColor: MaterialStateProperty.all(Colors.white),
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+              if (states.contains(MaterialState.selected)) {
+                return primaryColor;
+              }
+              return backgroundColor;
+            },
+          ),
+        ),
         segments: const [
           // ButtonSegment(
           //   value: SearchType.post,

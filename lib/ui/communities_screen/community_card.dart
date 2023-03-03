@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/ui/community_screen/community_screen.dart';
+import 'package:hejtter/utils/constants.dart';
 
 class CommunityCard extends StatelessWidget {
   const CommunityCard({
@@ -29,8 +30,17 @@ class CommunityCard extends StatelessWidget {
           );
         }),
         child: Card(
+          color: backgroundColor,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: const BorderSide(
+              color: dividerColor,
+              width: 1,
+            ),
+          ),
           child: Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(20),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -61,7 +71,7 @@ class CommunityCard extends StatelessWidget {
                       Text(
                         item.name.toString(),
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

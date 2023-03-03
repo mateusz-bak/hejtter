@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hejtter/models/hejto_users_response.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class UserCard extends StatelessWidget {
   const UserCard({
@@ -71,80 +72,116 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => UserScreen(
-              userName: user.username,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => UserScreen(
+                userName: user.username,
+              ),
+            ),
+          );
+        },
+        child: Card(
+          color: backgroundColor,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: const BorderSide(
+              color: dividerColor,
+              width: 1,
             ),
           ),
-        );
-      },
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 60,
-                width: 60,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: CachedNetworkImage(
-                    imageUrl: user.avatar?.urls?.s250x250 ?? defaultAvatar,
-                    fit: BoxFit.cover,
-                  ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.all(1),
+                        child: SizedBox(
+                          height: 80,
+                          width: 80,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
+                            child: CachedNetworkImage(
+                              imageUrl:
+                                  user.avatar?.urls?.s250x250 ?? defaultAvatar,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) {
+                                return LoadingAnimationWidget.threeArchedCircle(
+                                    color: boltColor, size: 14);
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  '${user.username}',
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 5),
+                          _buildRankPlate(user),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '${user.username}',
-                      style: const TextStyle(fontSize: 16),
+                // const SizedBox(height: 10),
+                const SizedBox(height: 10),
+                Wrap(
+                  children: [
+                    Text(
+                      '${user.stats?.numPosts} wpisów',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 5),
-              _buildRankPlate(user),
-              const SizedBox(height: 10),
-              Wrap(
-                children: [
-                  Text(
-                    '${user.stats?.numPosts} wpisów',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    const SizedBox(width: 10),
+                    Text(
+                      '${user.stats?.numComments} komentarzy',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    '${user.stats?.numComments} komentarzy',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    const SizedBox(width: 10),
+                    Text(
+                      '${user.stats?.numFollows} obserwujących',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    '${user.stats?.numFollows} obserwujących',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildUserJoinedDate(user),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 3),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildUserJoinedDate(user),
-                  ),
-                ],
-              )
-            ],
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
