@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
 const boltColor = Color(0xffFFC009);
+const backgroundColor = Color(0xff131313);
+const backgroundSecondaryColor = Color(0xff1C315E);
+const primaryColor = Color(0xff0002A1);
+const onPrimaryColor = Colors.white;
+const dividerColor = Colors.white54;
 
 const hejtoUrl = 'www.hejto.pl';
 const hejtoApiUrl = 'api.hejto.pl';

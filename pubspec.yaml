@@ -20,7 +20,6 @@ dependencies:
   flutter_markdown: ^0.6.13
   url_launcher: ^6.1.7
   photo_view: ^0.14.0
-  dropdown_button2: ^1.9.2
   flutter_displaymode: ^0.5.0
   flutter_downloader: ^1.9.1
   permission_handler: ^10.2.0

@@ -1,21 +1,31 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
+import 'package:hejtter/logic/cubit/discussions_nav_cubit.dart';
 
 import 'package:hejtter/models/photo_to_upload.dart';
+import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/add_post_screen/add_post_screen.dart';
 import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
+import 'package:hejtter/ui/home_screen/post_categories_menu.dart';
+import 'package:hejtter/ui/home_screen/post_types_button.dart';
+import 'package:hejtter/ui/home_screen/hejto_pages_menu.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:hejtter/ui/notifications_screen/notifications_screen.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
-import 'package:hejtter/ui/posts_screen/posts_tab_view.dart';
+import 'package:hejtter/ui/posts_screen/posts_feed.dart';
 import 'package:hejtter/ui/search_screen/search_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
+import 'package:hejtter/utils/helpers.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({
@@ -33,10 +43,134 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   FocusNode focusNode = FocusNode();
   late int bottomNavBarIndex;
-  int _notificationsCounter = 0;
+
+  static const _pageSize = 20;
+
+  final _hejtoPages = const [
+    HejtoPage.all,
+    HejtoPage.articles,
+    HejtoPage.discussions,
+  ];
+
+  final _postCategories = const [
+    PostsCategory.all,
+    null,
+    PostsCategory.hotThreeHours,
+    PostsCategory.hotSixHours,
+    PostsCategory.hotTwelveHours,
+    PostsCategory.hotTwentyFourHours,
+    null,
+    PostsCategory.topSevenDays,
+    PostsCategory.topThirtyDays,
+    null,
+    PostsCategory.followed,
+  ];
+
+  final PagingController<int, Post> _pagingController = PagingController(
+    firstPageKey: 1,
+  );
+
+  Future<List<String>> _decidePostsTypes() async {
+    final currentPage = await discussionsNavCubit.currentHejtoPageFetcher.first;
+
+    if (currentPage == HejtoPage.articles) {
+      return ['article', 'link', 'offer'];
+    } else if (currentPage == HejtoPage.discussions) {
+      return ['discussion'];
+    } else {
+      return ['article', 'link', 'discussion', 'offer'];
+    }
+  }
+
+  Future<String> _decidePostsOrder() async {
+    final currentPage =
+        await discussionsNavCubit.currentPostsCategoryFetcher.first;
+
+    if (currentPage == PostsCategory.hotThreeHours ||
+        currentPage == PostsCategory.hotSixHours ||
+        currentPage == PostsCategory.hotTwelveHours ||
+        currentPage == PostsCategory.hotTwentyFourHours) {
+      return 'p.hotness';
+    } else if (currentPage == PostsCategory.topSevenDays ||
+        currentPage == PostsCategory.topThirtyDays) {
+      return 'p.numLikes';
+    } else {
+      return 'p.createdAt';
+    }
+  }
+
+  Future<PostsPeriod> _decidePostsPeriod() async {
+    final currentPage =
+        await discussionsNavCubit.currentPostsCategoryFetcher.first;
+
+    if (currentPage == PostsCategory.hotThreeHours) {
+      return PostsPeriod.threeHours;
+    } else if (currentPage == PostsCategory.hotSixHours) {
+      return PostsPeriod.sixHours;
+    } else if (currentPage == PostsCategory.hotTwelveHours) {
+      return PostsPeriod.twelveHours;
+    } else if (currentPage == PostsCategory.hotTwentyFourHours) {
+      return PostsPeriod.twentyFourHours;
+    } else if (currentPage == PostsCategory.topSevenDays) {
+      return PostsPeriod.sevenDays;
+    } else if (currentPage == PostsCategory.topThirtyDays) {
+      return PostsPeriod.thirtyDays;
+    } else {
+      return PostsPeriod.all;
+    }
+  }
+
+  Future<bool?> _decidePostsFollowed() async {
+    final currentPage =
+        await discussionsNavCubit.currentPostsCategoryFetcher.first;
+    log(currentPage.toString());
+
+    if (currentPage == PostsCategory.followed) {
+      return true;
+    } else {
+      return null;
+    }
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      final newItems = await hejtoApi.getPosts(
+          pageKey: pageKey,
+          pageSize: _pageSize,
+          context: context,
+          orderBy: await _decidePostsOrder(),
+          postsPeriod: await _decidePostsPeriod(),
+          types: await _decidePostsTypes(),
+          followed: await _decidePostsFollowed());
+
+      final isLastPage = newItems!.length < _pageSize;
+      if (isLastPage) {
+        if (!mounted) return;
+        _pagingController.appendLastPage(
+          filterLocallyBlockedUsers(
+            removeDoubledPosts(_pagingController, newItems),
+            context,
+          ),
+        );
+      } else {
+        final nextPageKey = pageKey + 1;
+        if (!mounted) return;
+        _pagingController.appendPage(
+          filterLocallyBlockedUsers(
+            removeDoubledPosts(_pagingController, newItems),
+            context,
+          ),
+          nextPageKey,
+        );
+      }
+    } catch (error) {
+      log(error.toString());
+      _pagingController.error = error;
+    }
+  }
 
   Future<String?> _addPost(
     String content,
@@ -117,6 +251,10 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadDefaultHomePage();
     _openPostFromDeepLink();
 
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchPage(pageKey);
+    });
+
     super.initState();
   }
 
@@ -136,10 +274,11 @@ class _HomeScreenState extends State<HomeScreen> {
             return true;
           },
           child: Scaffold(
+            backgroundColor: backgroundColor,
             appBar: _buildAppBar(),
             drawer: const HejtoDrawer(currentScreen: CurrentScreen.home),
             floatingActionButton: _buildFab(),
-            body: _buildScaffoldBody(state),
+            body: _buildScaffoldBody(),
             bottomNavigationBar: _buildBottomNavigationBar(state),
           ),
         );
@@ -147,114 +286,145 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildScaffoldBody(ProfileState state) {
-    switch (bottomNavBarIndex) {
-      case 0:
-        return PostsTabView(
-          focusNode: focusNode,
-          fiterPosts: HejtoPage.all,
-          showFollowedTab: state is ProfilePresentState,
+  Widget _buildScaffoldBody() {
+    return StreamBuilder<HejtoPage>(
+      stream: discussionsNavCubit.currentHejtoPageFetcher,
+      builder: (context, pageSnapshot) {
+        return StreamBuilder<PostsCategory>(
+          stream: discussionsNavCubit.currentPostsCategoryFetcher,
+          builder: (context, categorySnapshot) {
+            if (pageSnapshot.data != null && categorySnapshot.data != null) {
+              return PostsFeed(
+                pagingController: _pagingController,
+              );
+            } else {
+              return const SizedBox();
+            }
+          },
         );
-      case 1:
-        return PostsTabView(
-          focusNode: focusNode,
-          fiterPosts: HejtoPage.articles,
-          showFollowedTab: state is ProfilePresentState,
-        );
-      case 2:
-        return PostsTabView(
-          focusNode: focusNode,
-          fiterPosts: HejtoPage.discussions,
-          showFollowedTab: state is ProfilePresentState,
-        );
-      case 3:
-        return NotificationsScreen(updateCounter: (newValue) {
-          setState(() {
-            _notificationsCounter = newValue;
-          });
-        });
-      default:
-        return const SizedBox();
-    }
+      },
+    );
   }
 
   AppBar? _buildAppBar() {
-    const textStyle = TextStyle(fontSize: 18);
-
-    String? title;
-
-    switch (bottomNavBarIndex) {
-      case 0:
-        title = 'Hejtter';
-        break;
-      case 1:
-        title = 'Artykuły';
-        break;
-      case 2:
-        title = 'Dyskusje';
-        break;
-      case 3:
-        title = 'Powiadomienia';
-        break;
-    }
-
     return AppBar(
-      title: Text(title ?? '', style: textStyle),
-      actions: [
-        IconButton(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const SearchScreen(),
-              ),
-            );
-          },
-          icon: const Icon(Icons.search),
-        ),
-      ],
+      backgroundColor: backgroundColor,
+      scrolledUnderElevation: 0,
+      title: Row(
+        children: [
+          const Spacer(),
+          StreamBuilder<HejtoPage>(
+              stream: discussionsNavCubit.currentHejtoPageFetcher,
+              builder: (context, snapshot) {
+                return PostTypesButton(
+                  text: snapshot.data,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  onPressed: () {
+                    showModalBottomSheet<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return HejtoPagesMenu(
+                          onPressed: (option) {
+                            Navigator.of(context).pop();
+
+                            discussionsNavCubit.changeCurrentHejtoPage(option);
+
+                            _pagingController.refresh();
+                          },
+                          options: _hejtoPages,
+                        );
+                      },
+                    );
+                  },
+                );
+              }),
+          const Spacer(),
+          StreamBuilder<PostsCategory>(
+              stream: discussionsNavCubit.currentPostsCategoryFetcher,
+              builder: (context, snapshot) {
+                return PostTypesButton(
+                  text: snapshot.data,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  onPressed: () {
+                    showModalBottomSheet<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return PostCategoriesMenu(
+                          onPressed: (option) {
+                            Navigator.of(context).pop();
+
+                            discussionsNavCubit
+                                .changeCurrentPostsCategoryPage(option);
+
+                            _pagingController.refresh();
+                          },
+                          options: _postCategories,
+                        );
+                      },
+                    );
+                  },
+                );
+              }),
+          const Spacer(),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const SearchScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.search),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildBottomNavigationBar(ProfileState state) {
     return NavigationBar(
       selectedIndex: bottomNavBarIndex,
-      height: 60,
+      height: 50,
+      backgroundColor: backgroundColor,
+      elevation: 0,
       onDestinationSelected: (int index) {
-        if (index == 3) {
-          if (state is ProfilePresentState) {
-            setState(() {
-              bottomNavBarIndex = index;
-            });
-          } else {
-            Navigator.push(context, MaterialPageRoute(builder: (_) {
-              return const LoginScreen();
-            }));
-          }
-        } else {
-          setState(() {
-            bottomNavBarIndex = index;
-          });
-        }
+        // if (index == 3) {
+        //   if (state is ProfilePresentState) {
+        //     setState(() {
+        //       bottomNavBarIndex = index;
+        //     });
+        //   } else {
+        //     Navigator.push(context, MaterialPageRoute(builder: (_) {
+        //       return const LoginScreen();
+        //     }));
+        //   }
+        // } else {
+        //   setState(() {
+        //     bottomNavBarIndex = index;
+        //   });
+        // }
       },
-      labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       destinations: const <Widget>[
         NavigationDestination(
-          icon: Icon(Icons.all_inclusive),
-          label: 'Wszystko',
+          icon: Icon(Icons.newspaper_outlined),
+          selectedIcon: Icon(Icons.newspaper_rounded),
+          label: 'Wpisy',
         ),
+        // NavigationDestination(
+        //   icon: Icon(Icons.forum_outlined),
+        //   selectedIcon: Icon(Icons.forum_rounded),
+        //   label: 'Wiadomości',
+        // ),
         NavigationDestination(
-          icon: Icon(Icons.newspaper),
-          label: 'Artykuły',
-        ),
-        NavigationDestination(
-          selectedIcon: Icon(Icons.forum),
-          icon: Icon(Icons.forum_outlined),
-          label: 'Dyskusje',
-        ),
-        NavigationDestination(
-          selectedIcon: Icon(Icons.notifications_rounded),
-          icon: Icon(Icons.notifications_none),
+          icon: Icon(Icons.notifications_none_outlined),
+          selectedIcon: Icon(Icons.notifications_none_rounded),
           label: 'Powiadomienia',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_2_outlined),
+          selectedIcon: Icon(Icons.person_2_rounded),
+          label: 'Profil',
         ),
       ],
     );

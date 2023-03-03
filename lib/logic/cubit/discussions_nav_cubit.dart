@@ -6,30 +6,26 @@ import 'package:rxdart/rxdart.dart';
 final discussionsNavCubit = DiscussionsNavCubit();
 
 class DiscussionsNavCubit extends Cubit {
-  final BehaviorSubject<DiscussionsTab> _discussionsTabFetcher =
-      BehaviorSubject<DiscussionsTab>();
-  final BehaviorSubject<PostsPeriod> _hotTabPeriodFetcher =
-      BehaviorSubject<PostsPeriod>();
-  final BehaviorSubject<PostsPeriod> _topTabPeriodFetcher =
-      BehaviorSubject<PostsPeriod>();
+  final BehaviorSubject<HejtoPage> _currentHejtoPageFetcher =
+      BehaviorSubject<HejtoPage>();
+  final BehaviorSubject<PostsCategory> _currentPostsCategoryFetcher =
+      BehaviorSubject<PostsCategory>();
 
-  Stream<DiscussionsTab> get discussionsTab => _discussionsTabFetcher.stream;
-  Stream<PostsPeriod> get hotTabPeriod => _hotTabPeriodFetcher.stream;
-  Stream<PostsPeriod> get topTabPeriod => _topTabPeriodFetcher.stream;
+  Stream<HejtoPage> get currentHejtoPageFetcher =>
+      _currentHejtoPageFetcher.stream;
+  Stream<PostsCategory> get currentPostsCategoryFetcher =>
+      _currentPostsCategoryFetcher.stream;
 
   DiscussionsNavCubit() : super(null) {
-    _topTabPeriodFetcher.sink.add(PostsPeriod.sevenDays);
+    _currentHejtoPageFetcher.sink.add(HejtoPage.all);
+    _currentPostsCategoryFetcher.sink.add(PostsCategory.hotSixHours);
   }
 
-  changeDiscussionsTab(DiscussionsTab discussionsTab) async {
-    _discussionsTabFetcher.sink.add(discussionsTab);
+  changeCurrentHejtoPage(HejtoPage hejtoPage) async {
+    _currentHejtoPageFetcher.sink.add(hejtoPage);
   }
 
-  changeHotTabPeriod(PostsPeriod postsPeriod) async {
-    _hotTabPeriodFetcher.sink.add(postsPeriod);
-  }
-
-  changeTopTabPeriod(PostsPeriod postsPeriod) async {
-    _topTabPeriodFetcher.sink.add(postsPeriod);
+  changeCurrentPostsCategoryPage(PostsCategory postsCategory) async {
+    _currentPostsCategoryFetcher.sink.add(postsCategory);
   }
 }
