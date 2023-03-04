@@ -15,3 +15,20 @@ const defaultAvatar =
 
 const hejtterAvatar =
     'https://cdn.hejto.pl/uploads/communities/images/avatars/250x250/c9dc19226b6dd04bd625960dedbb41d0.png';
+
+const reportReasons = [
+  'Nieodpowiednie treści',
+  'Nękanie i agresja',
+  'Fałszywe informacje',
+  'Naruszenie prywatności',
+  'Spam / Flood',
+  'Inne',
+];
+
+const reportReasonDesc = [
+  'Wulgarny język, obsceniczne treści, treści o charakterze pornograficznym, obraźliwe wobec innych użytkowników itp.',
+  'Zachowania takie jak cyberprzemoc, groźby, nękanie innych użytkowników.',
+  'Publikowanie dezinformacji lub fałszywych informacji, które mogą wprowadzić w błąd innych użytkowników.',
+  'Publikowanie prywatnych informacji lub zdjęć osób bez ich zgody.',
+  'Zachowania utrudniające korzystanie z serwisu innym użytkownikom.',
+];

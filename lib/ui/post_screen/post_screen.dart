@@ -19,6 +19,7 @@ import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/ui/post_screen/hejtter_like_button.dart';
 import 'package:hejtter/ui/post_screen/picture_preview.dart';
 import 'package:hejtter/ui/post_screen/poll_widget.dart';
+import 'package:hejtter/ui/post_screen/report_dialog.dart';
 import 'package:hejtter/ui/tag_screen/tag_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -326,7 +327,7 @@ class _PostScreenState extends State<PostScreen> {
     Share.share(postUrl);
   }
 
-  _reportPost() async {
+  _reportAsNotAuthorized() {
     if (post.links?.self == null) return;
     const firstPart = 'Zgłaszam złamanie regulaminu:\n\n';
     final postUrl = 'https://www.hejto.pl/wpis/${post.slug}';
@@ -342,6 +343,26 @@ class _PostScreenState extends State<PostScreen> {
     FlutterEmailSender.send(email).then((value) {
       const SnackBar snackBar = SnackBar(content: Text('Zgłoszono wpis'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
+
+  _reportPost() async {
+    if (context.read<ProfileBloc>().state is ProfileAbsentState) {
+      _reportAsNotAuthorized();
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (post.slug == null) return;
+
+      showDialog(
+        context: context,
+        builder: (context) {
+          return ReportDialog(
+            postSlug: post.slug!,
+          );
+        },
+      );
     });
   }
 

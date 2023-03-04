@@ -310,11 +310,13 @@ class HejtoApi {
       return Post.fromJson(json.decode(stringData));
     } else if (response.statusCode == 401) {
       _loginAgainWithSavedCredentials(context);
+      return null;
     } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania wpisu: ${response.statusCode}',
       );
+      return null;
     }
   }
 
@@ -379,11 +381,14 @@ class HejtoApi {
       return postFromJson(stringData).embedded?.items;
     } else if (response.statusCode == 401) {
       _loginAgainWithSavedCredentials(context);
+
+      return null;
     } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania wpisów: ${response.statusCode}',
       );
+      return null;
     }
   }
 
@@ -2030,6 +2035,132 @@ class HejtoApi {
       return false;
     } else {
       _showFlushBar(context, 'Błąd głosowania: ${response.statusCode}');
+      return false;
+    }
+  }
+
+  String _decideReportReason(int option) {
+    switch (option) {
+      case 0:
+        return 'inappropriate-content';
+      case 1:
+        return 'harassment-and-aggression';
+      case 2:
+        return 'false-information';
+      case 3:
+        return 'privacy-violation';
+      case 4:
+        return 'spam-flood';
+      case 5:
+        return 'other';
+      default:
+        return 'inappropriate-content';
+    }
+  }
+
+  Future<bool> createPostReport({
+    required String slug,
+    required int reason,
+    required String? otherReasonDescription,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    final body = {
+      'reason': _decideReportReason(reason),
+    };
+
+    if (reason == 5) {
+      body.addEntries(<String, String>{
+        'other': '$otherReasonDescription',
+      }.entries);
+    }
+
+    HttpClientRequest request = await client.postUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/posts/$slug/reports',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+    request.add(utf8.encode(json.encode(body)));
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 201 || response.statusCode == 204) {
+      return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
+    } else if (response.statusCode == 429) {
+      _showFlushBar(context, 'Przekroczono limit');
+      return false;
+    } else {
+      _showFlushBar(
+          context, 'Zgłaszenie nie powiodło się: ${response.statusCode}');
+      return false;
+    }
+  }
+
+  Future<bool> createCommentReport({
+    required String postSlug,
+    required String commentUUID,
+    required int reason,
+    required String? otherReasonDescription,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    final body = {
+      'reason': _decideReportReason(reason),
+    };
+
+    if (reason == 5) {
+      body.addEntries(<String, String>{
+        'other': '$otherReasonDescription',
+      }.entries);
+    }
+
+    HttpClientRequest request = await client.postUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/posts/$postSlug/comments/$commentUUID/reports',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+    request.add(utf8.encode(json.encode(body)));
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 201 || response.statusCode == 204) {
+      return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
+    } else if (response.statusCode == 429) {
+      _showFlushBar(context, 'Przekroczono limit');
+      return false;
+    } else {
+      _showFlushBar(
+          context, 'Zgłaszenie nie powiodło się: ${response.statusCode}');
       return false;
     }
   }

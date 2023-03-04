@@ -13,6 +13,7 @@ import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/post_screen/answer_button.dart';
 import 'package:hejtter/ui/post_screen/hejtter_like_button.dart';
 import 'package:hejtter/ui/post_screen/picture_preview.dart';
+import 'package:hejtter/ui/post_screen/report_dialog.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 
@@ -396,7 +397,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
     );
   }
 
-  _reportComment() async {
+  _reportAsNotAuthorized() {
     if (comment?.links?.self == null) return;
     const firstPart = 'Zgłaszam złamanie regulaminu:\n\n';
     final commentUrl =
@@ -413,6 +414,27 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
     FlutterEmailSender.send(email).then((value) {
       const SnackBar snackBar = SnackBar(content: Text('Zgłoszono komentarz'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
+
+  _reportComment() async {
+    if (context.read<ProfileBloc>().state is ProfileAbsentState) {
+      _reportAsNotAuthorized();
+      return;
+    }
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (comment?.postSlug == null || comment?.uuid == null) return;
+
+      showDialog(
+        context: context,
+        builder: (context) {
+          return ReportDialog(
+            postSlug: comment!.postSlug!,
+            commentUUID: comment!.uuid!,
+          );
+        },
+      );
     });
   }
 }
