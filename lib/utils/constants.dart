@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 const boltColor = Color(0xffFFC009);
 const backgroundColor = Color(0xff131313);
-const backgroundSecondaryColor = Color(0xff1C315E);
-const primaryColor = Color(0xff0002A1);
+const backgroundSecondaryColor = Color(0xff16274b);
+const primaryColor = Color(0xff2F58CD);
 const onPrimaryColor = Colors.white;
 const dividerColor = Colors.white54;
 

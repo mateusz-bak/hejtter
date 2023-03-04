@@ -540,71 +540,7 @@ class _PostScreenState extends State<PostScreen> {
             body: _buildPost(),
             extendBodyBehindAppBar: true,
             backgroundColor: backgroundColor,
-            bottomSheet: Container(
-              color: Theme.of(context).colorScheme.surface,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Colors.white.withAlpha(10),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Scrollbar(
-                              child: TextField(
-                                focusNode: focusNode,
-                                controller: _commentController,
-                                keyboardType: TextInputType.multiline,
-                                maxLines: 3,
-                                minLines: 1,
-                                expands: false,
-                                decoration: const InputDecoration.collapsed(
-                                  hintText: null,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      GestureDetector(
-                        onTap: _loadPhotoFromStorage,
-                        child: Icon(
-                          Icons.image,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      GestureDetector(
-                        onTap: !_isCommentSending ? _sendComment : null,
-                        child: !_isCommentSending
-                            ? Icon(
-                                Icons.send_sharp,
-                                color: Theme.of(context).colorScheme.primary,
-                              )
-                            : Container(
-                                padding: const EdgeInsets.all(5),
-                                width: 24,
-                                height: 24,
-                                child: LoadingAnimationWidget.fourRotatingDots(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 24,
-                                ),
-                              ),
-                      ),
-                    ],
-                  ),
-                  _buildPicturePreviews(),
-                ],
-              ),
-            ),
+            bottomSheet: _buildCommentBox(context),
           );
         } else {
           _setMoreOptionsButtons(false);
@@ -617,6 +553,77 @@ class _PostScreenState extends State<PostScreen> {
           );
         }
       },
+    );
+  }
+
+  Container _buildCommentBox(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: backgroundColor,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: backgroundSecondaryColor,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Scrollbar(
+                      child: TextField(
+                        focusNode: focusNode,
+                        controller: _commentController,
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 5,
+                        minLines: 1,
+                        expands: false,
+                        decoration: const InputDecoration.collapsed(
+                          hintText: 'Napisz komentarz',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 20),
+              GestureDetector(
+                onTap: _loadPhotoFromStorage,
+                child: const Icon(
+                  Icons.image,
+                  color: primaryColor,
+                ),
+              ),
+              const SizedBox(width: 20),
+              GestureDetector(
+                onTap: !_isCommentSending ? _sendComment : null,
+                child: !_isCommentSending
+                    ? const Icon(
+                        Icons.send_sharp,
+                        color: primaryColor,
+                      )
+                    : Container(
+                        padding: const EdgeInsets.all(5),
+                        width: 24,
+                        height: 24,
+                        child: LoadingAnimationWidget.threeArchedCircle(
+                          color: boltColor,
+                          size: 24,
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 10),
+            ],
+          ),
+          _buildPicturePreviews(),
+        ],
+      ),
     );
   }
 
@@ -689,8 +696,8 @@ class _PostScreenState extends State<PostScreen> {
         padding: const EdgeInsets.all(10),
         width: 32,
         height: 32,
-        child: LoadingAnimationWidget.fourRotatingDots(
-          color: Theme.of(context).colorScheme.primary,
+        child: LoadingAnimationWidget.threeArchedCircle(
+          color: boltColor,
           size: 24,
         ),
       ),
