@@ -46,9 +46,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   FocusNode focusNode = FocusNode();
-  late int bottomNavBarIndex;
+  int bottomNavBarIndex = 0;
 
   static const _pageSize = 20;
+
+  final _pageViewController = PageController();
 
   final _hejtoPages = const [
     HejtoPage.all,
@@ -230,26 +232,55 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  _loadDefaultHomePage() {
-    final state = context.read<PreferencesBloc>().state;
-    if (state is PreferencesSet) {
-      switch (state.defaultPage) {
-        case HejtoPage.articles:
-          bottomNavBarIndex = 1;
-          break;
-        case HejtoPage.discussions:
-          bottomNavBarIndex = 2;
-          break;
-        default:
-          bottomNavBarIndex = 0;
-          break;
-      }
+  _navigateToPosts() {
+    setState(() {
+      bottomNavBarIndex = 0;
+    });
+
+    _pageViewController.animateToPage(
+      0,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.ease,
+    );
+  }
+
+  _navigateToNotifications(ProfileState state) {
+    if (state is ProfilePresentState) {
+      setState(() {
+        bottomNavBarIndex = 1;
+      });
+
+      _pageViewController.animateToPage(
+        1,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.ease,
+      );
+    } else {
+      Navigator.push(context, MaterialPageRoute(builder: (_) {
+        return const LoginScreen();
+      }));
+    }
+  }
+
+  _navigateToProfile(ProfileState state) {
+    if (state is ProfilePresentState) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UserScreen(
+            userName: state.username,
+          ),
+        ),
+      );
+    } else {
+      Navigator.push(context, MaterialPageRoute(builder: (_) {
+        return const LoginScreen();
+      }));
     }
   }
 
   @override
   void initState() {
-    _loadDefaultHomePage();
     _openPostFromDeepLink();
 
     _pagingController.addPageRequestListener((pageKey) {
@@ -265,12 +296,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       builder: (context, state) {
         return WillPopScope(
           onWillPop: () async {
-            // if (bottomNavBarIndex == 1) {
-            //   setState(() {
-            //     bottomNavBarIndex = 0;
-            //   });
-            //   return false;
-            // }
+            if (bottomNavBarIndex == 1) {
+              _navigateToPosts();
+
+              return false;
+            }
 
             return true;
           },
@@ -289,22 +319,32 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildScaffoldBody() {
-    return StreamBuilder<HejtoPage>(
-      stream: discussionsNavCubit.currentHejtoPageFetcher,
-      builder: (context, pageSnapshot) {
-        return StreamBuilder<PostsCategory>(
-          stream: discussionsNavCubit.currentPostsCategoryFetcher,
-          builder: (context, categorySnapshot) {
-            if (pageSnapshot.data != null && categorySnapshot.data != null) {
-              return PostsFeed(
-                pagingController: _pagingController,
-              );
-            } else {
-              return const SizedBox();
-            }
+    return PageView(
+      controller: _pageViewController,
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        StreamBuilder<HejtoPage>(
+          stream: discussionsNavCubit.currentHejtoPageFetcher,
+          builder: (context, pageSnapshot) {
+            return StreamBuilder<PostsCategory>(
+              stream: discussionsNavCubit.currentPostsCategoryFetcher,
+              builder: (context, categorySnapshot) {
+                if (pageSnapshot.data != null &&
+                    categorySnapshot.data != null) {
+                  return PostsFeed(
+                    pagingController: _pagingController,
+                  );
+                } else {
+                  return const SizedBox();
+                }
+              },
+            );
           },
-        );
-      },
+        ),
+        NotificationsScreen(
+          updateCounter: (_) {},
+        ),
+      ],
     );
   }
 
@@ -314,70 +354,87 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       scrolledUnderElevation: 0,
       title: Row(
         children: [
-          const Spacer(),
-          StreamBuilder<HejtoPage>(
-              stream: discussionsNavCubit.currentHejtoPageFetcher,
-              builder: (context, snapshot) {
-                return PostTypesButton(
-                  positionedOnLeft: true,
-                  text: snapshot.data,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  onPressed: () {
-                    showModalBottomSheet<void>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return HejtoPagesMenu(
-                          onPressed: (option) {
-                            Navigator.of(context).pop();
+          bottomNavBarIndex == 1
+              ? const Text(
+                  'Powiadomienia',
+                  style: TextStyle(fontSize: 20),
+                )
+              : const SizedBox(),
+          Expanded(
+            child: SizedBox(
+              width: bottomNavBarIndex == 1 ? 0 : null,
+              height: bottomNavBarIndex == 1 ? 0 : null,
+              child: Row(
+                children: [
+                  const Spacer(),
+                  StreamBuilder<HejtoPage>(
+                      stream: discussionsNavCubit.currentHejtoPageFetcher,
+                      builder: (context, snapshot) {
+                        return PostTypesButton(
+                          positionedOnLeft: true,
+                          text: snapshot.data,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          onPressed: () {
+                            showModalBottomSheet<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return HejtoPagesMenu(
+                                  onPressed: (option) {
+                                    Navigator.of(context).pop();
 
-                            discussionsNavCubit.changeCurrentHejtoPage(option);
+                                    discussionsNavCubit
+                                        .changeCurrentHejtoPage(option);
 
-                            _pagingController.refresh();
+                                    _pagingController.refresh();
+                                  },
+                                  options: _hejtoPages,
+                                );
+                              },
+                            );
                           },
-                          options: _hejtoPages,
                         );
-                      },
-                    );
-                  },
-                );
-              }),
-          StreamBuilder<PostsCategory>(
-              stream: discussionsNavCubit.currentPostsCategoryFetcher,
-              builder: (context, snapshot) {
-                return PostTypesButton(
-                  positionedOnLeft: false,
-                  text: snapshot.data,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  onPressed: () {
-                    showModalBottomSheet<void>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return PostCategoriesMenu(
-                          onPressed: (option) {
-                            Navigator.of(context).pop();
+                      }),
+                  StreamBuilder<PostsCategory>(
+                      stream: discussionsNavCubit.currentPostsCategoryFetcher,
+                      builder: (context, snapshot) {
+                        return PostTypesButton(
+                          positionedOnLeft: false,
+                          text: snapshot.data,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          onPressed: () {
+                            showModalBottomSheet<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return PostCategoriesMenu(
+                                  onPressed: (option) {
+                                    Navigator.of(context).pop();
 
-                            discussionsNavCubit
-                                .changeCurrentPostsCategoryPage(option);
+                                    discussionsNavCubit
+                                        .changeCurrentPostsCategoryPage(option);
 
-                            _pagingController.refresh();
+                                    _pagingController.refresh();
+                                  },
+                                  options: _postCategories,
+                                );
+                              },
+                            );
                           },
-                          options: _postCategories,
                         );
-                      },
-                    );
-                  },
-                );
-              }),
-          const Spacer(),
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const SearchScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.search),
+                      }),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const SearchScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.search),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -391,27 +448,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       backgroundColor: backgroundColor,
       elevation: 0,
       onDestinationSelected: (int index) {
-        if (index == 2) {
-          if (state is ProfilePresentState) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UserScreen(
-                  userName: state.username,
-                ),
-              ),
-            );
+        if (index == 0) {
+          if (bottomNavBarIndex == 0) {
+            _pagingController.refresh();
           } else {
-            Navigator.push(context, MaterialPageRoute(builder: (_) {
-              return const LoginScreen();
-            }));
+            _navigateToPosts();
           }
         }
-        // else {
-        //   setState(() {
-        //     bottomNavBarIndex = index;
-        //   });
-        // }
+
+        if (index == 1) {
+          _navigateToNotifications(state);
+        }
+
+        if (index == 2) {
+          _navigateToProfile(state);
+        }
       },
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       destinations: <Widget>[

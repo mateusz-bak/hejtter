@@ -67,16 +67,24 @@ class _NotificationCardState extends State<NotificationCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _openNotification(context);
-      },
-      child: Card(
-        color: item.status == ItemStatus.NEW
-            ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
-            : null,
-        child: Padding(
-          padding: const EdgeInsets.all(0),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 5),
+      child: GestureDetector(
+        onTap: () {
+          _openNotification(context);
+        },
+        child: Card(
+          color: item.status == ItemStatus.NEW
+              ? backgroundSecondaryColor
+              : backgroundColor,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: const BorderSide(
+              color: dividerColor,
+              width: 1,
+            ),
+          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -116,6 +124,13 @@ class _NotificationCardState extends State<NotificationCard> {
     return Expanded(
       child: Html(
         data: _addEmojis(item.content.toString()),
+        style: {
+          'body': Style(
+            color: Colors.white70,
+            maxLines: 3,
+            textOverflow: TextOverflow.ellipsis,
+          )
+        },
       ),
     );
   }

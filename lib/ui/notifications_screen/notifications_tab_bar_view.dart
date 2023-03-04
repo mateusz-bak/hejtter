@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/ui/notifications_screen/notification_card.dart';
+import 'package:hejtter/utils/constants.dart';
 
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class NotificationsTabBarView extends StatefulWidget {
   const NotificationsTabBarView({
@@ -30,6 +32,7 @@ class _NotificationsTabBarViewState extends State<NotificationsTabBarView>
     super.build(context);
 
     return RefreshIndicator(
+      color: boltColor,
       onRefresh: () => Future.sync(
         () => widget.controller.refresh(),
       ),
@@ -39,11 +42,19 @@ class _NotificationsTabBarViewState extends State<NotificationsTabBarView>
           Expanded(
             child: PagedListView<int, HejtoNotification>(
               pagingController: widget.controller,
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
               builderDelegate: PagedChildBuilderDelegate<HejtoNotification>(
-                itemBuilder: (context, item, index) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: NotificationCard(item: item),
+                itemBuilder: (context, item, index) =>
+                    NotificationCard(item: item),
+                firstPageProgressIndicatorBuilder: (context) =>
+                    LoadingAnimationWidget.threeArchedCircle(
+                  color: boltColor,
+                  size: 36,
+                ),
+                newPageProgressIndicatorBuilder: (context) =>
+                    LoadingAnimationWidget.threeArchedCircle(
+                  color: boltColor,
+                  size: 36,
                 ),
               ),
             ),
