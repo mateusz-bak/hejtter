@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/communities_response.dart';
+import 'package:hejtter/utils/constants.dart';
 
 class CommunityAppBar extends StatelessWidget {
   CommunityAppBar({
@@ -40,6 +41,9 @@ class CommunityAppBar extends StatelessWidget {
     _preparePopMenuOptions();
 
     return SliverAppBar.large(
+      backgroundColor: backgroundColor,
+      scrolledUnderElevation: 0,
+      elevation: 0,
       pinned: true,
       actions: [
         (context.read<ProfileBloc>().state is ProfilePresentState)

@@ -6,6 +6,7 @@ import 'package:hejtter/services/hejto_api.dart';
 
 import 'package:hejtter/ui/community_screen/community_app_bar.dart';
 import 'package:hejtter/ui/posts_screen/post_card.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/helpers.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -147,8 +148,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
       builder: (context, snapshot) {
         if (community == null) {
           return Scaffold(
+            backgroundColor: backgroundColor,
             body: CustomScrollView(slivers: [
               SliverAppBar.large(
+                backgroundColor: backgroundColor,
                 title: const SizedBox(),
               ),
             ]),
@@ -156,60 +159,73 @@ class _CommunityScreenState extends State<CommunityScreen> {
         }
 
         return Scaffold(
-          body: CustomScrollView(
-            slivers: [
+          backgroundColor: backgroundColor,
+          body: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxScrolled) => [
               CommunityAppBar(
                 community: community!,
                 changeCommunityMembership: _changeCommunityMembership,
                 changeCommunityBlockState: _changeCommunityBlockState,
               ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 5),
-                      Text(community!.numMembers.toString()),
-                      Text(
-                        ' członków',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Text(community!.numPosts.toString()),
-                      Text(
-                        ' wpisów',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              _buildCommunityPosts(),
             ],
+            body: RefreshIndicator(
+              color: boltColor,
+              onRefresh: () async {
+                _pagingController.refresh();
+              },
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 5),
+                        Text(community!.numMembers.toString()),
+                        Text(
+                          ' członków',
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(community!.numPosts.toString()),
+                        Text(
+                          ' wpisów',
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _buildCommunityPosts(),
+                ],
+              ),
+            ),
           ),
         );
       },
     );
   }
 
-  _buildCommunityPosts() {
-    return PagedSliverList<int, Post>(
-      pagingController: _pagingController,
-      builderDelegate: PagedChildBuilderDelegate<Post>(
-        itemBuilder: (context, item, index) => PostCard(item: item),
-        firstPageProgressIndicatorBuilder: (context) =>
-            LoadingAnimationWidget.fourRotatingDots(
-          color: Theme.of(context).colorScheme.primary,
-          size: 36,
-        ),
-        newPageProgressIndicatorBuilder: (context) =>
-            LoadingAnimationWidget.fourRotatingDots(
-          color: Theme.of(context).colorScheme.primary,
-          size: 36,
+  Widget _buildCommunityPosts() {
+    return Expanded(
+      child: PagedListView<int, Post>(
+        pagingController: _pagingController,
+        builderDelegate: PagedChildBuilderDelegate<Post>(
+          itemBuilder: (context, item, index) => PostCard(item: item),
+          firstPageProgressIndicatorBuilder: (context) =>
+              LoadingAnimationWidget.threeArchedCircle(
+            color: boltColor,
+            size: 36,
+          ),
+          newPageProgressIndicatorBuilder: (context) =>
+              LoadingAnimationWidget.threeArchedCircle(
+            color: boltColor,
+            size: 36,
+          ),
         ),
       ),
     );

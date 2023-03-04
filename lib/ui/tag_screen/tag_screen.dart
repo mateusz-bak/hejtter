@@ -205,7 +205,7 @@ class _TagScreenState extends State<TagScreen> {
                       ],
                     ),
                   ),
-                  Expanded(child: _buildCommunityPosts()),
+                  _buildCommunityPosts(),
                 ],
               ),
             ),
@@ -216,19 +216,21 @@ class _TagScreenState extends State<TagScreen> {
   }
 
   Widget _buildCommunityPosts() {
-    return PagedListView<int, Post>(
-      pagingController: _pagingController,
-      builderDelegate: PagedChildBuilderDelegate<Post>(
-        itemBuilder: (context, item, index) => PostCard(item: item),
-        firstPageProgressIndicatorBuilder: (context) =>
-            LoadingAnimationWidget.threeArchedCircle(
-          color: boltColor,
-          size: 36,
-        ),
-        newPageProgressIndicatorBuilder: (context) =>
-            LoadingAnimationWidget.threeArchedCircle(
-          color: boltColor,
-          size: 36,
+    return Expanded(
+      child: PagedListView<int, Post>(
+        pagingController: _pagingController,
+        builderDelegate: PagedChildBuilderDelegate<Post>(
+          itemBuilder: (context, item, index) => PostCard(item: item),
+          firstPageProgressIndicatorBuilder: (context) =>
+              LoadingAnimationWidget.threeArchedCircle(
+            color: boltColor,
+            size: 36,
+          ),
+          newPageProgressIndicatorBuilder: (context) =>
+              LoadingAnimationWidget.threeArchedCircle(
+            color: boltColor,
+            size: 36,
+          ),
         ),
       ),
     );
