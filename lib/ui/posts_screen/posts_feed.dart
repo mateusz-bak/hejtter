@@ -40,7 +40,7 @@ class _PostsFeedState extends State<PostsFeed>
           slivers: [
             SliverPadding(
               padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top,
+                top: MediaQuery.of(context).padding.top + 30,
               ),
               sliver: PagedSliverList<int, Post>(
                 pagingController: widget.pagingController,

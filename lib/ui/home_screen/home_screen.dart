@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
@@ -389,25 +390,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       backgroundColor: backgroundColor,
       elevation: 0,
       onDestinationSelected: (int index) {
-        // if (index == 3) {
-        //   if (state is ProfilePresentState) {
-        //     setState(() {
-        //       bottomNavBarIndex = index;
-        //     });
-        //   } else {
-        //     Navigator.push(context, MaterialPageRoute(builder: (_) {
-        //       return const LoginScreen();
-        //     }));
-        //   }
-        // } else {
+        if (index == 2) {
+          if (state is ProfilePresentState) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UserScreen(
+                  userName: state.username,
+                ),
+              ),
+            );
+          } else {
+            Navigator.push(context, MaterialPageRoute(builder: (_) {
+              return const LoginScreen();
+            }));
+          }
+        }
+        // else {
         //   setState(() {
         //     bottomNavBarIndex = index;
         //   });
         // }
       },
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-      destinations: const <Widget>[
-        NavigationDestination(
+      destinations: <Widget>[
+        const NavigationDestination(
           icon: Icon(Icons.newspaper_outlined),
           selectedIcon: Icon(Icons.newspaper_rounded),
           label: 'Wpisy',
@@ -417,15 +424,41 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         //   selectedIcon: Icon(Icons.forum_rounded),
         //   label: 'Wiadomości',
         // ),
-        NavigationDestination(
+        const NavigationDestination(
           icon: Icon(Icons.notifications_none_outlined),
           selectedIcon: Icon(Icons.notifications_none_rounded),
           label: 'Powiadomienia',
         ),
-        NavigationDestination(
-          icon: Icon(Icons.person_2_outlined),
-          selectedIcon: Icon(Icons.person_2_rounded),
-          label: 'Profil',
+        BlocBuilder<ProfileBloc, ProfileState>(
+          builder: (context, state) {
+            if (state is ProfilePresentState) {
+              return NavigationDestination(
+                icon: ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: Container(
+                    padding: const EdgeInsets.all(1),
+                    color: dividerColor,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: CachedNetworkImage(
+                        height: 22,
+                        width: 22,
+                        imageUrl: state.avatar ?? defaultAvatar,
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      ),
+                    ),
+                  ),
+                ),
+                label: state.username,
+              );
+            }
+            return const NavigationDestination(
+              icon: Icon(Icons.person_2_outlined),
+              selectedIcon: Icon(Icons.person_2_rounded),
+              label: 'Profil',
+            );
+          },
         ),
       ],
     );

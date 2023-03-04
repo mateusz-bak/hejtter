@@ -187,7 +187,8 @@ class _HejtoDrawerState extends State<HejtoDrawer> {
       selectedIndex: _decideSelectedIndex(),
       onDestinationSelected: _changeDestination,
       children: [
-        _buildUserHeader(),
+        // _buildUserHeader(),
+        const SizedBox(height: 100),
         ...topDestinations,
         const Padding(
           padding: EdgeInsets.fromLTRB(28, 32, 28, 0),
