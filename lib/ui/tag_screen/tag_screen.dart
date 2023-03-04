@@ -6,6 +6,7 @@ import 'package:hejtter/services/hejto_api.dart';
 
 import 'package:hejtter/ui/posts_screen/post_card.dart';
 import 'package:hejtter/ui/tag_screen/tag_app_bar.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/helpers.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -76,14 +77,14 @@ class _TagScreenState extends State<TagScreen> {
         tag: widget.tag!,
       );
 
-      await _loadCommunityDetails(true);
+      await _loadTagDetails(true);
     } else {
       await hejtoApi.unfollowTag(
         context: context,
         tag: widget.tag!,
       );
 
-      await _loadCommunityDetails(true);
+      await _loadTagDetails(true);
     }
   }
 
@@ -96,18 +97,18 @@ class _TagScreenState extends State<TagScreen> {
         tag: widget.tag!,
       );
 
-      await _loadCommunityDetails(true);
+      await _loadTagDetails(true);
     } else {
       await hejtoApi.unblockTag(
         context: context,
         tag: widget.tag!,
       );
 
-      await _loadCommunityDetails(true);
+      await _loadTagDetails(true);
     }
   }
 
-  _loadCommunityDetails(bool update) async {
+  _loadTagDetails(bool update) async {
     if (widget.tag == null) return;
 
     final response = await hejtoApi.getTagDetails(
@@ -143,72 +144,90 @@ class _TagScreenState extends State<TagScreen> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<dynamic>(
-      future: _loadCommunityDetails(false),
+      future: _loadTagDetails(false),
       builder: (context, snapshot) {
         if (hejtoTag == null) {
           return Scaffold(
-            body: CustomScrollView(slivers: [
-              SliverAppBar.large(
-                title: const SizedBox(),
-              ),
-            ]),
+            backgroundColor: backgroundColor,
+            body: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxScrolled) => [
+                SliverAppBar.large(
+                  backgroundColor: backgroundColor,
+                  scrolledUnderElevation: 0,
+                  elevation: 0,
+                  title: const SizedBox(),
+                ),
+              ],
+              body: const SizedBox(),
+            ),
           );
         }
 
         return Scaffold(
-          body: CustomScrollView(
-            slivers: [
+          backgroundColor: backgroundColor,
+          body: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxScrolled) => [
               TagAppBar(
                 tag: hejtoTag!,
                 changeTagFollowState: _changeTagFollowState,
                 changeTagBlockState: _changeTagBlockState,
               ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 5),
-                      Text(hejtoTag!.numFollows.toString()),
-                      Text(
-                        ' obserwujących',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Text(hejtoTag!.numPosts.toString()),
-                      Text(
-                        ' wpisów',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              _buildCommunityPosts(),
             ],
+            body: RefreshIndicator(
+              color: boltColor,
+              onRefresh: () async {
+                _pagingController.refresh();
+              },
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 5),
+                        Text(hejtoTag!.numFollows.toString()),
+                        Text(
+                          ' obserwujących',
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(hejtoTag!.numPosts.toString()),
+                        Text(
+                          ' wpisów',
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(child: _buildCommunityPosts()),
+                ],
+              ),
+            ),
           ),
         );
       },
     );
   }
 
-  _buildCommunityPosts() {
-    return PagedSliverList<int, Post>(
+  Widget _buildCommunityPosts() {
+    return PagedListView<int, Post>(
       pagingController: _pagingController,
       builderDelegate: PagedChildBuilderDelegate<Post>(
         itemBuilder: (context, item, index) => PostCard(item: item),
         firstPageProgressIndicatorBuilder: (context) =>
-            LoadingAnimationWidget.fourRotatingDots(
-          color: Theme.of(context).colorScheme.primary,
+            LoadingAnimationWidget.threeArchedCircle(
+          color: boltColor,
           size: 36,
         ),
         newPageProgressIndicatorBuilder: (context) =>
-            LoadingAnimationWidget.fourRotatingDots(
-          color: Theme.of(context).colorScheme.primary,
+            LoadingAnimationWidget.threeArchedCircle(
+          color: boltColor,
           size: 36,
         ),
       ),

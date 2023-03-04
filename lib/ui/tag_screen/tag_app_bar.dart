@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/hejto_tag.dart';
+import 'package:hejtter/utils/constants.dart';
 
 class TagAppBar extends StatelessWidget {
   TagAppBar({
@@ -37,7 +38,10 @@ class TagAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     _preparePopMenuOptions();
 
-    return SliverAppBar.medium(
+    return SliverAppBar.large(
+      backgroundColor: backgroundColor,
+      scrolledUnderElevation: 0,
+      elevation: 0,
       pinned: true,
       actions: [
         (context.read<ProfileBloc>().state is ProfilePresentState)
