@@ -8,11 +8,13 @@ class PostTypesButton extends StatefulWidget {
     required this.text,
     required this.mainAxisAlignment,
     required this.onPressed,
+    required this.positionedOnLeft,
   });
 
   final dynamic text;
   final MainAxisAlignment mainAxisAlignment;
   final Function() onPressed;
+  final bool positionedOnLeft;
 
   @override
   State<PostTypesButton> createState() => _PostTypesButtonState();
@@ -54,7 +56,12 @@ class _PostTypesButtonState extends State<PostTypesButton> {
       padding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
       decoration: BoxDecoration(
         border: Border.all(color: dividerColor),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(widget.positionedOnLeft ? 10 : 0),
+          bottomLeft: Radius.circular(widget.positionedOnLeft ? 10 : 0),
+          topRight: Radius.circular(widget.positionedOnLeft ? 0 : 10),
+          bottomRight: Radius.circular(widget.positionedOnLeft ? 0 : 10),
+        ),
       ),
       child: GestureDetector(
         onTap: widget.onPressed,
@@ -63,12 +70,12 @@ class _PostTypesButtonState extends State<PostTypesButton> {
           children: [
             Text(
               _decideText(),
-              style: const TextStyle(fontSize: 13),
+              style: const TextStyle(fontSize: 14),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 6),
             const Icon(
               Icons.expand_more,
-              size: 14,
+              size: 16,
             ),
           ],
         ),

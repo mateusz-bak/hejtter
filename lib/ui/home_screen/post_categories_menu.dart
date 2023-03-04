@@ -42,15 +42,11 @@ class PostCategoriesMenu extends StatelessWidget {
       color: Colors.transparent,
       child: Container(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: backgroundColor,
-          borderRadius: const BorderRadius.only(
+          borderRadius: BorderRadius.only(
             topLeft: Radius.circular(25),
             topRight: Radius.circular(25),
-          ),
-          border: Border.all(
-            width: 1,
-            color: dividerColor,
           ),
         ),
         child: Column(

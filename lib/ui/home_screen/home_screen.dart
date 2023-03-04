@@ -319,6 +319,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               stream: discussionsNavCubit.currentHejtoPageFetcher,
               builder: (context, snapshot) {
                 return PostTypesButton(
+                  positionedOnLeft: true,
                   text: snapshot.data,
                   mainAxisAlignment: MainAxisAlignment.start,
                   onPressed: () {
@@ -340,11 +341,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   },
                 );
               }),
-          const Spacer(),
           StreamBuilder<PostsCategory>(
               stream: discussionsNavCubit.currentPostsCategoryFetcher,
               builder: (context, snapshot) {
                 return PostTypesButton(
+                  positionedOnLeft: false,
                   text: snapshot.data,
                   mainAxisAlignment: MainAxisAlignment.start,
                   onPressed: () {
