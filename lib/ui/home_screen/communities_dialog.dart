@@ -72,12 +72,22 @@ class _CommunitiesDialogState extends State<CommunitiesDialog> {
         color: Colors.transparent,
         child: Column(
           children: [
-            TextField(
-              controller: widget.controller,
-              autofocus: true,
-              onChanged: (value) {
-                _getCommunities(value);
-              },
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: backgroundSecondaryColor,
+              ),
+              child: TextField(
+                controller: widget.controller,
+                autofocus: true,
+                onChanged: (value) {
+                  _getCommunities(value);
+                },
+                decoration: const InputDecoration.collapsed(
+                  hintText: 'Wyszukaj społeczność',
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             !_isLoading

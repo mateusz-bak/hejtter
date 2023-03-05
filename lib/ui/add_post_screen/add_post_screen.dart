@@ -5,6 +5,7 @@ import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/home_screen/communities_dialog.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -20,6 +21,9 @@ class AddPostScreen extends StatefulWidget {
     bool,
     String,
     List<PhotoToUpload>?,
+    PostType,
+    String?,
+    String?,
   ) addPost;
 
   @override
@@ -29,10 +33,18 @@ class AddPostScreen extends StatefulWidget {
 class _AddPostScreenState extends State<AddPostScreen> {
   bool _isPostAdding = false;
   bool _isNsfw = false;
-  bool _isMinLength = false;
+  bool _isContentMinLength = false;
+  bool _isTitleMinLength = false;
+  bool _isUrlMinLength = false;
+
   final _textController = TextEditingController();
+  final _linkController = TextEditingController();
+  final _titleController = TextEditingController();
+
   final _communitiesController = TextEditingController();
+
   List<PhotoToUpload> _postPhotos = List.empty(growable: true);
+  var _selectedPostType = PostType.DISCUSSION;
 
   Community? _chosenCommunity;
 
@@ -45,7 +57,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
       _textController.text,
       _isNsfw,
       _chosenCommunity?.slug ?? 'Dyskusje',
-      _postPhotos,
+      ((_selectedPostType == PostType.ARTICLE ||
+                  _selectedPostType == PostType.LINK) &&
+              _postPhotos.isNotEmpty)
+          ? [_postPhotos[0]]
+          : _postPhotos,
+      _selectedPostType,
+      _titleController.text,
+      _linkController.text,
     );
 
     setState(() {
@@ -77,15 +96,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
       compressQuality: 90,
       uiSettings: [
         AndroidUiSettings(
-          toolbarTitle: 'Edit cover',
-          toolbarColor: Colors.black,
-          statusBarColor: Colors.black,
+          toolbarTitle: 'Przytnij zdjęcie',
+          toolbarColor: backgroundColor,
+          statusBarColor: backgroundColor,
           toolbarWidgetColor: Colors.white,
-          backgroundColor: Colors.black87,
-          cropGridColor: Colors.black87,
-          activeControlsWidgetColor:
-              (mounted) ? Theme.of(context).primaryColor : Colors.teal,
-          cropFrameColor: Colors.black87,
+          backgroundColor: backgroundColor,
+          cropGridColor: dividerColor,
+          activeControlsWidgetColor: boltColor,
+          cropFrameColor: dividerColor,
           lockAspectRatio: false,
           hideBottomControls: false,
         ),
@@ -132,17 +150,74 @@ class _AddPostScreenState extends State<AddPostScreen> {
     return updatedPostphotos;
   }
 
+  Function()? _validatePost() {
+    if (_selectedPostType == PostType.DISCUSSION) {
+      if (_isPostAdding || _chosenCommunity == null || !_isContentMinLength) {
+        return null;
+      } else {
+        return _startAddingPost;
+      }
+    }
+
+    if (_selectedPostType == PostType.ARTICLE) {
+      if (_isPostAdding ||
+          _chosenCommunity == null ||
+          !_isContentMinLength ||
+          !_isTitleMinLength) {
+        return null;
+      } else {
+        return _startAddingPost;
+      }
+    }
+
+    if (_selectedPostType == PostType.LINK) {
+      if (_isPostAdding ||
+          _chosenCommunity == null ||
+          !_isContentMinLength ||
+          !_isTitleMinLength ||
+          !_isUrlMinLength) {
+        return null;
+      } else {
+        return _startAddingPost;
+      }
+    }
+
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
     _textController.addListener(() {
       if (_textController.text.length > 2) {
         setState(() {
-          _isMinLength = true;
+          _isContentMinLength = true;
         });
       } else {
         setState(() {
-          _isMinLength = false;
+          _isContentMinLength = false;
+        });
+      }
+    });
+    _titleController.addListener(() {
+      if (_titleController.text.length > 2) {
+        setState(() {
+          _isTitleMinLength = true;
+        });
+      } else {
+        setState(() {
+          _isTitleMinLength = false;
+        });
+      }
+    });
+    _linkController.addListener(() {
+      if (_linkController.text.length > 2) {
+        setState(() {
+          _isUrlMinLength = true;
+        });
+      } else {
+        setState(() {
+          _isUrlMinLength = false;
         });
       }
     });
@@ -151,79 +226,226 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
+        scrolledUnderElevation: 0,
+        backgroundColor: backgroundColor,
         title: const Text(
-          'Dodaj wpis',
+          'Dodawanie wpisu',
           style: TextStyle(fontSize: 20),
         ),
       ),
-      body: Container(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildPostTypeChooser(),
+              _buildPostUrl(),
+              _buildPostTitle(),
+              const SizedBox(height: 20),
+              _buildPostContent(),
+              const SizedBox(height: 10),
+              _buildPicturePreviews(),
+              const SizedBox(height: 10),
+              _buildSearchCommunities(),
+              const SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildNsfwBox(),
+                  const SizedBox(width: 20),
+                  const Spacer(),
+                  _buildPictureAdding(),
+                  _buildPollAdding(),
+                ],
+              ),
+              const SizedBox(height: 10),
+              _buildPublishButton(),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPostUrl() {
+    if (_selectedPostType != PostType.LINK) {
+      return const SizedBox();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Row(
+        children: [
+          Expanded(
               child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: Colors.white.withAlpha(10),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(5),
-                  child: Scrollbar(
-                    child: TextField(
-                      autofocus: true,
-                      controller: _textController,
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      minLines: null,
-                      expands: true,
-                      decoration:
-                          const InputDecoration.collapsed(hintText: null),
-                    ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: backgroundSecondaryColor,
+              border: Border.all(color: dividerColor, width: 1),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Scrollbar(
+                child: TextField(
+                  autofocus: true,
+                  controller: _linkController,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: 1,
+                  minLines: 1,
+                  expands: false,
+                  decoration: const InputDecoration.collapsed(
+                    hintText: 'Dodaj link',
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    _buildNsfwBox(),
-                  ],
-                ),
-                const SizedBox(width: 20),
-                _buildSearchCommunities(),
-                _buildPictureAdding(),
-              ],
+          ))
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPostTitle() {
+    if (_selectedPostType != PostType.LINK &&
+        _selectedPostType != PostType.ARTICLE) {
+      return const SizedBox();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Row(
+        children: [
+          Expanded(
+              child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: backgroundSecondaryColor,
+              border: Border.all(color: dividerColor, width: 1),
             ),
-            _buildPicturePreviews(),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton(
-                    onPressed: _isPostAdding ||
-                            _chosenCommunity == null ||
-                            !_isMinLength
-                        ? null
-                        : _startAddingPost,
-                    child: _isPostAdding
-                        ? LoadingAnimationWidget.fourRotatingDots(
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 20,
-                          )
-                        : const Text('Dodaj'),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Scrollbar(
+                child: TextField(
+                  autofocus: true,
+                  controller: _titleController,
+                  keyboardType: TextInputType.multiline,
+                  maxLines: 1,
+                  minLines: 1,
+                  expands: false,
+                  maxLength: 140,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: const InputDecoration.collapsed(
+                    hintText: 'Wpisz tytuł',
                   ),
                 ),
-              ],
+              ),
             ),
-            const SizedBox(height: 10),
-          ],
+          ))
+        ],
+      ),
+    );
+  }
+
+  Row _buildPublishButton() {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton(
+            onPressed: _validatePost(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: onPrimaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: const BorderSide(width: 1, color: dividerColor),
+              ),
+            ),
+            child: _isPostAdding
+                ? LoadingAnimationWidget.threeArchedCircle(
+                    color: boltColor,
+                    size: 20,
+                  )
+                : const Text('Opublikuj wpis'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Row _buildPostTypeChooser() {
+    return Row(
+      children: [
+        Expanded(
+          child: SegmentedButton<PostType>(
+            selected: <PostType>{_selectedPostType},
+            style: ButtonStyle(
+              shape: MaterialStateProperty.all(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              foregroundColor: MaterialStateProperty.all(Colors.white),
+              backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return primaryColor;
+                  }
+                  return backgroundColor;
+                },
+              ),
+            ),
+            segments: const [
+              ButtonSegment(
+                value: PostType.DISCUSSION,
+                label: FittedBox(child: Text('Dyskusja')),
+              ),
+              ButtonSegment(
+                value: PostType.ARTICLE,
+                label: FittedBox(child: Text('Artykuł')),
+              ),
+              ButtonSegment(
+                value: PostType.LINK,
+                label: FittedBox(child: Text('Znalezisko')),
+              ),
+            ],
+            onSelectionChanged: (Set<PostType> newSelection) {
+              setState(() {
+                _selectedPostType = newSelection.first;
+              });
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Container _buildPostContent() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: backgroundSecondaryColor,
+        border: Border.all(color: dividerColor, width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Scrollbar(
+          child: TextField(
+            autofocus: true,
+            controller: _textController,
+            keyboardType: TextInputType.multiline,
+            maxLines: 15,
+            minLines: 5,
+            expands: false,
+            textCapitalization: TextCapitalization.sentences,
+            decoration: const InputDecoration.collapsed(
+              hintText: 'Wpisz treść',
+            ),
+          ),
         ),
       ),
     );
@@ -232,15 +454,29 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Widget _buildPicturePreviews() {
     final widgets = List<Widget>.empty(growable: true);
 
-    for (var photo in _postPhotos) {
-      if (photo.uuid != null) {
+    if ((_selectedPostType == PostType.ARTICLE ||
+            _selectedPostType == PostType.LINK) &&
+        _postPhotos.isNotEmpty) {
+      if (_postPhotos[0].uuid != null) {
         widgets.add(
-          _buildUploadedPicturePreview(photo),
+          _buildUploadedPicturePreview(_postPhotos[0]),
         );
       } else {
         widgets.add(
           _buildUploadingPicturePreview(),
         );
+      }
+    } else {
+      for (var photo in _postPhotos) {
+        if (photo.uuid != null) {
+          widgets.add(
+            _buildUploadedPicturePreview(photo),
+          );
+        } else {
+          widgets.add(
+            _buildUploadingPicturePreview(),
+          );
+        }
       }
     }
 
@@ -257,8 +493,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
         padding: const EdgeInsets.all(10),
         width: 32,
         height: 32,
-        child: LoadingAnimationWidget.fourRotatingDots(
-          color: Theme.of(context).colorScheme.primary,
+        child: LoadingAnimationWidget.threeArchedCircle(
+          color: boltColor,
           size: 20,
         ),
       ),
@@ -307,11 +543,38 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   Widget _buildPictureAdding() {
-    return IconButton(
+    return ElevatedButton(
       onPressed: _loadPhotoFromStorage,
-      icon: Icon(
-        Icons.image,
-        color: Theme.of(context).colorScheme.primary,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primaryColor,
+        foregroundColor: onPrimaryColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: const BorderSide(width: 1, color: dividerColor),
+        ),
+      ),
+      child: const Icon(Icons.image),
+    );
+  }
+
+  Widget _buildPollAdding() {
+    if (_selectedPostType != PostType.DISCUSSION) {
+      return const SizedBox();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 10),
+      child: ElevatedButton(
+        onPressed: _loadPhotoFromStorage,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          foregroundColor: onPrimaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: const BorderSide(width: 1, color: dividerColor),
+          ),
+        ),
+        child: const Icon(Icons.poll),
       ),
     );
   }
@@ -319,48 +582,62 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Widget _buildNsfwBox() {
     return Row(
       children: [
-        const Text('NSFW'),
         Switch(
           value: _isNsfw,
-          activeColor: Theme.of(context).colorScheme.primary,
+          activeColor: primaryColor,
           onChanged: (value) {
             setState(() {
               _isNsfw = value;
             });
           },
         ),
+        const SizedBox(width: 5),
+        const Text('Treść 18+'),
       ],
     );
   }
 
   Widget _buildSearchCommunities() {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return CommunitiesDialog(
-                controller: _communitiesController,
-                onCommunityPressed: (item) {
-                  setState(() {
-                    _chosenCommunity = item;
-                    Navigator.of(context).pop();
-                  });
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return CommunitiesDialog(
+                    controller: _communitiesController,
+                    onCommunityPressed: (item) {
+                      setState(() {
+                        _chosenCommunity = item;
+                        Navigator.of(context).pop();
+                      });
+                    },
+                  );
                 },
               );
             },
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.blueAccent),
-            borderRadius: BorderRadius.circular(5),
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                border: Border.all(color: dividerColor),
+                borderRadius: BorderRadius.circular(10),
+                color: backgroundSecondaryColor,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child:
+                        Text(_chosenCommunity?.name ?? 'Wybierz społeczność'),
+                  ),
+                  const Icon(Icons.expand_more)
+                ],
+              ),
+            ),
           ),
-          child: Text(_chosenCommunity?.name ?? 'Społeczność'),
         ),
-      ),
+      ],
     );
   }
 }

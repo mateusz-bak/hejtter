@@ -7,6 +7,7 @@ import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/logic/cubit/discussions_nav_cubit.dart';
+import 'package:hejtter/models/communities_response.dart';
 
 import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/models/post.dart';
@@ -180,6 +181,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     bool isNsfw,
     String communitySlug,
     List<PhotoToUpload>? images,
+    PostType postType,
+    String? title,
+    String? link,
   ) async {
     final result = await hejtoApi.createPost(
       context: context,
@@ -187,6 +191,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       isNsfw: isNsfw,
       communitySlug: communitySlug,
       images: images,
+      postType: postType,
+      title: title,
+      link: link,
     );
 
     if (result != null && mounted) {
@@ -519,48 +526,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget? _buildFab() {
     switch (bottomNavBarIndex) {
       case 0:
-        return _buildNewArticleAndPostFAB();
-      case 1:
-        return _buildNewArticleFAB();
-      case 2:
         return _buildNewPostFAB();
-      case 3:
+      case 1:
         return _buildReadNotificationsFAB();
       default:
         return null;
     }
-  }
-
-  // TODO: Do Article adding
-  Widget _buildNewArticleAndPostFAB() {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        if (state is AuthorizedAuthState) {
-          return FloatingActionButton(
-            onPressed: _openAddPostDialog,
-            child: const Icon(Icons.add),
-          );
-        } else {
-          return const SizedBox();
-        }
-      },
-    );
-  }
-
-  // TODO: Do Article adding
-  Widget _buildNewArticleFAB() {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, state) {
-        if (state is AuthorizedAuthState) {
-          return FloatingActionButton(
-            onPressed: _openAddPostDialog,
-            child: const Icon(Icons.add),
-          );
-        } else {
-          return const SizedBox();
-        }
-      },
-    );
   }
 
   Widget _buildNewPostFAB() {
@@ -568,6 +539,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       builder: (context, state) {
         if (state is AuthorizedAuthState) {
           return FloatingActionButton(
+            backgroundColor: primaryColor,
             onPressed: _openAddPostDialog,
             child: const Icon(Icons.add),
           );
@@ -580,6 +552,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Widget _buildReadNotificationsFAB() {
     return FloatingActionButton.extended(
+      backgroundColor: primaryColor,
       onPressed: () async {
         await hejtoApi.markAllNotificationsAsRead(context: context);
       },

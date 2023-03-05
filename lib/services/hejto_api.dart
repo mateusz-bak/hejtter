@@ -1693,19 +1693,38 @@ class HejtoApi {
     required String communitySlug,
     required BuildContext context,
     required bool isNsfw,
+    required PostType postType,
     List<PhotoToUpload>? images,
+    String? title,
+    String? link,
   }) async {
     final accessToken = await _getAccessToken(context);
     if (accessToken == null) return null;
 
     final body = {
-      'type': 'discussion',
+      'type': postType == PostType.ARTICLE
+          ? 'article'
+          : postType == PostType.LINK
+              ? 'link'
+              : 'discussion',
       'community': communitySlug,
       'content': content,
       'tags': [],
       'images': images,
       'nsfw': isNsfw,
     };
+
+    if (postType == PostType.ARTICLE || postType == PostType.LINK) {
+      body.addEntries(<String, String>{
+        'title': '$title',
+      }.entries);
+    }
+
+    if (postType == PostType.LINK) {
+      body.addEntries(<String, String>{
+        'link': '$link',
+      }.entries);
+    }
 
     HttpClientRequest request = await client.postUrl(
       Uri.https(

@@ -202,6 +202,7 @@ class ReportDialogOption extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Switch(
+            activeColor: primaryColor,
             value: isSelected,
             onChanged: (_) {
               onSelected(option);
