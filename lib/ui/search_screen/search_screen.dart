@@ -241,8 +241,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   SliverPersistentHeader(
                     delegate: SearchTypeHeader(
                       onSelectionChanged: (Set<SearchType> newSelection) {
-                        FocusManager.instance.primaryFocus?.unfocus();
-
                         setState(() {
                           _selectedSearchType = newSelection.first;
                         });
