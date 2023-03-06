@@ -20,7 +20,7 @@ class _DefaultTabDialogState extends State<DefaultTabDialog> {
   _updatePreferences(HejtoPage defaultPage) {
     BlocProvider.of<PreferencesBloc>(context).add(
       SetPreferencesEvent(
-        deepLinkDialogDisplayed: true,
+        showDeepLinkDialog: widget.state.showDeepLinkDialog,
         defaultHotPeriod: widget.state.defaultHotPeriod,
         defaultPage: defaultPage,
       ),

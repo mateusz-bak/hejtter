@@ -20,7 +20,7 @@ class _DefaultPeriodDialogState extends State<DefaultPeriodDialog> {
   _updatePreferences(PostsPeriod defaultPeriod) {
     BlocProvider.of<PreferencesBloc>(context).add(
       SetPreferencesEvent(
-        deepLinkDialogDisplayed: true,
+        showDeepLinkDialog: widget.state.showDeepLinkDialog,
         defaultHotPeriod: defaultPeriod,
         defaultPage: widget.state.defaultPage,
       ),

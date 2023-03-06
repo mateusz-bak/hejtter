@@ -8,19 +8,19 @@ abstract class PreferencesState extends Equatable {
 }
 
 class PreferencesSet extends PreferencesState {
-  final bool deepLinkDialogDisplayed;
+  final bool showDeepLinkDialog;
   final HejtoPage defaultPage;
   final PostsPeriod defaultHotPeriod;
 
   const PreferencesSet({
-    required this.deepLinkDialogDisplayed,
+    required this.showDeepLinkDialog,
     required this.defaultPage,
     required this.defaultHotPeriod,
   });
 
   @override
   List<Object> get props => [
-        deepLinkDialogDisplayed,
+        showDeepLinkDialog,
         defaultPage,
         defaultHotPeriod,
       ];

@@ -9,7 +9,7 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
   PreferencesBloc()
       : super(
           const PreferencesSet(
-            deepLinkDialogDisplayed: false,
+            showDeepLinkDialog: true,
             defaultPage: HejtoPage.all,
             defaultHotPeriod: PostsPeriod.sixHours,
           ),
@@ -17,7 +17,7 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
     on<SetPreferencesEvent>((event, emit) {
       emit(
         PreferencesSet(
-          deepLinkDialogDisplayed: event.deepLinkDialogDisplayed,
+          showDeepLinkDialog: event.showDeepLinkDialog,
           defaultPage: event.defaultPage,
           defaultHotPeriod: event.defaultHotPeriod,
         ),
@@ -32,7 +32,7 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
     final defaultHotPeriod = json['default_hot_period'] as String?;
 
     return PreferencesSet(
-      deepLinkDialogDisplayed: deepLinkDialogDisplayed ?? false,
+      showDeepLinkDialog: deepLinkDialogDisplayed ?? false,
       defaultPage: defaultPage == 'discussions'
           ? HejtoPage.discussions
           : defaultPage == 'articles'
@@ -52,7 +52,7 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
   Map<String, dynamic>? toJson(PreferencesState state) {
     if (state is PreferencesSet) {
       return {
-        'deep_link_dialog_displayed': state.deepLinkDialogDisplayed,
+        'deep_link_dialog_displayed': state.showDeepLinkDialog,
         'default_page': state.defaultPage == HejtoPage.discussions
             ? 'discussions'
             : state.defaultPage == HejtoPage.articles

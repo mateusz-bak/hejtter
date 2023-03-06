@@ -19,7 +19,7 @@ class _DeepLinksDialogState extends State<DeepLinksDialog> {
   _updatePreferences(BuildContext context) {
     BlocProvider.of<PreferencesBloc>(context).add(
       SetPreferencesEvent(
-        deepLinkDialogDisplayed: true,
+        showDeepLinkDialog: false,
         defaultHotPeriod: widget.state.defaultHotPeriod,
         defaultPage: widget.state.defaultPage,
       ),

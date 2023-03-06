@@ -81,9 +81,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // ignore: use_build_context_synchronously
     final state = context.read<PreferencesBloc>().state;
-
     if (state is PreferencesSet) {
-      if (!state.deepLinkDialogDisplayed) {
+      if (state.showDeepLinkDialog) {
         showDialog(
           context: context,
           builder: (BuildContext context) {
