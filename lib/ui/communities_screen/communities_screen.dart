@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
-import 'package:hejtter/ui/communities_screen/community_card.dart';
-import 'package:hejtter/ui/home_screen/hejto_drawer.dart';
+import 'package:hejtter/ui/communities_screen/widgets/widgets.dart';
+import 'package:hejtter/ui/home_screen/widgets/widgets.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 

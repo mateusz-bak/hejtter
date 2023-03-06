@@ -4,12 +4,7 @@ import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/services/hejto_api.dart';
-import 'package:hejtter/ui/settings_screen/deep_links_dialog.dart';
-import 'package:hejtter/ui/settings_screen/default_period_dialog.dart';
-import 'package:hejtter/ui/settings_screen/default_tab_dialog.dart';
-import 'package:hejtter/ui/settings_screen/settings_section.dart';
-import 'package:hejtter/ui/settings_screen/switch_setting.dart';
-import 'package:hejtter/ui/settings_screen/text_setting.dart';
+import 'package:hejtter/ui/settings_screen/widgets/widgets.dart';
 import 'package:hejtter/utils/enums.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';

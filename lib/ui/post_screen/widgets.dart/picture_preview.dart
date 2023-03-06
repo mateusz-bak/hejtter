@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/posts_response.dart';
-import 'package:hejtter/ui/post_screen/picture_full_screen.dart';
+import 'package:hejtter/ui/post_screen/widgets.dart/widgets.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 

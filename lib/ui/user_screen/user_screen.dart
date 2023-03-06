@@ -6,13 +6,10 @@ import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/models/user_details_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
-import 'package:hejtter/ui/posts_screen/post_card.dart';
-import 'package:hejtter/ui/user_screen/user_action_button.dart';
-import 'package:hejtter/ui/user_screen/user_app_bar.dart';
-import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/ui/posts_feed/widgets/widgets.dart';
+import 'package:hejtter/ui/user_screen/widgets/widgets.dart';
 
 import 'package:http/http.dart' as http;
-
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 

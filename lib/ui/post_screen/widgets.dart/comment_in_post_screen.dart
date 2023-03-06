@@ -10,10 +10,7 @@ import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
-import 'package:hejtter/ui/post_screen/answer_button.dart';
-import 'package:hejtter/ui/post_screen/hejtter_like_button.dart';
-import 'package:hejtter/ui/post_screen/picture_preview.dart';
-import 'package:hejtter/ui/post_screen/report_dialog.dart';
+import 'package:hejtter/ui/post_screen/widgets.dart/widgets.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 
@@ -422,7 +419,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
       _reportAsNotAuthorized();
       return;
     }
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (comment?.postSlug == null || comment?.uuid == null) return;
 

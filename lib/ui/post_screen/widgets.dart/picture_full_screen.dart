@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 
 import 'package:hejtter/models/posts_response.dart';
-import 'package:hejtter/ui/post_screen/sliding_app_bar.dart';
+import 'package:hejtter/ui/post_screen/widgets.dart/widgets.dart';
 import 'package:hejtter/utils/constants.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -67,17 +67,16 @@ class _PictureFullScreenState extends State<PictureFullScreen>
   _showFlushBar(BuildContext context, String msg) {
     late Flushbar flush;
     flush = Flushbar(
-      message: msg,
-      duration: const Duration(seconds: 1),
-      margin: const EdgeInsets.all(10),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-      borderRadius: BorderRadius.circular(8),
-      icon: const Icon(
-        Icons.download_done,
-        color: Colors.green,
-      ),
-      animationDuration: const Duration(milliseconds: 500)
-    );
+        message: msg,
+        duration: const Duration(seconds: 1),
+        margin: const EdgeInsets.all(10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+        borderRadius: BorderRadius.circular(8),
+        icon: const Icon(
+          Icons.download_done,
+          color: Colors.green,
+        ),
+        animationDuration: const Duration(milliseconds: 500));
 
     flush.show(context);
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/services/hejto_api.dart';
-import 'package:hejtter/ui/notifications_screen/notifications_tab_bar_view.dart';
+import 'package:hejtter/ui/notifications_screen/widgets/widgets.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 

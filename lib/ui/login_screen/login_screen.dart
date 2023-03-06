@@ -5,7 +5,7 @@ import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
-import 'package:hejtter/ui/settings_screen/deep_links_dialog.dart';
+import 'package:hejtter/ui/settings_screen/widgets/widgets.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 

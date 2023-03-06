@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
-import 'package:hejtter/ui/home_screen/community_search_result.dart';
+import 'package:hejtter/ui/home_screen/widgets/widgets.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 

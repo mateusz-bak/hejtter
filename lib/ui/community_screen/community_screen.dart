@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/community_screen/widgets/widgets.dart';
+import 'package:hejtter/ui/posts_feed/widgets/widgets.dart';
 
-import 'package:hejtter/ui/community_screen/community_app_bar.dart';
-import 'package:hejtter/ui/posts_screen/post_card.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/helpers.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';

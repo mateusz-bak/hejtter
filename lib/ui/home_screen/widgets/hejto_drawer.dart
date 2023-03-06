@@ -2,18 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
-import 'package:hejtter/models/avatar.dart';
-import 'package:hejtter/models/background.dart';
-import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/ui/communities_screen/communities_screen.dart';
 import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:hejtter/ui/settings_screen/settings_screen.dart';
-import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 

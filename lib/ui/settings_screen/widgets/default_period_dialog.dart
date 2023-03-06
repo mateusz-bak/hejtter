@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
-import 'package:hejtter/ui/settings_screen/settings_dialog_button.dart';
+import 'package:hejtter/ui/settings_screen/widgets/widgets.dart';
 import 'package:hejtter/utils/enums.dart';
 
-class DefaultTabDialog extends StatefulWidget {
-  const DefaultTabDialog({
+class DefaultPeriodDialog extends StatefulWidget {
+  const DefaultPeriodDialog({
     Key? key,
     required this.state,
   }) : super(key: key);
@@ -13,16 +13,16 @@ class DefaultTabDialog extends StatefulWidget {
   final PreferencesSet state;
 
   @override
-  State<DefaultTabDialog> createState() => _DefaultTabDialogState();
+  State<DefaultPeriodDialog> createState() => _DefaultPeriodDialogState();
 }
 
-class _DefaultTabDialogState extends State<DefaultTabDialog> {
-  _updatePreferences(HejtoPage defaultPage) {
+class _DefaultPeriodDialogState extends State<DefaultPeriodDialog> {
+  _updatePreferences(PostsPeriod defaultPeriod) {
     BlocProvider.of<PreferencesBloc>(context).add(
       SetPreferencesEvent(
         showDeepLinkDialog: widget.state.showDeepLinkDialog,
-        defaultHotPeriod: widget.state.defaultHotPeriod,
-        defaultPage: defaultPage,
+        defaultHotPeriod: defaultPeriod,
+        defaultPage: widget.state.defaultPage,
       ),
     );
 
@@ -44,7 +44,7 @@ class _DefaultTabDialogState extends State<DefaultTabDialog> {
             const Padding(
               padding: EdgeInsets.only(left: 10),
               child: Text(
-                'Wybierz stronę początkową',
+                'Wybierz domyślny okres gorących',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -53,16 +53,20 @@ class _DefaultTabDialogState extends State<DefaultTabDialog> {
             ),
             const SizedBox(height: 15),
             SettingsDialogButton(
-              text: 'Wszystko',
-              onPressed: () => _updatePreferences(HejtoPage.all),
+              text: '3h',
+              onPressed: () => _updatePreferences(PostsPeriod.threeHours),
             ),
             SettingsDialogButton(
-              text: 'Artykuły',
-              onPressed: () => _updatePreferences(HejtoPage.articles),
+              text: '6h',
+              onPressed: () => _updatePreferences(PostsPeriod.sixHours),
             ),
             SettingsDialogButton(
-              text: 'Dyskusje',
-              onPressed: () => _updatePreferences(HejtoPage.discussions),
+              text: '12h',
+              onPressed: () => _updatePreferences(PostsPeriod.twelveHours),
+            ),
+            SettingsDialogButton(
+              text: '24h',
+              onPressed: () => _updatePreferences(PostsPeriod.twentyFourHours),
             ),
           ],
         ),
