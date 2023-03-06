@@ -71,23 +71,27 @@ class PollWidget extends StatelessWidget {
     final widgets = List<Widget>.empty(growable: true);
 
     final Size percentageSize = (TextPainter(
-            text: const TextSpan(text: '100%'),
-            maxLines: 1,
-            textScaleFactor: MediaQuery.of(context).textScaleFactor,
-            textDirection: TextDirection.ltr)
-          ..layout())
+      text: const TextSpan(text: '100%'),
+      maxLines: 1,
+      textScaleFactor: MediaQuery.of(context).textScaleFactor,
+      textDirection: TextDirection.ltr,
+    )..layout())
         .size;
 
     for (var option in options) {
       final votes = option.numVotes ?? 0;
-      final percentage = (votes * 100 / numVotes);
+      final double percentage = numVotes == 0.0 ? 0 : (votes * 100 / numVotes);
 
       widgets.add(Padding(
         padding: const EdgeInsets.only(bottom: 5),
         child: Stack(
           children: [
             _buildOptionBackground(),
-            _buildOptionForeground(percentage.toInt(), option, context),
+            _buildOptionForeground(
+              percentage != 0 ? percentage.toInt() : 0,
+              option,
+              context,
+            ),
             _buildOptionContent(option, percentageSize, percentage, context),
           ],
         ),
@@ -124,8 +128,8 @@ class PollWidget extends StatelessWidget {
                       child: SizedBox(
                         width: 16,
                         height: 16,
-                        child: LoadingAnimationWidget.fourRotatingDots(
-                          color: Theme.of(context).colorScheme.primary,
+                        child: LoadingAnimationWidget.threeArchedCircle(
+                          color: boltColor,
                           size: 16,
                         ),
                       ),
@@ -135,6 +139,7 @@ class PollWidget extends StatelessWidget {
                       style: TextStyle(
                         fontWeight:
                             userVote == option.num ? FontWeight.bold : null,
+                        color: userVote == option.num ? Colors.black : null,
                       ),
                     ),
             ),
@@ -153,7 +158,7 @@ class PollWidget extends StatelessWidget {
                   : const SizedBox(),
             ),
             SizedBox(
-              width: percentageSize.width + 6,
+              width: percentageSize.width + 16,
               child: userVote != null
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -196,18 +201,17 @@ class PollWidget extends StatelessWidget {
                       color: userVote == null
                           ? Colors.transparent
                           : userVote == option.num
-                              ? Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withOpacity(0.4)
-                              : Colors.black.withOpacity(0.4),
+                              ? boltColor
+                              : primaryColor,
                     ),
                   ),
                 )
               : const SizedBox(),
-          Spacer(
-            flex: 100 - percentage,
-          ),
+          percentage != 100
+              ? Spacer(
+                  flex: 100 - percentage,
+                )
+              : const SizedBox(),
         ],
       ),
     );

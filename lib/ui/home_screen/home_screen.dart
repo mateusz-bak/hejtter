@@ -10,6 +10,7 @@ import 'package:hejtter/logic/cubit/discussions_nav_cubit.dart';
 import 'package:hejtter/models/communities_response.dart';
 
 import 'package:hejtter/models/photo_to_upload.dart';
+import 'package:hejtter/models/poll_to_be_created.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/add_post_screen/add_post_screen.dart';
@@ -184,6 +185,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     PostType postType,
     String? title,
     String? link,
+    PollToBeCreated? poll,
   ) async {
     final result = await hejtoApi.createPost(
       context: context,
@@ -194,6 +196,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       postType: postType,
       title: title,
       link: link,
+      poll: poll,
     );
 
     if (result != null && mounted) {

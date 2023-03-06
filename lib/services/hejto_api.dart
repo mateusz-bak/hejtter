@@ -8,6 +8,7 @@ import 'package:hejtter/models/hejto_tag.dart';
 import 'package:hejtter/models/hejto_tags_response.dart';
 import 'package:hejtter/models/hejto_users_response.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
+import 'package:hejtter/models/poll_to_be_created.dart';
 import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/utils/enums.dart';
 import 'package:http/http.dart' as http;
@@ -1697,6 +1698,7 @@ class HejtoApi {
     List<PhotoToUpload>? images,
     String? title,
     String? link,
+    PollToBeCreated? poll,
   }) async {
     final accessToken = await _getAccessToken(context);
     if (accessToken == null) return null;
@@ -1723,6 +1725,12 @@ class HejtoApi {
     if (postType == PostType.LINK) {
       body.addEntries(<String, String>{
         'link': '$link',
+      }.entries);
+    }
+
+    if (postType == PostType.DISCUSSION && poll != null) {
+      body.addEntries(<String, Map<String, dynamic>>{
+        'poll': poll.toJson(),
       }.entries);
     }
 

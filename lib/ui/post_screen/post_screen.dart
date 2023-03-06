@@ -489,6 +489,10 @@ class _PostScreenState extends State<PostScreen> {
     if (result) {
       _refreshPost();
     }
+
+    if (widget.refreshCallback != null) {
+      widget.refreshCallback!();
+    }
   }
 
   @override

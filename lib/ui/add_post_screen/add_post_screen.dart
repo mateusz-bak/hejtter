@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hejtter/models/communities_response.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
+import 'package:hejtter/models/poll_to_be_created.dart';
 import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/add_post_screen/poll_answer.dart';
 import 'package:hejtter/ui/home_screen/communities_dialog.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -24,6 +26,7 @@ class AddPostScreen extends StatefulWidget {
     PostType,
     String?,
     String?,
+    PollToBeCreated?,
   ) addPost;
 
   @override
@@ -33,15 +36,32 @@ class AddPostScreen extends StatefulWidget {
 class _AddPostScreenState extends State<AddPostScreen> {
   bool _isPostAdding = false;
   bool _isNsfw = false;
+  bool _addPoll = false;
+
   bool _isContentMinLength = false;
   bool _isTitleMinLength = false;
   bool _isUrlMinLength = false;
+  bool _isPollQuestionMinLength = false;
+  bool _isFirstPollMinLength = false;
+  bool _isSecondPollMinLength = false;
+  bool _isThirdPollMinLength = false;
+  bool _isFourthPollMinLength = false;
+  bool _isFifthPollMinLength = false;
 
   final _textController = TextEditingController();
   final _linkController = TextEditingController();
   final _titleController = TextEditingController();
 
   final _communitiesController = TextEditingController();
+
+  final _pollQuestionController = TextEditingController();
+  final _firstPollAnswerController = TextEditingController();
+  final _secondPollAnswerController = TextEditingController();
+  final _thirdPollAnswerController = TextEditingController();
+  final _fourthPollAnswerController = TextEditingController();
+  final _fifthPollAnswerController = TextEditingController();
+
+  int _numberOfPollAnswers = 2;
 
   List<PhotoToUpload> _postPhotos = List.empty(growable: true);
   var _selectedPostType = PostType.DISCUSSION;
@@ -52,6 +72,32 @@ class _AddPostScreenState extends State<AddPostScreen> {
     setState(() {
       _isPostAdding = true;
     });
+
+    final pollOptions = <OptionOfPollToBeCreated>[
+      OptionOfPollToBeCreated(title: _firstPollAnswerController.text),
+      OptionOfPollToBeCreated(title: _secondPollAnswerController.text),
+    ];
+
+    if (_numberOfPollAnswers > 2) {
+      pollOptions.add(
+        OptionOfPollToBeCreated(title: _thirdPollAnswerController.text),
+      );
+    }
+    if (_numberOfPollAnswers > 3) {
+      pollOptions.add(
+        OptionOfPollToBeCreated(title: _fourthPollAnswerController.text),
+      );
+    }
+    if (_numberOfPollAnswers > 4) {
+      pollOptions.add(
+        OptionOfPollToBeCreated(title: _fifthPollAnswerController.text),
+      );
+    }
+
+    final poll = PollToBeCreated(
+      title: _pollQuestionController.text,
+      options: pollOptions,
+    );
 
     final location = await widget.addPost(
       _textController.text,
@@ -65,6 +111,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       _selectedPostType,
       _titleController.text,
       _linkController.text,
+      _addPoll && _selectedPostType == PostType.DISCUSSION ? poll : null,
     );
 
     setState(() {
@@ -155,6 +202,28 @@ class _AddPostScreenState extends State<AddPostScreen> {
       if (_isPostAdding || _chosenCommunity == null || !_isContentMinLength) {
         return null;
       } else {
+        if (_addPoll) {
+          if (!_isPollQuestionMinLength ||
+              !_isFirstPollMinLength ||
+              !_isSecondPollMinLength) {
+            return null;
+          }
+
+          if (_numberOfPollAnswers == 3 && !_isThirdPollMinLength) {
+            return null;
+          }
+          if (_numberOfPollAnswers == 4 &&
+              (!_isThirdPollMinLength || !_isFourthPollMinLength)) {
+            return null;
+          }
+          if (_numberOfPollAnswers == 5 &&
+              (!_isThirdPollMinLength ||
+                  !_isFourthPollMinLength ||
+                  !_isFifthPollMinLength)) {
+            return null;
+          }
+        }
+
         return _startAddingPost;
       }
     }
@@ -188,6 +257,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   void initState() {
     super.initState();
+
     _textController.addListener(() {
       if (_textController.text.length > 2) {
         setState(() {
@@ -199,6 +269,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         });
       }
     });
+
     _titleController.addListener(() {
       if (_titleController.text.length > 2) {
         setState(() {
@@ -210,16 +281,75 @@ class _AddPostScreenState extends State<AddPostScreen> {
         });
       }
     });
+
     _linkController.addListener(() {
-      if (_linkController.text.length > 2) {
-        setState(() {
-          _isUrlMinLength = true;
-        });
-      } else {
-        setState(() {
-          _isUrlMinLength = false;
-        });
-      }
+      _linkController.text.length > 2
+          ? setState(() {
+              _isUrlMinLength = true;
+            })
+          : setState(() {
+              _isUrlMinLength = false;
+            });
+    });
+
+    _pollQuestionController.addListener(() {
+      _pollQuestionController.text.isNotEmpty
+          ? setState(() {
+              _isPollQuestionMinLength = true;
+            })
+          : setState(() {
+              _isPollQuestionMinLength = false;
+            });
+    });
+
+    _firstPollAnswerController.addListener(() {
+      _firstPollAnswerController.text.isNotEmpty
+          ? setState(() {
+              _isFirstPollMinLength = true;
+            })
+          : setState(() {
+              _isFirstPollMinLength = false;
+            });
+    });
+
+    _secondPollAnswerController.addListener(() {
+      _secondPollAnswerController.text.isNotEmpty
+          ? setState(() {
+              _isSecondPollMinLength = true;
+            })
+          : setState(() {
+              _isSecondPollMinLength = false;
+            });
+    });
+
+    _thirdPollAnswerController.addListener(() {
+      _thirdPollAnswerController.text.isNotEmpty
+          ? setState(() {
+              _isThirdPollMinLength = true;
+            })
+          : setState(() {
+              _isThirdPollMinLength = false;
+            });
+    });
+
+    _fourthPollAnswerController.addListener(() {
+      _fourthPollAnswerController.text.isNotEmpty
+          ? setState(() {
+              _isFourthPollMinLength = true;
+            })
+          : setState(() {
+              _isFourthPollMinLength = false;
+            });
+    });
+
+    _fifthPollAnswerController.addListener(() {
+      _fifthPollAnswerController.text.isNotEmpty
+          ? setState(() {
+              _isFifthPollMinLength = true;
+            })
+          : setState(() {
+              _isFifthPollMinLength = false;
+            });
     });
   }
 
@@ -247,6 +377,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               _buildPostTitle(),
               const SizedBox(height: 20),
               _buildPostContent(),
+              _buildPoll(),
               const SizedBox(height: 10),
               _buildPicturePreviews(),
               const SizedBox(height: 10),
@@ -451,6 +582,131 @@ class _AddPostScreenState extends State<AddPostScreen> {
     );
   }
 
+  Widget _buildPoll() {
+    if (!_addPoll || _selectedPostType != PostType.DISCUSSION) {
+      return const SizedBox();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 20),
+        const Text(
+          'Ankieta:',
+          style: TextStyle(fontSize: 18),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 10, 0, 20),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: backgroundSecondaryColor,
+              border: Border.all(color: dividerColor, width: 1),
+            ),
+            child: Column(
+              children: [
+                TextField(
+                  autofocus: true,
+                  controller: _pollQuestionController,
+                  expands: false,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: const InputDecoration.collapsed(
+                    hintText: 'Pytanie do ankiety',
+                  ),
+                ),
+                ..._buildPollAnswers(),
+                ..._buildPollOptionButtons(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildPollAnswers() {
+    return [
+      PollAnswer(
+        textController: _firstPollAnswerController,
+        number: '1',
+      ),
+      PollAnswer(
+        textController: _secondPollAnswerController,
+        number: '2',
+      ),
+      _numberOfPollAnswers > 2
+          ? PollAnswer(
+              textController: _thirdPollAnswerController,
+              number: '3',
+            )
+          : const SizedBox(),
+      _numberOfPollAnswers > 3
+          ? PollAnswer(
+              textController: _fourthPollAnswerController,
+              number: '4',
+            )
+          : const SizedBox(),
+      _numberOfPollAnswers > 4
+          ? PollAnswer(
+              textController: _fifthPollAnswerController,
+              number: '5',
+            )
+          : const SizedBox(),
+    ];
+  }
+
+  List<Widget> _buildPollOptionButtons() {
+    return [
+      const SizedBox(height: 10),
+      Row(
+        children: [
+          Expanded(
+            child: ElevatedButton(
+              onPressed: _numberOfPollAnswers > 2
+                  ? () {
+                      setState(() {
+                        _numberOfPollAnswers = _numberOfPollAnswers - 1;
+                      });
+                    }
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: onPrimaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: const BorderSide(width: 1, color: dividerColor),
+                ),
+              ),
+              child: const Icon(Icons.exposure_minus_1),
+            ),
+          ),
+          const SizedBox(width: 40),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: _numberOfPollAnswers < 5
+                  ? () {
+                      setState(() {
+                        _numberOfPollAnswers = _numberOfPollAnswers + 1;
+                      });
+                    }
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: onPrimaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: const BorderSide(width: 1, color: dividerColor),
+                ),
+              ),
+              child: const Icon(Icons.plus_one),
+            ),
+          ),
+        ],
+      ),
+    ];
+  }
+
   Widget _buildPicturePreviews() {
     final widgets = List<Widget>.empty(growable: true);
 
@@ -565,10 +821,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
     return Padding(
       padding: const EdgeInsets.only(left: 10),
       child: ElevatedButton(
-        onPressed: _loadPhotoFromStorage,
+        onPressed: () {
+          setState(() {
+            _addPoll = !_addPoll;
+          });
+        },
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: onPrimaryColor,
+          backgroundColor: _addPoll ? boltColor : primaryColor,
+          foregroundColor: _addPoll ? Colors.black : onPrimaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
             side: const BorderSide(width: 1, color: dividerColor),
