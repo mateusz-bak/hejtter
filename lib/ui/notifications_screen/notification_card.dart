@@ -27,6 +27,74 @@ class _NotificationCardState extends State<NotificationCard> {
     return parser.emojify(text);
   }
 
+  Widget _prepareNotificationDate() {
+    if (item.createdAt == null) {
+      return const SizedBox();
+    }
+
+    final time = '${item.createdAt?.hour}:${item.createdAt?.minute}';
+
+    late String monthStr;
+
+    switch (item.createdAt?.month) {
+      case 1:
+        monthStr = 'sty';
+        break;
+      case 2:
+        monthStr = 'lut';
+        break;
+      case 3:
+        monthStr = 'mar';
+        break;
+      case 4:
+        monthStr = 'kwi';
+        break;
+      case 5:
+        monthStr = 'maj';
+        break;
+      case 6:
+        monthStr = 'cze';
+        break;
+      case 7:
+        monthStr = 'lip';
+        break;
+      case 8:
+        monthStr = 'sie';
+        break;
+      case 9:
+        monthStr = 'wrz';
+        break;
+      case 10:
+        monthStr = 'paź';
+        break;
+      case 11:
+        monthStr = 'lis';
+        break;
+      case 12:
+        monthStr = 'gru';
+        break;
+      default:
+        monthStr = '';
+    }
+    final date = '${item.createdAt?.day} $monthStr ${item.createdAt?.year}';
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 10, bottom: 10),
+          child: Text(
+            '$time  $date',
+            style: TextStyle(
+              color:
+                  item.status == ItemStatus.NEW ? onPrimaryColor : dividerColor,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   _openNotification(BuildContext context) {
     setState(() {
       item.status = ItemStatus.READ;
@@ -85,34 +153,40 @@ class _NotificationCardState extends State<NotificationCard> {
               width: 1,
             ),
           ),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: Container(
-                    padding:
-                        EdgeInsets.all(item.status == ItemStatus.NEW ? 3 : 1),
-                    color: item.status == ItemStatus.NEW
-                        ? Colors.green
-                        : Colors.white,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 10, 0, 0),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(100),
-                      child: CachedNetworkImage(
-                        height: item.status == ItemStatus.NEW ? 32 : 36,
-                        width: item.status == ItemStatus.NEW ? 32 : 36,
-                        imageUrl: item.sender?.avatar?.urls?.the250X250 ??
-                            defaultAvatar,
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.error),
+                      child: Container(
+                        padding: EdgeInsets.all(
+                            item.status == ItemStatus.NEW ? 3 : 1),
+                        color: item.status == ItemStatus.NEW
+                            ? Colors.green
+                            : Colors.white,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: CachedNetworkImage(
+                            height: item.status == ItemStatus.NEW ? 32 : 36,
+                            width: item.status == ItemStatus.NEW ? 32 : 36,
+                            imageUrl: item.sender?.avatar?.urls?.the250X250 ??
+                                defaultAvatar,
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                  _buildContent(item),
+                ],
               ),
-              _buildContent(item),
+              _prepareNotificationDate(),
             ],
           ),
         ),
