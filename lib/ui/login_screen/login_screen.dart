@@ -6,6 +6,7 @@ import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
 import 'package:hejtter/ui/settings_screen/deep_links_dialog.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -102,7 +103,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: backgroundColor,
+        scrolledUnderElevation: 0,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -145,8 +150,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(10),
+                      color: backgroundSecondaryColor,
+                      border: Border.all(color: dividerColor, width: 1),
                     ),
                     child: TextField(
                       controller: _emailController,
@@ -162,8 +168,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceVariant,
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(10),
+                      color: backgroundSecondaryColor,
+                      border: Border.all(color: dividerColor, width: 1),
                     ),
                     child: TextField(
                       controller: _passwordController,
@@ -183,6 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               _passwordVisible
                                   ? Icons.visibility
                                   : Icons.visibility_off,
+                              color: _passwordVisible ? boltColor : null,
                             ),
                           )),
                       onSubmitted: (_) {
@@ -197,15 +205,23 @@ class _LoginScreenState extends State<LoginScreen> {
             Row(
               children: [
                 Expanded(
-                  child: FilledButton(
+                  child: ElevatedButton(
                     onPressed: _loading ? null : () => _login(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      foregroundColor: onPrimaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(width: 1, color: dividerColor),
+                      ),
+                    ),
                     child: _loading
                         ? SizedBox(
                             width: 16,
                             height: 16,
                             child: Center(
-                              child: LoadingAnimationWidget.fourRotatingDots(
-                                color: Theme.of(context).colorScheme.primary,
+                              child: LoadingAnimationWidget.threeArchedCircle(
+                                color: boltColor,
                                 size: 16,
                               ),
                             ),
@@ -220,7 +236,10 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 TextButton(
                   onPressed: (() => _skipLogin(context)),
-                  child: const Text('Kontynuuj bez logowania'),
+                  child: const Text(
+                    'Kontynuuj bez logowania',
+                    style: TextStyle(color: onPrimaryColor),
+                  ),
                 ),
               ],
             ),

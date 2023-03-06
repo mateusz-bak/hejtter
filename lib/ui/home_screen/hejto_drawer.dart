@@ -33,24 +33,17 @@ class _HejtoDrawerState extends State<HejtoDrawer> {
   late List<Widget> topDestinations;
   late List<Widget> bottomDestinations;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   List<NavigationDrawerDestination> _prepareTopDestinations() {
-    final primary = Theme.of(context).colorScheme.primary;
-
     return [
-      NavigationDrawerDestination(
-        label: const Text('Strona główna'),
-        icon: const Icon(Icons.newspaper),
-        selectedIcon: Icon(Icons.newspaper, color: primary),
+      const NavigationDrawerDestination(
+        label: Text('Strona główna'),
+        icon: Icon(Icons.newspaper),
+        selectedIcon: Icon(Icons.newspaper, color: boltColor),
       ),
-      NavigationDrawerDestination(
-        label: const Text('Społeczności'),
-        icon: const Icon(Icons.people),
-        selectedIcon: Icon(Icons.people, color: primary),
+      const NavigationDrawerDestination(
+        label: Text('Społeczności'),
+        icon: Icon(Icons.people),
+        selectedIcon: Icon(Icons.people, color: boltColor),
       ),
     ];
   }
@@ -179,6 +172,11 @@ class _HejtoDrawerState extends State<HejtoDrawer> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     topDestinations = _prepareTopDestinations();
     bottomDestinations = _prepareBottomDestinations();
@@ -186,9 +184,10 @@ class _HejtoDrawerState extends State<HejtoDrawer> {
     return NavigationDrawer(
       selectedIndex: _decideSelectedIndex(),
       onDestinationSelected: _changeDestination,
+      backgroundColor: backgroundColor,
       children: [
-        // _buildUserHeader(),
-        const SizedBox(height: 100),
+        _buildHeader(context),
+        const SizedBox(height: 32),
         ...topDestinations,
         const Padding(
           padding: EdgeInsets.fromLTRB(28, 32, 28, 0),
@@ -199,70 +198,29 @@ class _HejtoDrawerState extends State<HejtoDrawer> {
     );
   }
 
-  BlocBuilder<ProfileBloc, ProfileState> _buildUserHeader() {
-    return BlocBuilder<ProfileBloc, ProfileState>(
-      builder: (context, state) {
-        if (state is ProfilePresentState) {
-          final avatar = state.avatar;
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(28, 12, 12, 0),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UserScreen(
-                          userName: state.username,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.all(1),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            child: CachedNetworkImage(
-                              height: 80,
-                              width: 80,
-                              imageUrl: avatar ?? defaultAvatar,
-                              errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        state.username,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(28, 0, 28, 16),
-                child: Divider(),
-              ),
-            ],
-          );
-        } else {
-          return const SizedBox(height: 64);
-        }
-      },
+  DrawerHeader _buildHeader(BuildContext context) {
+    return DrawerHeader(
+      decoration: const BoxDecoration(color: backgroundSecondaryColor),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset(
+              appLogoAsset,
+              fit: BoxFit.cover,
+              height: 80,
+              width: 80,
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Text(
+              'Hejtter',
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+          )
+        ],
+      ),
     );
   }
 }

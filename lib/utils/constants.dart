@@ -7,6 +7,8 @@ const primaryColor = Color(0xff0078AA);
 const onPrimaryColor = Colors.white;
 const dividerColor = Colors.white54;
 
+const appLogoAsset = 'assets/logo.png';
+
 const hejtoUrl = 'www.hejto.pl';
 const hejtoApiUrl = 'api.hejto.pl';
 
