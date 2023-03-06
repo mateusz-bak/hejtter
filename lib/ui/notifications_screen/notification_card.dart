@@ -1,10 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
+import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 
 class NotificationCard extends StatefulWidget {
@@ -119,6 +122,36 @@ class _NotificationCardState extends State<NotificationCard> {
             builder: (_) {
               return PostScreen(
                 slug: slug,
+              );
+            },
+          ),
+        );
+      }
+    } else if (widget.item.resourceName == ResourceName.USER_ACHIEVEMENT) {
+      final profileState = context.read<ProfileBloc>().state;
+
+      if (profileState is ProfilePresentState) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) {
+              return UserScreen(
+                userName: profileState.username,
+              );
+            },
+          ),
+        );
+      }
+    } else if (widget.item.type == Type.SYSTEM) {
+      final profileState = context.read<ProfileBloc>().state;
+
+      if (profileState is ProfilePresentState) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) {
+              return UserScreen(
+                userName: profileState.username,
               );
             },
           ),

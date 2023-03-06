@@ -119,13 +119,20 @@ enum ResourceAction { CREATED }
 
 final resourceActionValues = EnumValues({"created": ResourceAction.CREATED});
 
-enum ResourceName { POST, POST_COMMENT_LIKE, POST_LIKE, POST_COMMENT }
+enum ResourceName {
+  POST,
+  POST_COMMENT_LIKE,
+  POST_LIKE,
+  POST_COMMENT,
+  USER_ACHIEVEMENT
+}
 
 final resourceNameValues = EnumValues({
   "post": ResourceName.POST,
   "post_comment": ResourceName.POST_COMMENT,
   "post_comment_like": ResourceName.POST_COMMENT_LIKE,
-  "post_like": ResourceName.POST_LIKE
+  "post_like": ResourceName.POST_LIKE,
+  "user_achievement": ResourceName.USER_ACHIEVEMENT,
 });
 
 class ResourceParams {
@@ -277,9 +284,12 @@ enum ItemStatus { NEW, READ }
 final itemStatusValues =
     EnumValues({"new": ItemStatus.NEW, "read": ItemStatus.READ});
 
-enum Type { RESOURCE }
+enum Type { RESOURCE, SYSTEM }
 
-final typeValues = EnumValues({"resource": Type.RESOURCE});
+final typeValues = EnumValues({
+  "resource": Type.RESOURCE,
+  "system": Type.SYSTEM,
+});
 
 class UserNotificationLinks {
   UserNotificationLinks({
