@@ -17,11 +17,11 @@ class DefaultPeriodDialog extends StatefulWidget {
 }
 
 class _DefaultPeriodDialogState extends State<DefaultPeriodDialog> {
-  _updatePreferences(PostsPeriod defaultPeriod) {
+  _updatePreferences(PostsCategory defaultPostsCategory) {
     BlocProvider.of<PreferencesBloc>(context).add(
       SetPreferencesEvent(
         showDeepLinkDialog: widget.state.showDeepLinkDialog,
-        defaultHotPeriod: defaultPeriod,
+        defaultPostsCategory: defaultPostsCategory,
         defaultPage: widget.state.defaultPage,
       ),
     );
@@ -53,20 +53,52 @@ class _DefaultPeriodDialogState extends State<DefaultPeriodDialog> {
             ),
             const SizedBox(height: 15),
             SettingsDialogButton(
-              text: '3h',
-              onPressed: () => _updatePreferences(PostsPeriod.threeHours),
+              text: 'Gorące 3h',
+              onPressed: () => _updatePreferences(
+                PostsCategory.hotThreeHours,
+              ),
             ),
             SettingsDialogButton(
-              text: '6h',
-              onPressed: () => _updatePreferences(PostsPeriod.sixHours),
+              text: 'Gorące 6h',
+              onPressed: () => _updatePreferences(
+                PostsCategory.hotSixHours,
+              ),
             ),
             SettingsDialogButton(
-              text: '12h',
-              onPressed: () => _updatePreferences(PostsPeriod.twelveHours),
+              text: 'Gorące 12h',
+              onPressed: () => _updatePreferences(
+                PostsCategory.hotTwelveHours,
+              ),
             ),
             SettingsDialogButton(
-              text: '24h',
-              onPressed: () => _updatePreferences(PostsPeriod.twentyFourHours),
+              text: 'Gorące 24h',
+              onPressed: () => _updatePreferences(
+                PostsCategory.hotTwentyFourHours,
+              ),
+            ),
+            SettingsDialogButton(
+              text: 'Top 7 dni',
+              onPressed: () => _updatePreferences(
+                PostsCategory.topSevenDays,
+              ),
+            ),
+            SettingsDialogButton(
+              text: 'Top 30 dni',
+              onPressed: () => _updatePreferences(
+                PostsCategory.topThirtyDays,
+              ),
+            ),
+            SettingsDialogButton(
+              text: 'Najnowsze',
+              onPressed: () => _updatePreferences(
+                PostsCategory.all,
+              ),
+            ),
+            SettingsDialogButton(
+              text: 'Obserwowane',
+              onPressed: () => _updatePreferences(
+                PostsCategory.followed,
+              ),
             ),
           ],
         ),

@@ -20,7 +20,7 @@ class _DeepLinksDialogState extends State<DeepLinksDialog> {
     BlocProvider.of<PreferencesBloc>(context).add(
       SetPreferencesEvent(
         showDeepLinkDialog: false,
-        defaultHotPeriod: widget.state.defaultHotPeriod,
+        defaultPostsCategory: widget.state.defaultPostsCategory,
         defaultPage: widget.state.defaultPage,
       ),
     );

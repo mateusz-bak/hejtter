@@ -299,9 +299,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
+  _setDefaultConfiguration() {
+    final preferencesState = context.read<PreferencesBloc>().state;
+
+    if (preferencesState is PreferencesSet) {
+      discussionsNavCubit.changeCurrentHejtoPage(preferencesState.defaultPage);
+      discussionsNavCubit.changeCurrentPostsCategoryPage(
+        preferencesState.defaultPostsCategory,
+      );
+    }
+  }
+
   @override
   void initState() {
     _openPostFromDeepLink();
+
+    _setDefaultConfiguration();
 
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);

@@ -132,16 +132,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  String _decideDefaultHotPeriodSubtitle(PostsPeriod defaultPeriod) {
-    switch (defaultPeriod) {
-      case PostsPeriod.threeHours:
-        return '3h';
-      case PostsPeriod.sixHours:
-        return '6h';
-      case PostsPeriod.twelveHours:
-        return '12h';
-      case PostsPeriod.twentyFourHours:
-        return '24h';
+  String _decideDefaultPostsCategorySubtitle(PostsCategory postsCategory) {
+    switch (postsCategory) {
+      case PostsCategory.hotThreeHours:
+        return 'Gorące 3h';
+      case PostsCategory.hotSixHours:
+        return 'Gorące 6h';
+      case PostsCategory.hotTwelveHours:
+        return 'Gorące 12h';
+      case PostsCategory.hotTwentyFourHours:
+        return 'Gorące24h';
+      case PostsCategory.topSevenDays:
+        return 'Top 7 dni';
+      case PostsCategory.topThirtyDays:
+        return 'Top 30 dni';
+      case PostsCategory.all:
+        return 'Najnowsze';
+      case PostsCategory.followed:
+        return 'Obserwowane';
       default:
         return '6h';
     }
@@ -176,7 +184,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   builder: (context, state) {
                     if (state is PreferencesSet) {
                       return TextSetting(
-                        title: 'Strona początkowa',
+                        title: 'Domyślny typ wpisów',
                         subtitle: _decideDefaultPageSubtitle(state.defaultPage),
                         onPressed: (() {
                           showDialog(
@@ -196,9 +204,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   builder: (context, state) {
                     if (state is PreferencesSet) {
                       return TextSetting(
-                        title: 'Domyślny okres gorących',
-                        subtitle: _decideDefaultHotPeriodSubtitle(
-                          state.defaultHotPeriod,
+                        title: 'Domyślny widok postów',
+                        subtitle: _decideDefaultPostsCategorySubtitle(
+                          state.defaultPostsCategory,
                         ),
                         onPressed: (() {
                           showDialog(

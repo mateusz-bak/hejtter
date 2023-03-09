@@ -21,7 +21,7 @@ class _DefaultTabDialogState extends State<DefaultTabDialog> {
     BlocProvider.of<PreferencesBloc>(context).add(
       SetPreferencesEvent(
         showDeepLinkDialog: widget.state.showDeepLinkDialog,
-        defaultHotPeriod: widget.state.defaultHotPeriod,
+        defaultPostsCategory: widget.state.defaultPostsCategory,
         defaultPage: defaultPage,
       ),
     );

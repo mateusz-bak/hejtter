@@ -11,7 +11,7 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
           const PreferencesSet(
             showDeepLinkDialog: true,
             defaultPage: HejtoPage.all,
-            defaultHotPeriod: PostsPeriod.sixHours,
+            defaultPostsCategory: PostsCategory.hotSixHours,
           ),
         ) {
     on<SetPreferencesEvent>((event, emit) {
@@ -19,7 +19,7 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
         PreferencesSet(
           showDeepLinkDialog: event.showDeepLinkDialog,
           defaultPage: event.defaultPage,
-          defaultHotPeriod: event.defaultHotPeriod,
+          defaultPostsCategory: event.defaultPostsCategory,
         ),
       );
     });
@@ -29,7 +29,7 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
   PreferencesState fromJson(Map<String, dynamic> json) {
     final deepLinkDialogDisplayed = json['deep_link_dialog_displayed'] as bool?;
     final defaultPage = json['default_page'] as String?;
-    final defaultHotPeriod = json['default_hot_period'] as String?;
+    final defaultPostsCategory = json['default_posts_category'] as String?;
 
     return PreferencesSet(
       showDeepLinkDialog: deepLinkDialogDisplayed ?? false,
@@ -38,13 +38,23 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
           : defaultPage == 'articles'
               ? HejtoPage.articles
               : HejtoPage.all,
-      defaultHotPeriod: defaultHotPeriod == 'three_hours'
-          ? PostsPeriod.threeHours
-          : defaultHotPeriod == 'twelve_hours'
-              ? PostsPeriod.twelveHours
-              : defaultHotPeriod == 'twenty_four_hours'
-                  ? PostsPeriod.twentyFourHours
-                  : PostsPeriod.sixHours,
+      defaultPostsCategory: defaultPostsCategory == 'hotThreeHours'
+          ? PostsCategory.hotThreeHours
+          : defaultPostsCategory == 'hotSixHours'
+              ? PostsCategory.hotSixHours
+              : defaultPostsCategory == 'hotTwelveHours'
+                  ? PostsCategory.hotTwelveHours
+                  : defaultPostsCategory == 'hotTwentyFourHours'
+                      ? PostsCategory.hotTwentyFourHours
+                      : defaultPostsCategory == 'topSevenDays'
+                          ? PostsCategory.topSevenDays
+                          : defaultPostsCategory == 'topThirtyDays'
+                              ? PostsCategory.topThirtyDays
+                              : defaultPostsCategory == 'all'
+                                  ? PostsCategory.all
+                                  : defaultPostsCategory == 'followed'
+                                      ? PostsCategory.followed
+                                      : PostsCategory.hotSixHours,
     );
   }
 
@@ -60,21 +70,29 @@ class PreferencesBloc extends HydratedBloc<PreferencesEvent, PreferencesState> {
                 : state.defaultPage == HejtoPage.all
                     ? 'all'
                     : null,
-        'default_hot_period': state.defaultHotPeriod == PostsPeriod.threeHours
-            ? 'three_hours'
-            : state.defaultHotPeriod == PostsPeriod.sixHours
-                ? 'six_hours'
-                : state.defaultHotPeriod == PostsPeriod.twelveHours
-                    ? 'twelve_hours'
-                    : state.defaultHotPeriod == PostsPeriod.twentyFourHours
-                        ? 'twenty_four_hours'
-                        : state.defaultHotPeriod == PostsPeriod.sevenDays
-                            ? 'seven_days'
-                            : state.defaultHotPeriod == PostsPeriod.thirtyDays
-                                ? 'thirty_days'
-                                : state.defaultHotPeriod == PostsPeriod.all
-                                    ? 'all'
-                                    : 'null',
+        'default_posts_category':
+            state.defaultPostsCategory == PostsCategory.hotThreeHours
+                ? 'hotThreeHours'
+                : state.defaultPostsCategory == PostsCategory.hotSixHours
+                    ? 'hotSixHours'
+                    : state.defaultPostsCategory == PostsCategory.hotTwelveHours
+                        ? 'hotTwelveHours'
+                        : state.defaultPostsCategory ==
+                                PostsCategory.hotTwentyFourHours
+                            ? 'hotTwentyFourHours'
+                            : state.defaultPostsCategory ==
+                                    PostsCategory.topSevenDays
+                                ? 'topSevenDays'
+                                : state.defaultPostsCategory ==
+                                        PostsCategory.topThirtyDays
+                                    ? 'topThirtyDays'
+                                    : state.defaultPostsCategory ==
+                                            PostsCategory.all
+                                        ? 'all'
+                                        : state.defaultPostsCategory ==
+                                                PostsCategory.followed
+                                            ? 'followed'
+                                            : 'hotSixHours',
       };
     } else {
       return null;
