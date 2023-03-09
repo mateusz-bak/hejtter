@@ -14,6 +14,7 @@ import 'package:hejtter/ui/posts_feed/widgets/widgets.dart';
 import 'package:hejtter/ui/tag_screen/tag_screen.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
+import 'package:hejtter/utils/helpers.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -34,6 +35,7 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard>
     with AutomaticKeepAliveClientMixin {
   late Post? item;
+  Size? _contentSize;
 
   int? _votingOnOption;
 
@@ -524,44 +526,100 @@ class _PostCardState extends State<PostCard>
   Widget _buildContent() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: MarkdownBody(
-        data: _addEmojis(item?.content.toString() ?? ''),
-        styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-          blockquoteDecoration: BoxDecoration(
-            color: Colors.black54,
-            borderRadius: BorderRadius.circular(5),
-          ),
-        ),
-        selectable: true,
-        onTapText: () {
-          if (item == null) return;
+      child: Column(
+        children: [
+          MeasureSize(
+            onChange: (size) {
+              setState(() {
+                _contentSize = size;
+              });
+            },
+            child: Stack(
+              children: [
+                Container(
+                  constraints: const BoxConstraints(maxHeight: 500),
+                  clipBehavior: Clip.hardEdge,
+                  decoration: const BoxDecoration(),
+                  child: MarkdownBody(
+                    data: _addEmojis(item?.content.toString() ?? ''),
+                    styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                        .copyWith(
+                      blockquoteDecoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                    selectable: true,
+                    onTapText: () {
+                      if (item == null) return;
 
-          Navigator.push(context, MaterialPageRoute(builder: (_) {
-            return PostScreen(
-              post: item!,
-              refreshCallback: _refreshPost,
-            );
-          }));
-        },
-        onTapLink: (text, href, title) {
-          if (text[0] == ('#')) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TagScreen(
-                  tag: text.replaceFirst('#', ''),
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        return PostScreen(
+                          post: item!,
+                          refreshCallback: _refreshPost,
+                        );
+                      }));
+                    },
+                    onTapLink: (text, href, title) {
+                      if (text[0] == ('#')) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TagScreen(
+                              tag: text.replaceFirst('#', ''),
+                            ),
+                          ),
+                        );
+
+                        return;
+                      }
+
+                      launchUrl(
+                        Uri.parse(href.toString()),
+                        mode: LaunchMode.externalApplication,
+                      );
+                    },
+                  ),
                 ),
-              ),
-            );
-
-            return;
-          }
-
-          launchUrl(
-            Uri.parse(href.toString()),
-            mode: LaunchMode.externalApplication,
-          );
-        },
+                _contentSize?.height == 500.0
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 300),
+                        child: Container(
+                          height: 200,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black,
+                                Colors.black,
+                              ],
+                              stops: [0, 0.9, 1],
+                            ),
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
+              ],
+            ),
+          ),
+          _contentSize?.height == 500.0
+              ? Row(
+                  children: const [
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
+                        child: Text(
+                          'Pokaż więcej',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : const SizedBox()
+        ],
       ),
     );
   }
