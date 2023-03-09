@@ -979,7 +979,7 @@ class HejtoApi {
     } else {
       _showFlushBar(
         context,
-        'Błąd podczas dodawania komentarza: ${response.statusCode}',
+        'Błąd podczas edycji komentarza: ${response.statusCode}',
       );
       return false;
     }
@@ -1853,6 +1853,60 @@ class HejtoApi {
       _showFlushBar(
         context,
         'Błąd podczas dodawania posta: ${response.statusCode}',
+      );
+      return null;
+    }
+  }
+
+  Future<String?> updatePost({
+    required String slug,
+    required String content,
+    required bool isNsfw,
+    List<PhotoToUpload>? images,
+    required BuildContext context,
+  }) async {
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return null;
+
+    final body = {
+      'content': content,
+      'tags': [],
+      'images': images,
+      'nsfw': isNsfw,
+    };
+
+    HttpClientRequest request = await client.putUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/posts/$slug',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set(HttpHeaders.hostHeader, hejtoApiUrl);
+    request.add(utf8.encode(json.encode(body)));
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 204) {
+      final location = response.headers['location'];
+      return location?[0].replaceAll('/posts/', '');
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return null;
+    } else if (response.statusCode == 429) {
+      _showFlushBar(context, 'Przekroczono limit');
+      return null;
+    } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas edycji posta: ${response.statusCode}',
       );
       return null;
     }

@@ -15,7 +15,10 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({
     Key? key,
-    required this.addPost,
+    this.addPost,
+    this.editPost,
+    this.postSlug,
+    this.editContent,
   }) : super(key: key);
 
   final Future<String?> Function(
@@ -27,7 +30,18 @@ class AddPostScreen extends StatefulWidget {
     String?,
     String?,
     PollToBeCreated?,
-  ) addPost;
+  )? addPost;
+
+  final Future<String?> Function(
+    String,
+    String,
+    bool,
+    List<PhotoToUpload>?,
+    BuildContext,
+  )? editPost;
+
+  final String? postSlug;
+  final String? editContent;
 
   @override
   State<AddPostScreen> createState() => _AddPostScreenState();
@@ -105,7 +119,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
       (match) => "[${match[0]}](/tag/${match[0]?.replaceAll('#', '')})",
     );
 
-    final location = await widget.addPost(
+    final location = await widget.addPost!(
       content,
       _isNsfw,
       _chosenCommunity?.slug ?? 'Dyskusje',
@@ -118,6 +132,42 @@ class _AddPostScreenState extends State<AddPostScreen> {
       _titleController.text,
       _linkController.text,
       _addPoll && _selectedPostType == PostType.DISCUSSION ? poll : null,
+    );
+
+    setState(() {
+      _isPostAdding = false;
+    });
+
+    if (location != null && mounted) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) {
+        return PostScreen(
+          slug: location,
+        );
+      }));
+    }
+  }
+
+  _startUpdatingPost() async {
+    setState(() {
+      _isPostAdding = true;
+    });
+
+    final exp = RegExp(r'(#+[a-zA-Z0-9(_)]{1,})');
+    final String content = _textController.text.replaceAllMapped(
+      exp,
+      (match) => "[${match[0]}](/tag/${match[0]?.replaceAll('#', '')})",
+    );
+
+    final location = await widget.editPost!(
+      widget.postSlug!,
+      content,
+      _isNsfw,
+      ((_selectedPostType == PostType.ARTICLE ||
+                  _selectedPostType == PostType.LINK) &&
+              _postPhotos.isNotEmpty)
+          ? [_postPhotos[0]]
+          : _postPhotos,
+      context,
     );
 
     setState(() {
@@ -204,6 +254,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   Function()? _validatePost() {
+    if (widget.postSlug != null && _isContentMinLength) {
+      return _startUpdatingPost;
+    }
+
     if (_selectedPostType == PostType.DISCUSSION) {
       if (_isPostAdding || _chosenCommunity == null || !_isContentMinLength) {
         return null;
@@ -263,6 +317,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   void initState() {
     super.initState();
+
+    if (widget.editContent != null) {
+      _textController.text = widget.editContent!;
+    }
 
     _textController.addListener(() {
       if (_textController.text.length > 2) {
@@ -366,9 +424,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
       appBar: AppBar(
         scrolledUnderElevation: 0,
         backgroundColor: backgroundColor,
-        title: const Text(
-          'Dodawanie wpisu',
-          style: TextStyle(fontSize: 20),
+        title: Text(
+          widget.postSlug != null ? 'Edytowanie wpisu' : 'Dodawanie wpisu',
+          style: const TextStyle(fontSize: 20),
         ),
       ),
       body: SingleChildScrollView(
@@ -507,58 +565,64 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     color: boltColor,
                     size: 20,
                   )
-                : const Text('Opublikuj wpis'),
+                : Text(
+                    widget.postSlug == null
+                        ? 'Opublikuj wpis'
+                        : 'Aktualizuj wpis',
+                  ),
           ),
         ),
       ],
     );
   }
 
-  Row _buildPostTypeChooser() {
-    return Row(
-      children: [
-        Expanded(
-          child: SegmentedButton<PostType>(
-            selected: <PostType>{_selectedPostType},
-            style: ButtonStyle(
-              shape: MaterialStateProperty.all(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+  Widget _buildPostTypeChooser() {
+    return widget.postSlug == null
+        ? Row(
+            children: [
+              Expanded(
+                child: SegmentedButton<PostType>(
+                  selected: <PostType>{_selectedPostType},
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                    foregroundColor: MaterialStateProperty.all(Colors.white),
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                        if (states.contains(MaterialState.selected)) {
+                          return primaryColor;
+                        }
+                        return backgroundColor;
+                      },
+                    ),
+                  ),
+                  segments: const [
+                    ButtonSegment(
+                      value: PostType.DISCUSSION,
+                      label: FittedBox(child: Text('Dyskusja')),
+                    ),
+                    ButtonSegment(
+                      value: PostType.ARTICLE,
+                      label: FittedBox(child: Text('Artykuł')),
+                    ),
+                    ButtonSegment(
+                      value: PostType.LINK,
+                      label: FittedBox(child: Text('Znalezisko')),
+                    ),
+                  ],
+                  onSelectionChanged: (Set<PostType> newSelection) {
+                    setState(() {
+                      _selectedPostType = newSelection.first;
+                    });
+                  },
                 ),
               ),
-              foregroundColor: MaterialStateProperty.all(Colors.white),
-              backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.selected)) {
-                    return primaryColor;
-                  }
-                  return backgroundColor;
-                },
-              ),
-            ),
-            segments: const [
-              ButtonSegment(
-                value: PostType.DISCUSSION,
-                label: FittedBox(child: Text('Dyskusja')),
-              ),
-              ButtonSegment(
-                value: PostType.ARTICLE,
-                label: FittedBox(child: Text('Artykuł')),
-              ),
-              ButtonSegment(
-                value: PostType.LINK,
-                label: FittedBox(child: Text('Znalezisko')),
-              ),
             ],
-            onSelectionChanged: (Set<PostType> newSelection) {
-              setState(() {
-                _selectedPostType = newSelection.first;
-              });
-            },
-          ),
-        ),
-      ],
-    );
+          )
+        : const SizedBox();
   }
 
   Container _buildPostContent() {
@@ -820,7 +884,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   Widget _buildPollAdding() {
-    if (_selectedPostType != PostType.DISCUSSION) {
+    if (_selectedPostType != PostType.DISCUSSION || widget.postSlug != null) {
       return const SizedBox();
     }
 
@@ -864,46 +928,48 @@ class _AddPostScreenState extends State<AddPostScreen> {
   }
 
   Widget _buildSearchCommunities() {
-    return Row(
-      children: [
-        Expanded(
-          child: GestureDetector(
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return CommunitiesDialog(
-                    controller: _communitiesController,
-                    onCommunityPressed: (item) {
-                      setState(() {
-                        _chosenCommunity = item;
-                        Navigator.of(context).pop();
-                      });
-                    },
-                  );
-                },
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                border: Border.all(color: dividerColor),
-                borderRadius: BorderRadius.circular(10),
-                color: backgroundSecondaryColor,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child:
-                        Text(_chosenCommunity?.name ?? 'Wybierz społeczność'),
+    return widget.postSlug == null
+        ? Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CommunitiesDialog(
+                          controller: _communitiesController,
+                          onCommunityPressed: (item) {
+                            setState(() {
+                              _chosenCommunity = item;
+                              Navigator.of(context).pop();
+                            });
+                          },
+                        );
+                      },
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: dividerColor),
+                      borderRadius: BorderRadius.circular(10),
+                      color: backgroundSecondaryColor,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                              _chosenCommunity?.name ?? 'Wybierz społeczność'),
+                        ),
+                        const Icon(Icons.expand_more)
+                      ],
+                    ),
                   ),
-                  const Icon(Icons.expand_more)
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
-      ],
-    );
+            ],
+          )
+        : const SizedBox();
   }
 }

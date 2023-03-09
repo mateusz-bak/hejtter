@@ -12,6 +12,7 @@ import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/photo_to_upload.dart';
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/add_post_screen/add_post_screen.dart';
 import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/models/comments_response.dart';
 import 'package:hejtter/ui/post_screen/widgets.dart/widgets.dart';
@@ -415,9 +416,42 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
+  _editPost() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) {
+        return AddPostScreen(
+          editPost: (String slug, String content, bool isNsfw,
+              List<PhotoToUpload>? images, BuildContext context) async {
+            final result = await hejtoApi.updatePost(
+              slug: slug,
+              content: content,
+              isNsfw: isNsfw,
+              images: images,
+              context: context,
+            );
+
+            if (result != null) {
+              Navigator.of(context).pop();
+              _refreshPostAndComments();
+
+              if (widget.refreshCallback != null) {
+                widget.refreshCallback!();
+              }
+            }
+          },
+          postSlug: widget.post?.slug ?? widget.slug,
+          editContent: post.content,
+        );
+      }));
+    });
+  }
+
   _setMoreOptionsButtons(bool isCurrentUsersPost) {
     if (isCurrentUsersPost) {
+      moreButtonOptionsFavorited.add('Edytuj');
       moreButtonOptionsFavorited.add('Usuń');
+
+      moreButtonOptionsNotFavorited.add('Edytuj');
       moreButtonOptionsNotFavorited.add('Usuń');
     }
 
@@ -730,6 +764,8 @@ class _PostScreenState extends State<PostScreen> {
                     _reportPost();
                   } else if (choice == 'Usuń') {
                     _removePost();
+                  } else if (choice == 'Edytuj') {
+                    _editPost();
                   }
                 },
               );
