@@ -6,6 +6,7 @@ import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/services/hejto_api.dart';
+import 'package:hejtter/ui/observed_screen/observed_screen.dart';
 import 'package:hejtter/ui/settings_screen/widgets/widgets.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
@@ -301,6 +302,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: 'Konto',
                 leading: Icons.person,
               ),
+              _buildObservedTags(),
+              _buildBlockedTags(),
+              _buildObservedCommunities(),
+              _buildBlockedCommunities(),
               _buildShowNSFW(),
               _buildBlurNSFW(),
               _buildShowControversial(),
@@ -510,6 +515,106 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return const SizedBox();
         }
       },
+    );
+  }
+
+  Widget _buildObservedTags() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(48, 16, 16, 16),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) {
+            return const ObservedScreen(
+              getTags: true,
+            );
+          }));
+        },
+        child: Row(
+          children: const [
+            Expanded(
+              child: Text(
+                'Pokaż obserwowane tagi',
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBlockedTags() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(48, 16, 16, 16),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) {
+            return const ObservedScreen(
+              getBlockedTags: true,
+            );
+          }));
+        },
+        child: Row(
+          children: const [
+            Expanded(
+              child: Text(
+                'Pokaż zablokowane tagi',
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildObservedCommunities() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(48, 16, 16, 16),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) {
+            return const ObservedScreen(
+              getCommunities: true,
+            );
+          }));
+        },
+        child: Row(
+          children: const [
+            Expanded(
+              child: Text(
+                'Pokaż Twoje społeczności',
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBlockedCommunities() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(48, 16, 16, 16),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) {
+            return const ObservedScreen(
+              getBlockedCommunities: true,
+            );
+          }));
+        },
+        child: Row(
+          children: const [
+            Expanded(
+              child: Text(
+                'Pokaż zablokowane społeczności',
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

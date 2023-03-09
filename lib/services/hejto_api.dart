@@ -399,6 +399,8 @@ class HejtoApi {
     required BuildContext context,
     String query = '',
     required String orderBy,
+    bool? followed,
+    bool? blocked,
   }) async {
     final accessToken = await _getAccessToken(context);
 
@@ -408,6 +410,18 @@ class HejtoApi {
       'orderBy': orderBy,
       'query': query,
     };
+
+    if (followed != null) {
+      queryParameters.addEntries(
+        <String, String>{'followed': followed == true ? '1' : '0'}.entries,
+      );
+    }
+
+    if (blocked != null) {
+      queryParameters.addEntries(
+        <String, String>{'blocked': blocked == true ? '1' : '0'}.entries,
+      );
+    }
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
@@ -437,11 +451,13 @@ class HejtoApi {
           ?.items;
     } else if (response.statusCode == 401) {
       _loginAgainWithSavedCredentials(context);
+      return null;
     } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania tagów: ${response.statusCode}',
       );
+      return null;
     }
   }
 
@@ -919,6 +935,8 @@ class HejtoApi {
     required int pageSize,
     required BuildContext context,
     String query = '',
+    bool? belonged,
+    bool? blocked,
   }) async {
     final accessToken = await _getAccessToken(context);
 
@@ -929,6 +947,18 @@ class HejtoApi {
       'orderDir': 'desc',
       'query': query,
     };
+
+    if (belonged != null) {
+      queryParameters.addEntries(
+        <String, String>{'belonged': belonged == true ? '1' : '0'}.entries,
+      );
+    }
+
+    if (blocked != null) {
+      queryParameters.addEntries(
+        <String, String>{'blocked': blocked == true ? '1' : '0'}.entries,
+      );
+    }
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
@@ -956,11 +986,13 @@ class HejtoApi {
       return communitiesResponseFromJson(stringData).embedded?.items;
     } else if (response.statusCode == 401) {
       _loginAgainWithSavedCredentials(context);
+      return null;
     } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania społeczności: ${response.statusCode}',
       );
+      return null;
     }
   }
 
