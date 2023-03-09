@@ -99,8 +99,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
       options: pollOptions,
     );
 
+    final exp = RegExp(r'(#+[a-zA-Z0-9(_)]{1,})');
+    final String content = _textController.text.replaceAllMapped(
+      exp,
+      (match) => "[${match[0]}](/tag/${match[0]?.replaceAll('#', '')})",
+    );
+
     final location = await widget.addPost(
-      _textController.text,
+      content,
       _isNsfw,
       _chosenCommunity?.slug ?? 'Dyskusje',
       ((_selectedPostType == PostType.ARTICLE ||
