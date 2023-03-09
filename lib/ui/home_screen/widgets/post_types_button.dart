@@ -64,6 +64,7 @@ class _PostTypesButtonState extends State<PostTypesButton> {
         ),
       ),
       child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
         onTap: widget.onPressed,
         child: Row(
           mainAxisSize: MainAxisSize.min,
