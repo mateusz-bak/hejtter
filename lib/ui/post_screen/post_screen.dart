@@ -35,12 +35,14 @@ class PostScreen extends StatefulWidget {
     this.post,
     this.slug,
     this.refreshCallback,
+    this.refreshCommentCallback,
     Key? key,
   }) : super(key: key);
 
   final Post? post;
   final String? slug;
   final Function()? refreshCallback;
+  final Function(String?, bool)? refreshCommentCallback;
 
   @override
   State<PostScreen> createState() => _PostScreenState();
@@ -956,6 +958,7 @@ class _PostScreenState extends State<PostScreen> {
               comment: item,
               respondToUser: _respondToUser,
               isOP: item.author?.username == post.author?.username,
+              refreshCommentCallback: widget.refreshCommentCallback,
               refreshPost: () async {
                 await _refreshPostAndComments();
                 await Future.delayed(const Duration(milliseconds: 500));

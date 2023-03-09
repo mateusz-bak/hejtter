@@ -23,11 +23,13 @@ class CommentInPostCard extends StatelessWidget {
     required this.postItem,
     super.key,
     required this.refreshCallback,
+    required this.refreshCommentCallback,
   });
 
   final CommentItem comment;
   final Post postItem;
   final Function() refreshCallback;
+  final Function(String?, bool) refreshCommentCallback;
 
   _goToUserScreen(BuildContext context) {
     Navigator.push(
@@ -41,19 +43,27 @@ class CommentInPostCard extends StatelessWidget {
   }
 
   Future<void> _likeComment(BuildContext context) async {
-    await hejtoApi.likeComment(
+    final result = await hejtoApi.likeComment(
       postSlug: comment.postSlug,
       commentUUID: comment.uuid,
       context: context,
     );
+
+    if (result) {
+      refreshCommentCallback(comment.uuid, true);
+    }
   }
 
   Future<void> _unlikeComment(BuildContext context) async {
-    await hejtoApi.unlikeComment(
+    final result = await hejtoApi.unlikeComment(
       postSlug: comment.postSlug,
       commentUUID: comment.uuid,
       context: context,
     );
+
+    if (result) {
+      refreshCommentCallback(comment.uuid, false);
+    }
   }
 
   _setTimeAgoLocale() {
@@ -141,6 +151,7 @@ class CommentInPostCard extends StatelessWidget {
               return PostScreen(
                 post: postItem,
                 refreshCallback: refreshCallback,
+                refreshCommentCallback: refreshCommentCallback,
               );
             }));
           },

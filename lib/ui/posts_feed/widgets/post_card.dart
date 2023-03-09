@@ -4,6 +4,7 @@ import 'package:dart_emoji/dart_emoji.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:hejtter/models/comments_response.dart';
 
 import 'package:hejtter/models/post.dart';
 import 'package:hejtter/services/hejto_api.dart';
@@ -39,6 +40,8 @@ class _PostCardState extends State<PostCard>
 
   int? _votingOnOption;
 
+  List<CommentItem>? _comments;
+
   _goToUserScreen() {
     Navigator.push(
       context,
@@ -68,6 +71,38 @@ class _PostCardState extends State<PostCard>
     setState(() {
       item = newItem?.slug != null ? newItem : null;
     });
+  }
+
+  _refreshComment(String? uuid, bool newValue) async {
+    if (_comments != null && _comments!.isNotEmpty) {
+      final oldCommentIndex = _comments!.indexWhere(
+        (element) => element.uuid == uuid,
+      );
+
+      final oldComment = _comments![oldCommentIndex];
+
+      final newComments = _comments;
+
+      newComments![oldCommentIndex] = CommentItem(
+        postSlug: oldComment.postSlug,
+        content: oldComment.content,
+        contentPlain: oldComment.contentPlain,
+        author: oldComment.author,
+        images: oldComment.images,
+        numLikes: oldComment.numLikes != null
+            ? oldComment.numLikes! + (newValue ? 1 : -1)
+            : null,
+        interactions: oldComment.interactions,
+        createdAt: oldComment.createdAt,
+        uuid: oldComment.uuid,
+        links: oldComment.links,
+        isLiked: newValue,
+      );
+
+      setState(() {
+        _comments = newComments;
+      });
+    }
   }
 
   Future<void> _likePost(BuildContext context) async {
@@ -155,6 +190,8 @@ class _PostCardState extends State<PostCard>
   void initState() {
     super.initState();
     item = widget.item;
+
+    _comments = widget.item.comments;
   }
 
   @override
@@ -172,9 +209,9 @@ class _PostCardState extends State<PostCard>
 
           Navigator.push(context, MaterialPageRoute(builder: (_) {
             return PostScreen(
-              post: item!,
-              refreshCallback: _refreshPost,
-            );
+                post: item!,
+                refreshCallback: _refreshPost,
+                refreshCommentCallback: _refreshComment);
           }));
         },
         child: Card(
@@ -344,9 +381,9 @@ class _PostCardState extends State<PostCard>
                   onTapText: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) {
                       return PostScreen(
-                        post: item!,
-                        refreshCallback: _refreshPost,
-                      );
+                          post: item!,
+                          refreshCallback: _refreshPost,
+                          refreshCommentCallback: _refreshComment);
                     }));
                   },
                   onTapLink: (text, href, title) {
@@ -412,9 +449,8 @@ class _PostCardState extends State<PostCard>
     );
   }
 
-  //TODO: widget.item should be just item (get post details returns empty comments section)
   Widget _buildComments() {
-    if (widget.item.comments != null && widget.item.comments!.isNotEmpty) {
+    if (_comments != null && _comments!.isNotEmpty) {
       return Container(
         decoration: const BoxDecoration(
           color: backgroundColor,
@@ -429,24 +465,27 @@ class _PostCardState extends State<PostCard>
           children: [
             const SizedBox(height: 15),
             CommentInPostCard(
-              comment: widget.item.comments![0],
+              comment: _comments![0],
               postItem: widget.item,
               refreshCallback: _refreshPost,
+              refreshCommentCallback: _refreshComment,
             ),
-            SizedBox(height: widget.item.comments!.length > 1 ? 10 : 0),
-            widget.item.comments!.length > 1
+            SizedBox(height: _comments!.length > 1 ? 10 : 0),
+            _comments!.length > 1
                 ? CommentInPostCard(
-                    comment: widget.item.comments![1],
+                    comment: _comments![1],
                     postItem: widget.item,
                     refreshCallback: _refreshPost,
+                    refreshCommentCallback: _refreshComment,
                   )
                 : const SizedBox(),
-            SizedBox(height: widget.item.comments!.length > 2 ? 10 : 0),
-            widget.item.comments!.length > 2
+            SizedBox(height: _comments!.length > 2 ? 10 : 0),
+            _comments!.length > 2
                 ? CommentInPostCard(
-                    comment: widget.item.comments![2],
+                    comment: _comments![2],
                     postItem: widget.item,
                     refreshCallback: _refreshPost,
+                    refreshCommentCallback: _refreshComment,
                   )
                 : const SizedBox(),
             const SizedBox(height: 10),
@@ -553,12 +592,15 @@ class _PostCardState extends State<PostCard>
                     onTapText: () {
                       if (item == null) return;
 
-                      Navigator.push(context, MaterialPageRoute(builder: (_) {
-                        return PostScreen(
-                          post: item!,
-                          refreshCallback: _refreshPost,
-                        );
-                      }));
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (_) {
+                          return PostScreen(
+                            post: item!,
+                            refreshCallback: _refreshPost,
+                            refreshCommentCallback: _refreshComment,
+                          );
+                        },
+                      ));
                     },
                     onTapLink: (text, href, title) {
                       if (text[0] == ('#')) {

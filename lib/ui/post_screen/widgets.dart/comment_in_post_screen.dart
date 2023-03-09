@@ -24,6 +24,7 @@ class CommentInPostScreen extends StatefulWidget {
     required this.respondToUser,
     required this.refreshPost,
     required this.isOP,
+    this.refreshCommentCallback,
     super.key,
   });
 
@@ -31,6 +32,7 @@ class CommentInPostScreen extends StatefulWidget {
   final Function(String?) respondToUser;
   final Function() refreshPost;
   final bool isOP;
+  final Function(String?, bool)? refreshCommentCallback;
 
   @override
   State<CommentInPostScreen> createState() => _CommentInPostScreenState();
@@ -96,6 +98,10 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
       setState(() {
         comment = newComment;
       });
+
+      if (widget.refreshCommentCallback != null) {
+        widget.refreshCommentCallback!(comment?.uuid, true);
+      }
     }
   }
 
@@ -112,6 +118,10 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
       setState(() {
         comment = newComment;
       });
+
+      if (widget.refreshCommentCallback != null) {
+        widget.refreshCommentCallback!(comment?.uuid, false);
+      }
     }
   }
 
