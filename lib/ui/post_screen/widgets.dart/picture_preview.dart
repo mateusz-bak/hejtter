@@ -45,11 +45,15 @@ class _PicturePreviewState extends State<PicturePreview> {
       child: GestureDetector(
         onTap: widget.openOnTap
             ? () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) {
-                  return PictureFullScreen(
-                    imagesUrls: widget.imagesUrls,
-                  );
-                }));
+                showModalBottomSheet(
+                    useSafeArea: true,
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (_) {
+                      return PictureFullScreen(
+                        imagesUrls: widget.imagesUrls,
+                      );
+                    });
               }
             : null,
         child: Stack(
