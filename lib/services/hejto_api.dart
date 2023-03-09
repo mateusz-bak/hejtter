@@ -43,7 +43,7 @@ class HejtoApi {
     late Flushbar flush;
     flush = Flushbar(
       message: msg,
-      duration: const Duration(seconds: 8),
+      duration: const Duration(seconds: 3),
       margin: const EdgeInsets.all(10),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
       borderRadius: BorderRadius.circular(8),
@@ -51,7 +51,7 @@ class HejtoApi {
         Icons.error,
         color: Colors.red,
       ),
-      animationDuration: const Duration(milliseconds: 500),
+      animationDuration: const Duration(milliseconds: 250),
       mainButton: TextButton(
         onPressed: () {
           flush.dismiss(true);
@@ -64,6 +64,8 @@ class HejtoApi {
   }
 
   _loginAgainWithSavedCredentials(BuildContext context) {
+    _showFlushBar(context, 'Ponowne logowanie');
+
     BlocProvider.of<AuthBloc>(context).add(
       const LogInWithSavedCredentialsAuthEvent(),
     );

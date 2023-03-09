@@ -173,6 +173,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       }
     } catch (error) {
       _pagingController.error = error;
+
+      await Future.delayed(const Duration(seconds: 1));
+      _pagingController.retryLastFailedRequest();
     }
 
     BlocProvider.of<NewNotificationsBloc>(context).add(

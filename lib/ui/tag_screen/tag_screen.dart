@@ -64,6 +64,9 @@ class _TagScreenState extends State<TagScreen> {
       }
     } catch (error) {
       _pagingController.error = error;
+
+      await Future.delayed(const Duration(seconds: 1));
+      _pagingController.retryLastFailedRequest();
     }
   }
 
