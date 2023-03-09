@@ -64,7 +64,7 @@ class HejtoApi {
   }
 
   _loginAgainWithSavedCredentials(BuildContext context) {
-    _showFlushBar(context, 'Ponowne logowanie');
+    _showFlushBar(context, 'Nie wyczymie, znowu wylogowało');
 
     BlocProvider.of<AuthBloc>(context).add(
       const LogInWithSavedCredentialsAuthEvent(),
@@ -919,6 +919,59 @@ class HejtoApi {
     _saveCookiesFromResponse(response);
 
     if (response.statusCode == 201) {
+      return true;
+    } else if (response.statusCode == 401) {
+      _loginAgainWithSavedCredentials(context);
+      return false;
+    } else {
+      _showFlushBar(
+        context,
+        'Błąd podczas dodawania komentarza: ${response.statusCode}',
+      );
+      return false;
+    }
+  }
+
+  Future<bool> updateComment({
+    required String? slug,
+    required String commentUUID,
+    required String content,
+    required BuildContext context,
+    List<PhotoToUpload>? images,
+  }) async {
+    if (slug == null) return false;
+
+    final accessToken = await _getAccessToken(context);
+    if (accessToken == null) return false;
+
+    final body = <String, Object?>{
+      'content': content,
+    };
+
+    if (images != null) {
+      body.addEntries(<String, dynamic>{
+        'images': images,
+      }.entries);
+    }
+
+    HttpClientRequest request = await client.putUrl(
+      Uri.https(
+        hejtoApiUrl,
+        '/posts/$slug/comments/$commentUUID',
+      ),
+    );
+
+    request = await _addCookiesToRequest(request);
+
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $accessToken');
+    request.headers.set('content-type', 'application/json');
+    request.add(utf8.encode(json.encode(body)));
+
+    HttpClientResponse response = await request.close();
+
+    _saveCookiesFromResponse(response);
+
+    if (response.statusCode == 204) {
       return true;
     } else if (response.statusCode == 401) {
       _loginAgainWithSavedCredentials(context);

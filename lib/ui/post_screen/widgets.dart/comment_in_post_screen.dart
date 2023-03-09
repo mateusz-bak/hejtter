@@ -25,6 +25,7 @@ class CommentInPostScreen extends StatefulWidget {
     required this.refreshPost,
     required this.isOP,
     this.refreshCommentCallback,
+    this.editComment,
     super.key,
   });
 
@@ -33,6 +34,7 @@ class CommentInPostScreen extends StatefulWidget {
   final Function() refreshPost;
   final bool isOP;
   final Function(String?, bool)? refreshCommentCallback;
+  final Function(String?, String?)? editComment;
 
   @override
   State<CommentInPostScreen> createState() => _CommentInPostScreenState();
@@ -42,7 +44,7 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
   CommentItem? comment;
 
   final moreButtonOptions = {
-    // 'Edytuj',
+    'Edytuj',
     'Usuń',
   };
 
@@ -215,7 +217,9 @@ class _CommentInPostScreenState extends State<CommentInPostScreen> {
                   child: Text(choice),
                   onTap: () {
                     if (choice == 'Edytuj') {
-                      // _editComment();
+                      if (widget.editComment != null) {
+                        widget.editComment!(comment?.uuid, comment?.content);
+                      }
                     } else if (choice == 'Usuń') {
                       _removeComment();
                     }

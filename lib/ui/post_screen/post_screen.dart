@@ -67,6 +67,7 @@ class _PostScreenState extends State<PostScreen> {
   int? _votingOnOption;
 
   bool _isCommentSending = false;
+  String? _editingCommentUUID;
 
   final moreButtonOptionsFavorited = {
     'Usuń z ulubionych',
@@ -215,12 +216,24 @@ class _PostScreenState extends State<PostScreen> {
     if (message.isNotEmpty) {
       FocusScope.of(context).unfocus();
 
-      final commentCreated = await hejtoApi.addComment(
-        slug: post.slug,
-        content: _commentController.text,
-        context: context,
-        images: _postPhotos,
-      );
+      late bool commentCreated;
+
+      if (_editingCommentUUID != null) {
+        commentCreated = await hejtoApi.updateComment(
+          slug: post.slug,
+          commentUUID: _editingCommentUUID!,
+          content: _commentController.text,
+          context: context,
+          images: _postPhotos,
+        );
+      } else {
+        commentCreated = await hejtoApi.addComment(
+          slug: post.slug,
+          content: _commentController.text,
+          context: context,
+          images: _postPhotos,
+        );
+      }
 
       if (commentCreated) {
         setState(() {
@@ -230,12 +243,19 @@ class _PostScreenState extends State<PostScreen> {
         focusNode.unfocus();
 
         await _refreshPostAndComments();
-        await Future.delayed(const Duration(milliseconds: 500));
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.ease,
-        );
+
+        if (_editingCommentUUID == null) {
+          await Future.delayed(const Duration(milliseconds: 500));
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.ease,
+          );
+        }
+
+        setState(() {
+          _editingCommentUUID = null;
+        });
       }
 
       _commentController.clear();
@@ -271,6 +291,17 @@ class _PostScreenState extends State<PostScreen> {
     _commentController.selection = TextSelection.fromPosition(
       TextPosition(offset: _commentController.text.length),
     );
+  }
+
+  _openEditComment(String? uuid, String? content) async {
+    if (uuid == null || content == null) return;
+    focusNode.requestFocus();
+
+    setState(() {
+      _editingCommentUUID = uuid;
+    });
+
+    _commentController.text = content;
   }
 
   _addPostToFavorites() async {
@@ -588,6 +619,32 @@ class _PostScreenState extends State<PostScreen> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _editingCommentUUID != null
+              ? Padding(
+                  padding: const EdgeInsets.only(bottom: 16, right: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Edytuj komentarz:'),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _editingCommentUUID = null;
+                          });
+
+                          _commentController.text = '';
+
+                          FocusScope.of(context).unfocus();
+                        },
+                        child: const Icon(
+                          Icons.cancel,
+                          color: Colors.red,
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              : const SizedBox(),
           Row(
             children: [
               Expanded(
@@ -957,6 +1014,7 @@ class _PostScreenState extends State<PostScreen> {
             return CommentInPostScreen(
               comment: item,
               respondToUser: _respondToUser,
+              editComment: _openEditComment,
               isOP: item.author?.username == post.author?.username,
               refreshCommentCallback: widget.refreshCommentCallback,
               refreshPost: () async {
