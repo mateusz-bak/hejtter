@@ -117,7 +117,9 @@ class UserCard extends StatelessWidget {
                               fit: BoxFit.cover,
                               placeholder: (context, url) {
                                 return LoadingAnimationWidget.threeArchedCircle(
-                                    color: boltColor, size: 14);
+                                  color: boltColor,
+                                  size: 14,
+                                );
                               },
                             ),
                           ),

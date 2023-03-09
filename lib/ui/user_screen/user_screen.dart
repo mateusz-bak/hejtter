@@ -8,6 +8,7 @@ import 'package:hejtter/models/user_details_response.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/posts_feed/widgets/widgets.dart';
 import 'package:hejtter/ui/user_screen/widgets/widgets.dart';
+import 'package:hejtter/utils/constants.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -293,8 +294,8 @@ class _UserScreenState extends State<UserScreen> {
           return Padding(
             padding: const EdgeInsets.all(10),
             child: Center(
-              child: LoadingAnimationWidget.fourRotatingDots(
-                color: Theme.of(context).colorScheme.primary,
+              child: LoadingAnimationWidget.threeArchedCircle(
+                color: boltColor,
                 size: 24,
               ),
             ),

@@ -8,6 +8,7 @@ const onPrimaryColor = Colors.white;
 const dividerColor = Colors.white54;
 
 const appLogoAsset = 'assets/logo.png';
+const hejtterCommunitySlug = 'hejtter';
 
 const hejtoUrl = 'www.hejto.pl';
 const hejtoApiUrl = 'api.hejto.pl';
@@ -34,3 +35,6 @@ const reportReasonDesc = [
   'Publikowanie prywatnych informacji lub zdjęć osób bez ich zgody.',
   'Zachowania utrudniające korzystanie z serwisu innym użytkownikom.',
 ];
+
+// Strings
+const appName = 'Hejtter';

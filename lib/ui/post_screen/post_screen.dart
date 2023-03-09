@@ -540,8 +540,8 @@ class _PostScreenState extends State<PostScreen> {
         extendBodyBehindAppBar: true,
         backgroundColor: backgroundColor,
         body: Center(
-          child: LoadingAnimationWidget.fourRotatingDots(
-            color: Theme.of(context).colorScheme.primary,
+          child: LoadingAnimationWidget.threeArchedCircle(
+            color: boltColor,
             size: 24,
           ),
         ),

@@ -7,6 +7,7 @@ import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/ui/communities_screen/communities_screen.dart';
 import 'package:hejtter/ui/community_screen/community_screen.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
+import 'package:hejtter/ui/home_screen/widgets/widgets.dart';
 import 'package:hejtter/ui/login_screen/login_screen.dart';
 import 'package:hejtter/ui/settings_screen/settings_screen.dart';
 import 'package:hejtter/utils/constants.dart';
@@ -25,137 +26,6 @@ class HejtoDrawer extends StatefulWidget {
 }
 
 class _HejtoDrawerState extends State<HejtoDrawer> {
-  late List<Widget> topDestinations;
-  late List<Widget> bottomDestinations;
-
-  List<NavigationDrawerDestination> _prepareTopDestinations() {
-    return [
-      const NavigationDrawerDestination(
-        label: Text('Strona główna'),
-        icon: Icon(Icons.newspaper),
-        selectedIcon: Icon(Icons.newspaper, color: boltColor),
-      ),
-      const NavigationDrawerDestination(
-        label: Text('Społeczności'),
-        icon: Icon(Icons.people),
-        selectedIcon: Icon(Icons.people, color: boltColor),
-      ),
-    ];
-  }
-
-  List<NavigationDrawerDestination> _prepareBottomDestinations() {
-    return [
-      NavigationDrawerDestination(
-        label: const Text('Społeczność Hejtter'),
-        icon: ClipRRect(
-          borderRadius: BorderRadius.circular(100),
-          child: Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(1),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(100),
-              child: CachedNetworkImage(
-                height: 22,
-                width: 22,
-                imageUrl: hejtterAvatar,
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
-            ),
-          ),
-        ),
-      ),
-      const NavigationDrawerDestination(
-        label: Text('Ustawienia'),
-        icon: Icon(Icons.settings),
-      ),
-      NavigationDrawerDestination(
-        label: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is AuthorizedAuthState) {
-              return const Text('Wyloguj się');
-            } else {
-              return const Text('Zaloguj się');
-            }
-          },
-        ),
-        icon: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is AuthorizedAuthState) {
-              return const Icon(Icons.logout);
-            } else {
-              return const Icon(Icons.login);
-            }
-          },
-        ),
-      ),
-    ];
-  }
-
-  int? _decideSelectedIndex() {
-    if (widget.currentScreen == CurrentScreen.home) {
-      return 0;
-    } else if (widget.currentScreen == CurrentScreen.communities) {
-      return 1;
-    }
-
-    return null;
-  }
-
-  _changeDestination(value) {
-    switch (value) {
-      case 0:
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-          (Route<dynamic> route) => false,
-        );
-        break;
-      case 1:
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const CommunitiesScreen()),
-          (Route<dynamic> route) => false,
-        );
-        break;
-      case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const CommunityScreen(
-              communitySlug: 'hejtter',
-            ),
-          ),
-        );
-        break;
-      case 3:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const SettingsScreen(),
-          ),
-        );
-        break;
-      case 4:
-        if (context.read<AuthBloc>().state is AuthorizedAuthState) {
-          _clearPresentLogin();
-
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const LoginScreen(),
-            ),
-            (Route<dynamic> route) => false,
-          );
-        } else {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const LoginScreen(),
-            ),
-            (Route<dynamic> route) => false,
-          );
-        }
-
-        break;
-    }
-  }
-
   _clearPresentLogin() {
     BlocProvider.of<AuthBloc>(context).add(
       const LogOutAuthEvent(),
@@ -173,29 +43,35 @@ class _HejtoDrawerState extends State<HejtoDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    topDestinations = _prepareTopDestinations();
-    bottomDestinations = _prepareBottomDestinations();
-
-    return NavigationDrawer(
-      selectedIndex: _decideSelectedIndex(),
-      onDestinationSelected: _changeDestination,
-      backgroundColor: backgroundColor,
-      children: [
-        _buildHeader(context),
-        const SizedBox(height: 32),
-        ...topDestinations,
-        const Padding(
-          padding: EdgeInsets.fromLTRB(28, 32, 28, 0),
-          child: Divider(),
+    return Drawer(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(20),
         ),
-        ...bottomDestinations,
-      ],
+        child: Column(
+          children: [
+            _buildHeader(context),
+            const SizedBox(height: 16),
+            ..._buildTopDestinations(),
+            const Spacer(),
+            ..._buildBottomDestinations(),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
     );
   }
 
   DrawerHeader _buildHeader(BuildContext context) {
     return DrawerHeader(
-      decoration: const BoxDecoration(color: backgroundSecondaryColor),
+      decoration: const BoxDecoration(
+        color: backgroundSecondaryColor,
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(20),
+        ),
+      ),
       child: Row(
         children: [
           ClipRRect(
@@ -210,12 +86,139 @@ class _HejtoDrawerState extends State<HejtoDrawer> {
           const SizedBox(width: 20),
           Expanded(
             child: Text(
-              'Hejtter',
-              style: Theme.of(context).textTheme.headlineLarge,
+              appName,
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineLarge
+                  ?.copyWith(letterSpacing: 4),
             ),
           )
         ],
       ),
     );
+  }
+
+  List<Widget> _buildTopDestinations() {
+    return [
+      DrawerDestination(
+        icon: const Icon(Icons.newspaper),
+        text: 'Strona główna',
+        current: widget.currentScreen == CurrentScreen.home,
+        onTap: () {
+          if (widget.currentScreen == CurrentScreen.communities) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+              (Route<dynamic> route) => false,
+            );
+          } else {
+            Navigator.of(context).pop();
+          }
+        },
+      ),
+      DrawerDestination(
+        icon: const Icon(Icons.people),
+        text: 'Społeczności',
+        current: widget.currentScreen == CurrentScreen.communities,
+        onTap: () {
+          if (widget.currentScreen == CurrentScreen.home) {
+            Navigator.of(context).pop();
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CommunitiesScreen(),
+              ),
+            );
+          } else {
+            Navigator.of(context).pop();
+          }
+        },
+      ),
+    ];
+  }
+
+  List<Widget> _buildBottomDestinations() {
+    return [
+      DrawerDestination(
+        text: 'Społeczność Hejtter',
+        icon: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(1),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: CachedNetworkImage(
+                height: 22,
+                width: 22,
+                imageUrl: hejtterAvatar,
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
+          ),
+        ),
+        onTap: () {
+          Navigator.of(context).pop();
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CommunityScreen(
+                communitySlug: hejtterCommunitySlug,
+              ),
+            ),
+          );
+        },
+      ),
+      DrawerDestination(
+        text: 'Ustawienia',
+        icon: const Icon(Icons.settings),
+        onTap: () {
+          Navigator.of(context).pop();
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SettingsScreen(),
+            ),
+          );
+        },
+      ),
+      BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          if (state is AuthorizedAuthState) {
+            return DrawerDestination(
+              text: 'Wyloguj się',
+              icon: const Icon(Icons.logout),
+              current: false,
+              onTap: () {
+                _clearPresentLogin();
+
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                  (Route<dynamic> route) => false,
+                );
+              },
+            );
+          } else {
+            return DrawerDestination(
+              text: 'Zaloguj się',
+              icon: const Icon(Icons.login),
+              current: false,
+              onTap: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                  (Route<dynamic> route) => false,
+                );
+              },
+            );
+          }
+        },
+      ),
+    ];
   }
 }

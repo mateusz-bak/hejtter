@@ -102,8 +102,8 @@ class _CommunitiesDialogState extends State<CommunitiesDialog> {
                   )
                 : Padding(
                     padding: const EdgeInsets.only(top: 30),
-                    child: LoadingAnimationWidget.fourRotatingDots(
-                      color: Theme.of(context).colorScheme.primary,
+                    child: LoadingAnimationWidget.threeArchedCircle(
+                      color: boltColor,
                       size: 32,
                     ),
                   ),

@@ -4,3 +4,4 @@ export 'hejto_drawer.dart';
 export 'hejto_pages_menu.dart';
 export 'post_categories_menu.dart';
 export 'post_types_button.dart';
+export 'drawer_destination.dart';

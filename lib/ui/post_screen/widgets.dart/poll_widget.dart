@@ -230,6 +230,7 @@ class PollWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.grey.withOpacity(0.4),
+                border: Border.all(color: dividerColor, width: 1),
               ),
             ),
           ),
