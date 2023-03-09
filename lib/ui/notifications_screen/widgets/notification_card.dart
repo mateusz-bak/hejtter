@@ -3,6 +3,7 @@ import 'package:dart_emoji/dart_emoji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:hejtter/logic/bloc/new_notificationsbloc/new_notifications_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/services/hejto_api.dart';
@@ -158,6 +159,10 @@ class _NotificationCardState extends State<NotificationCard> {
         );
       }
     }
+
+    BlocProvider.of<NewNotificationsBloc>(context).add(
+      GetNotificationsEvent(context: context),
+    );
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
+import 'package:hejtter/logic/bloc/new_notificationsbloc/new_notifications_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/logic/cubit/discussions_nav_cubit.dart';
@@ -172,6 +173,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       log(error.toString());
       _pagingController.error = error;
     }
+
+    BlocProvider.of<NewNotificationsBloc>(context).add(
+      GetNotificationsEvent(context: context),
+    );
   }
 
   Future<String?> _addPost(
@@ -252,6 +257,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   _navigateToNotifications(ProfileState state) {
+    BlocProvider.of<NewNotificationsBloc>(context).add(
+      GetNotificationsEvent(context: context),
+    );
+
     if (state is ProfilePresentState) {
       setState(() {
         bottomNavBarIndex = 1;
@@ -483,9 +492,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         //   selectedIcon: Icon(Icons.forum_rounded),
         //   label: 'Wiadomości',
         // ),
-        const NavigationDestination(
-          icon: Icon(Icons.notifications_none_outlined),
-          selectedIcon: Icon(Icons.notifications_none_rounded),
+        NavigationDestination(
+          icon: BlocBuilder<NewNotificationsBloc, NewNotificationsState>(
+            builder: (context, state) {
+              if (state is NewNotificationsPresent) {
+                return Stack(
+                  children: const [
+                    Icon(Icons.notifications_none_outlined),
+                    Positioned(
+                      top: 1,
+                      right: 1,
+                      child: Icon(
+                        Icons.circle,
+                        size: 12,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                return const Icon(Icons.notifications_none_outlined);
+              }
+            },
+          ),
           label: 'Powiadomienia',
         ),
         BlocBuilder<ProfileBloc, ProfileState>(
@@ -555,6 +584,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       backgroundColor: primaryColor,
       onPressed: () async {
         await hejtoApi.markAllNotificationsAsRead(context: context);
+
+        BlocProvider.of<NewNotificationsBloc>(context).add(
+          GetNotificationsEvent(context: context),
+        );
+
+        setState(() {});
       },
       isExtended: true,
       icon: const Icon(Icons.task_alt),

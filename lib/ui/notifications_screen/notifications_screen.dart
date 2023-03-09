@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/new_notificationsbloc/new_notifications_bloc.dart';
 import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/notifications_screen/widgets/widgets.dart';
@@ -171,6 +173,14 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    _myNotificationsPagingController.refresh();
+    _followedNotificationsPagingController.refresh();
+
+    BlocProvider.of<NewNotificationsBloc>(context).add(
+      GetNotificationsEvent(context: context),
+    );
+
     return Padding(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Builder(builder: (context) {
@@ -183,6 +193,10 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                 labelColor: onPrimaryColor,
                 indicatorColor: primaryColor,
                 onTap: (value) {
+                  BlocProvider.of<NewNotificationsBloc>(context).add(
+                    GetNotificationsEvent(context: context),
+                  );
+
                   if (value == _currentTab) {
                     if (value == 0) {
                       _myNotificationsPagingController.refresh();

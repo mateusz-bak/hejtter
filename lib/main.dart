@@ -7,6 +7,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
+import 'package:hejtter/logic/bloc/new_notificationsbloc/new_notifications_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/ui/init_screen/init_screen.dart';
@@ -51,6 +52,9 @@ void main() async {
         BlocProvider<AuthBloc>(create: (context) => AuthBloc()),
         BlocProvider<ProfileBloc>(create: (context) => ProfileBloc()),
         BlocProvider<PreferencesBloc>(create: (context) => PreferencesBloc()),
+        BlocProvider<NewNotificationsBloc>(
+          create: (context) => NewNotificationsBloc(),
+        ),
       ],
       child: MaterialApp(
         darkTheme: ThemeData(

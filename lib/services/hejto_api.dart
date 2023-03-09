@@ -1910,10 +1910,15 @@ class HejtoApi {
     var queryParameters = {
       'limit': '$pageSize',
       'page': '$pageKey',
-      'type': type,
       'offset': '0',
       'orderDir': 'desc',
     };
+
+    if (type != null) {
+      queryParameters.addEntries(<String, String>{
+        'type': type,
+      }.entries);
+    }
 
     HttpClientRequest request = await client.getUrl(
       Uri.https(
@@ -1938,11 +1943,13 @@ class HejtoApi {
       return userNotificationFromJson(stringData).embedded?.items;
     } else if (response.statusCode == 401) {
       _loginAgainWithSavedCredentials(context);
+      return null;
     } else {
       _showFlushBar(
         context,
         'Błąd podczas pobierania powiadomień: ${response.statusCode}',
       );
+      return null;
     }
   }
 

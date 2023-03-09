@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hejtter/logic/bloc/new_notificationsbloc/new_notifications_bloc.dart';
 
 import 'package:hejtter/models/user_notification.dart';
 import 'package:hejtter/ui/notifications_screen/widgets/notification_card.dart';
@@ -34,7 +36,12 @@ class _NotificationsTabBarViewState extends State<NotificationsTabBarView>
     return RefreshIndicator(
       color: boltColor,
       onRefresh: () => Future.sync(
-        () => widget.controller.refresh(),
+        () {
+          widget.controller.refresh();
+          BlocProvider.of<NewNotificationsBloc>(context).add(
+            GetNotificationsEvent(context: context),
+          );
+        },
       ),
       child: Column(
         children: [

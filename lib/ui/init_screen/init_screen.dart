@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
+import 'package:hejtter/logic/bloc/new_notificationsbloc/new_notifications_bloc.dart';
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/main.dart';
 import 'package:hejtter/ui/home_screen/home_screen.dart';
@@ -105,6 +106,10 @@ class _InitScreenState extends State<InitScreen> {
               if (state is AuthorizedAuthState) {
                 BlocProvider.of<ProfileBloc>(context).add(
                   SetProfileEvent(context: context),
+                );
+
+                BlocProvider.of<NewNotificationsBloc>(context).add(
+                  GetNotificationsEvent(context: context),
                 );
 
                 return HomeScreen();
