@@ -1,8 +1,9 @@
-import 'dart:developer';
-
+import 'package:animated_widgets/animated_widgets.dart';
+import 'package:another_flushbar/flushbar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hejtter/logic/bloc/auth_bloc/auth_bloc.dart';
 import 'package:hejtter/logic/bloc/new_notificationsbloc/new_notifications_bloc.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
@@ -22,11 +23,13 @@ import 'package:hejtter/ui/notifications_screen/notifications_screen.dart';
 import 'package:hejtter/ui/post_screen/post_screen.dart';
 import 'package:hejtter/ui/posts_feed/posts_feed.dart';
 import 'package:hejtter/ui/search_screen/search_screen.dart';
+import 'package:hejtter/ui/settings_screen/widgets/widgets.dart';
 import 'package:hejtter/ui/user_screen/user_screen.dart';
 import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 import 'package:hejtter/utils/helpers.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({
@@ -129,7 +132,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Future<bool?> _decidePostsFollowed() async {
     final currentPage =
         await discussionsNavCubit.currentPostsCategoryFetcher.first;
-    log(currentPage.toString());
 
     if (currentPage == PostsCategory.followed) {
       return true;
@@ -170,7 +172,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         );
       }
     } catch (error) {
-      log(error.toString());
       _pagingController.error = error;
     }
 
@@ -308,6 +309,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    _showDonateSnackbar();
+
     return BlocBuilder<ProfileBloc, ProfileState>(
       builder: (context, state) {
         return WillPopScope(
@@ -332,6 +335,109 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         );
       },
     );
+  }
+
+  Future _updateDonateReminder() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        'update_donate_reminder', DateTime.now().toIso8601String());
+  }
+
+  _showDonateSnackbar() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? updateDonateReminder = prefs.getString(
+      'update_donate_reminder',
+    );
+
+    final lastReminderTime = updateDonateReminder != null
+        ? DateTime.parse(updateDonateReminder)
+        : null;
+
+    if (lastReminderTime != null) {
+      final daysDiference = DateTime.now().difference(lastReminderTime).inDays;
+
+      if (daysDiference < 14) {
+        return;
+      }
+    }
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    late Flushbar flush;
+    flush = Flushbar(
+      flushbarStyle: FlushbarStyle.FLOATING,
+      titleText: const Text(
+        'Donate dla developera aplikacji za dobrą robotę',
+        style: TextStyle(fontSize: 16),
+      ),
+      messageText: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ElevatedButton(
+            onPressed: () async {
+              await _updateDonateReminder();
+              flush.dismiss();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: backgroundColor,
+              foregroundColor: onPrimaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: const BorderSide(width: 1, color: dividerColor),
+              ),
+            ),
+            child: const Text('Nope'),
+          ),
+          const SizedBox(width: 20),
+          ElevatedButton(
+            onPressed: () async {
+              flush.dismiss();
+
+              await _updateDonateReminder();
+
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                elevation: 0,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                builder: (context) {
+                  return const DonateModal();
+                },
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: boltColor,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: const BorderSide(width: 1, color: dividerColor),
+              ),
+            ),
+            child: const Text('Jasne'),
+          ),
+        ],
+      ),
+      backgroundColor: backgroundSecondaryColor,
+      borderColor: dividerColor,
+      borderWidth: 1,
+      margin: const EdgeInsets.fromLTRB(5, 0, 5, 30),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      isDismissible: false,
+      animationDuration: const Duration(milliseconds: 250),
+      borderRadius: BorderRadius.circular(10),
+      icon: ShakeAnimatedWidget(
+        duration: const Duration(seconds: 2),
+        shakeAngle: Rotation.deg(z: 30),
+        curve: Curves.bounceInOut,
+        child: const Icon(
+          FontAwesomeIcons.sackDollar,
+          color: boltColor,
+          size: 28,
+        ),
+      ),
+    );
+
+    flush.show(context);
   }
 
   Widget _buildScaffoldBody() {

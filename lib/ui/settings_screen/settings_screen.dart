@@ -1,10 +1,13 @@
+import 'package:animated_widgets/animated_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hejtter/logic/bloc/preferences_bloc/preferences_bloc.dart';
 
 import 'package:hejtter/logic/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hejtter/services/hejto_api.dart';
 import 'package:hejtter/ui/settings_screen/widgets/widgets.dart';
+import 'package:hejtter/utils/constants.dart';
 import 'package:hejtter/utils/enums.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -146,7 +149,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
+        backgroundColor: backgroundColor,
+        scrolledUnderElevation: 0,
         title: const Text(
           'Ustawienia',
           style: TextStyle(fontSize: 20),
@@ -156,25 +162,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(10),
         child: Stack(
           children: [
-            _showNsfwLoading || _blurNsfwLoading || _showControversialLoading
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          LoadingAnimationWidget.staggeredDotsWave(
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 32,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20)
-                    ],
-                  )
-                : const SizedBox(),
             SingleChildScrollView(
               child: Column(children: [
+                _buildDonate(),
                 _buildAccountPreferences(),
                 _buildUnloggedBlacklist(),
                 const SettingsSection(
@@ -255,6 +245,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildAppVersion(),
               ]),
             ),
+            _showNsfwLoading || _blurNsfwLoading || _showControversialLoading
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+                            decoration: BoxDecoration(
+                              color: backgroundSecondaryColor,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: dividerColor),
+                            ),
+                            child: LoadingAnimationWidget.threeArchedCircle(
+                              color: boltColor,
+                              size: 32,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20)
+                    ],
+                  )
+                : const SizedBox(),
           ],
         ),
       ),
@@ -296,6 +311,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return const SizedBox();
         }
       },
+    );
+  }
+
+  Widget _buildDonate() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: GestureDetector(
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            elevation: 0,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            builder: (context) {
+              return const DonateModal();
+            },
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: backgroundSecondaryColor,
+            border: Border.all(color: dividerColor),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: ListTile(
+            title: const Text(
+              'Donate dla developera aplikacji',
+            ),
+            leading: ShakeAnimatedWidget(
+              duration: const Duration(seconds: 2),
+              shakeAngle: Rotation.deg(z: 30),
+              curve: Curves.bounceInOut,
+              child: const Icon(
+                FontAwesomeIcons.sackDollar,
+                color: boltColor,
+                size: 28,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -358,6 +415,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Pokazuj wpisy NSFW',
               value: true,
               onChanged: (value) {
+                if (_showNsfwLoading) {
+                  return;
+                }
+
                 _changeShowNsfwPref(value, state);
               },
             );
@@ -366,6 +427,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Pokazuj wpisy NSFW',
               value: false,
               onChanged: (value) {
+                if (_showNsfwLoading) {
+                  return;
+                }
+
                 _changeShowNsfwPref(value, state);
               },
             );
@@ -386,6 +451,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Rozmazuj obrazy NSFW',
               value: true,
               onChanged: (value) {
+                if (_blurNsfwLoading) {
+                  return;
+                }
                 _changeBlurNsfwPref(value, state);
               },
             );
@@ -394,6 +462,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Rozmazuj obrazy NSFW',
               value: false,
               onChanged: (value) {
+                if (_blurNsfwLoading) {
+                  return;
+                }
+
                 _changeBlurNsfwPref(value, state);
               },
             );
@@ -414,6 +486,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Pokazuj wpisy kontrowersyjne',
               value: true,
               onChanged: (value) {
+                if (_showControversialLoading) {
+                  return;
+                }
+
                 _changeShowControversialPref(value, state);
               },
             );
@@ -422,6 +498,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Pokazuj wpisy kontrowersyjne',
               value: false,
               onChanged: (value) {
+                if (_showControversialLoading) {
+                  return;
+                }
+
                 _changeShowControversialPref(value, state);
               },
             );

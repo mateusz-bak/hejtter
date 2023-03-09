@@ -5,3 +5,5 @@ export 'settings_dialog_button.dart';
 export 'settings_section.dart';
 export 'switch_setting.dart';
 export 'text_setting.dart';
+export 'contact_button.dart';
+export 'donate_modal.dart';

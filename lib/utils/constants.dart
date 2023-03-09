@@ -13,6 +13,9 @@ const hejtterCommunitySlug = 'hejtter';
 const hejtoUrl = 'www.hejto.pl';
 const hejtoApiUrl = 'api.hejto.pl';
 
+const githubSponsorUrl = 'https://github.com/sponsors/mateusz-bak';
+const buyMeCoffeUrl = 'https://www.buymeacoffee.com/mateuszbak';
+
 const defaultAvatar =
     'https://www.hejto.pl/_next/image?url=https%3A%2F%2Fhejto-media.s3.eu-central-1.amazonaws.com%2Fassets%2Fimages%2Fdefault-avatar-new.png&w=2048&q=75';
 
