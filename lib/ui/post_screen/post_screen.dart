@@ -857,7 +857,6 @@ class _PostScreenState extends State<PostScreen> {
                                       ? 10
                                       : 0),
                           _buildContent(),
-                          _buildTags(),
                           _buildPoll(),
                           post.type != 'article' && post.type != 'link'
                               ? _buildPicture()
@@ -1118,6 +1117,19 @@ class _PostScreenState extends State<PostScreen> {
         ),
         selectable: true,
         onTapLink: (text, href, title) {
+          if (text[0] == ('#')) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TagScreen(
+                  tag: text.replaceFirst('#', ''),
+                ),
+              ),
+            );
+
+            return;
+          }
+
           launchUrl(
             Uri.parse(href.toString()),
             mode: LaunchMode.externalApplication,

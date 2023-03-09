@@ -347,6 +347,23 @@ class _PostCardState extends State<PostCard>
                       );
                     }));
                   },
+                  onTapLink: (text, href, title) {
+                    if (text[0] == ('#')) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TagScreen(
+                            tag: text.replaceFirst('#', ''),
+                          ),
+                        ),
+                      );
+                    }
+
+                    launchUrl(
+                      Uri.parse(href.toString()),
+                      mode: LaunchMode.externalApplication,
+                    );
+                  },
                 ),
               ),
             ),
@@ -527,6 +544,19 @@ class _PostCardState extends State<PostCard>
           }));
         },
         onTapLink: (text, href, title) {
+          if (text[0] == ('#')) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TagScreen(
+                  tag: text.replaceFirst('#', ''),
+                ),
+              ),
+            );
+
+            return;
+          }
+
           launchUrl(
             Uri.parse(href.toString()),
             mode: LaunchMode.externalApplication,
