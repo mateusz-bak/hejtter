@@ -515,6 +515,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           onPressed: () {
                             showModalBottomSheet<void>(
                               context: context,
+                              isScrollControlled: true,
                               builder: (BuildContext context) {
                                 return HejtoPagesMenu(
                                   onPressed: (option) {
@@ -542,6 +543,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           onPressed: () {
                             showModalBottomSheet<void>(
                               context: context,
+                              isScrollControlled: true,
                               builder: (BuildContext context) {
                                 return PostCategoriesMenu(
                                   onPressed: (option) {

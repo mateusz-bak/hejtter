@@ -31,7 +31,7 @@ class HejtoPagesMenu extends StatelessWidget {
     return Container(
       color: Colors.transparent,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
         decoration: const BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.only(

@@ -41,7 +41,7 @@ class PostCategoriesMenu extends StatelessWidget {
     return Container(
       color: Colors.transparent,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
         decoration: const BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.only(
@@ -64,7 +64,7 @@ class PostCategoriesMenu extends StatelessWidget {
     for (var option in options) {
       widgets.add(
         option == null
-            ? const SizedBox(height: 20)
+            ? const SizedBox(height: 10)
             : StreamBuilder<PostsCategory>(
                 stream: discussionsNavCubit.currentPostsCategoryFetcher,
                 builder: (context, snapshot) {
